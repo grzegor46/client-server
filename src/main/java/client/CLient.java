@@ -42,7 +42,7 @@ public class CLient {
 
                 System.out.println("Server: " + bufferedReader.readLine());
 
-                if(msgToSend.equalsIgnoreCase("BYE")) {
+                if(msgToSend.equalsIgnoreCase("stop")) {
                     break;
                 }
             }
