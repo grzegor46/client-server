@@ -9,6 +9,7 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
 
+
         Socket socketCLient = null;
         ServerSocket serverSocket = null;
         InputStreamReader inputStreamReader = null;
