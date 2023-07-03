@@ -4,11 +4,11 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class Server {
 
     public static void main(String[] args) throws IOException {
-
 
         Socket socket = null;
         ServerSocket serverSocket = null;
@@ -21,6 +21,8 @@ public class Server {
         prop.load(inputStream);
 
         serverSocket = new ServerSocket(Integer.parseInt(prop.getProperty("server.port")));
+
+        Scanner scanner = new Scanner(System.in);
 
         try {
 
@@ -35,12 +37,12 @@ public class Server {
 
             while (true) {
 
-
                 String msgFromClient = bufferedReader.readLine();
 
                 System.out.println("Client: " + msgFromClient);
 
-                bufferedWriter.write("Message received");
+                String msgToClient = scanner.nextLine();
+                bufferedWriter.write(msgToClient);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
 
@@ -58,9 +60,6 @@ public class Server {
             e.printStackTrace();
         }
     }
-
-
-
 
 
 }

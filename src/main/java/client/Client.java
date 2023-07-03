@@ -1,12 +1,11 @@
 package client;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 import java.util.Scanner;
 
-public class CLient {
+public class Client {
 
     public static void main(String[] args) throws IOException {
 
