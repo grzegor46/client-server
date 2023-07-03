@@ -3,6 +3,8 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Properties;
 import java.util.Scanner;
@@ -16,6 +18,7 @@ public class Server {
     private BufferedReader bufferedReader = null;
     private BufferedWriter bufferedWriter = null;
     private String createdServerDate = LocalDate.now().toString();
+    private Instant createdInstant = Instant.now();
     private Scanner scanner = new Scanner(System.in);
     private String applicationVersion;
 
@@ -67,8 +70,8 @@ public class Server {
                 return getHelpCommand();
             case "info":
                 return getInfoCommand();
-//            case "uptime":
-//                return getUpTimeCommand();
+            case "uptime":
+                return getUpTimeCommand();
 //            case "stop":
 //                return getStopServerCommand();
             default:
@@ -83,6 +86,17 @@ public class Server {
     private String getInfoCommand(){
 
         return "server was created: " + createdServerDate + ", version of this app is: " + applicationVersion ;
+    }
+
+//    TODO refactor --> after 60 sec is 61 and get more
+    private String getUpTimeCommand() {
+        Duration duration = Duration.between(createdInstant, Instant.now());
+        long getSeconds = duration.getSeconds();
+        long getMinutes = getSeconds/60;
+        long getHours = getMinutes/24;
+        long getDays = getHours/24;
+        String time = String.valueOf(getDays + "days : " +getHours+ "hours : " + getMinutes+ "minutes : " + getSeconds+"seconds ");
+        return time;
     }
 
     private void closeConnection() throws IOException {
