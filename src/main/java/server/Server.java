@@ -57,7 +57,6 @@ public class Server {
                 } else {
                     break;
                 }
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,7 +87,6 @@ public class Server {
         return "server was created: " + createdServerDate + ", version of this app is: " + applicationVersion ;
     }
 
-//    TODO refactor --> after 60 sec is 61 and gets more
     private String getUpTimeCommand() {
         Duration duration = Duration.between(createdInstant, Instant.now());
         long durationSeconds = duration.getSeconds() % 60;

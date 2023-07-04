@@ -6,7 +6,7 @@ import java.util.Properties;
 import java.util.Scanner;
 
 public class Client {
-
+//TODO refactor main method
     public static void main(String[] args) throws IOException {
 
         Socket socket = null;
