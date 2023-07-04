@@ -30,18 +30,19 @@ public class Server {
         applicationVersion = prop.getProperty("application.version");
     }
 
+    private void acceptClientAndCreateStreams() throws IOException {
+        socket = serverSocket.accept();
+        inputStreamReader = new InputStreamReader(socket.getInputStream());
+        outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
+
+        bufferedReader = new BufferedReader(inputStreamReader);
+        bufferedWriter = new BufferedWriter(outputStreamWriter);
+    }
+
     private void startServer() throws IOException {
 
         try {
-
-            socket = serverSocket.accept();
-
-            inputStreamReader = new InputStreamReader(socket.getInputStream());
-            outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
-
-            bufferedReader = new BufferedReader(inputStreamReader);
-            bufferedWriter = new BufferedWriter(outputStreamWriter);
-
+            acceptClientAndCreateStreams();
             while (true) {
 
                 String msgFromClient = bufferedReader.readLine();
