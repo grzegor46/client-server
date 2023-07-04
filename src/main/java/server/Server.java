@@ -48,12 +48,13 @@ public class Server {
 
                 System.out.println("Client: " + msgFromClient);
 
-                String msgToClient = returnResponse(msgFromClient);
-                bufferedWriter.write(msgToClient);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
+                if(!msgFromClient.contains("stop")) {
+                    String msgToClient = returnResponse(msgFromClient);
 
-                if (msgFromClient.equalsIgnoreCase("stop")) {
+                    bufferedWriter.write(msgToClient);
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                } else {
                     break;
                 }
 
@@ -64,7 +65,7 @@ public class Server {
         closeConnection();
     }
 
-    private String returnResponse(String msgFromClient) {
+    private String returnResponse(String msgFromClient) throws IOException {
         switch (msgFromClient) {
             case "help":
                 return getHelpCommand();
@@ -72,8 +73,8 @@ public class Server {
                 return getInfoCommand();
             case "uptime":
                 return getUpTimeCommand();
-//            case "stop":
-//                return getStopServerCommand();
+            case "stop":
+                closeConnection();
             default:
                 return scanner.nextLine();
         }
@@ -84,27 +85,27 @@ public class Server {
     }
 
     private String getInfoCommand(){
-
         return "server was created: " + createdServerDate + ", version of this app is: " + applicationVersion ;
     }
 
-//    TODO refactor --> after 60 sec is 61 and get more
+//    TODO refactor --> after 60 sec is 61 and gets more
     private String getUpTimeCommand() {
         Duration duration = Duration.between(createdInstant, Instant.now());
-        long getSeconds = duration.getSeconds();
-        long getMinutes = getSeconds/60;
-        long getHours = getMinutes/24;
-        long getDays = getHours/24;
-        String time = String.valueOf(getDays + "days : " +getHours+ "hours : " + getMinutes+ "minutes : " + getSeconds+"seconds ");
-        return time;
+        long durationSeconds = duration.getSeconds() % 60;
+        long durationMinutes = duration.toMinutes() % 60;
+        long durationHours = duration.toHours();
+        long durationDays = duration.toDays();
+
+        return durationDays + "days : " +durationHours+ "hours : " + durationMinutes+ "minutes : " + durationSeconds+"seconds ";
     }
 
     private void closeConnection() throws IOException {
-        socket.close();
-        inputStreamReader.close();
-        outputStreamWriter.close();
         bufferedReader.close();
         bufferedWriter.close();
+        inputStreamReader.close();
+        outputStreamWriter.close();
+        socket.close();
+        serverSocket.close();
     }
 
     public static void main(String[] args) throws IOException {
