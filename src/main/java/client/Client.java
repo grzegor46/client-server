@@ -1,12 +1,9 @@
 package client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -18,10 +15,6 @@ public class Client {
     private OutputStreamWriter outputStreamWriter = null;
     private BufferedReader bufferedReader = null;
     private BufferedWriter bufferedWriter = null;
-    private String createdServerDate = LocalDate.now().toString();
-    private Instant createdInstant = Instant.now();
-    private String applicationVersion;
-    private ObjectMapper objectMapper = new ObjectMapper();
     private int serverPort;
     private String hostNameServer;
 
@@ -49,7 +42,6 @@ public class Client {
             connectToServerAndCreateStreams();
 
             Scanner scanner = new Scanner(System.in);
-            String msgFromServer = null;
             while (true) {
 
                 String msgToSend = scanner.nextLine();
@@ -58,7 +50,7 @@ public class Client {
                 bufferedWriter.flush();
 
 
-                msgFromServer =  bufferedReader.readLine();
+                String msgFromServer =  bufferedReader.readLine();
 
                 System.out.println("Server: " + msgFromServer);
 
