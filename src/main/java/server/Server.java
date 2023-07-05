@@ -1,10 +1,8 @@
 package server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.JsonObject;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,7 +22,6 @@ public class Server {
     private BufferedWriter bufferedWriter = null;
     private String createdServerDate = LocalDate.now().toString();
     private Instant createdInstant = Instant.now();
-    private Scanner scanner = new Scanner(System.in);
     private String applicationVersion;
     private ObjectMapper objectMapper = new ObjectMapper();
 
