@@ -1,5 +1,10 @@
 package server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonObject;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,6 +26,7 @@ public class Server {
     private Instant createdInstant = Instant.now();
     private Scanner scanner = new Scanner(System.in);
     private String applicationVersion;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private void loadProperties() throws IOException {
         InputStream inputStream = new FileInputStream("src/main/resources/application-server.properties");
@@ -76,26 +82,44 @@ public class Server {
             case "stop":
                 closeConnection();
             default:
-                return scanner.nextLine();
+                return "Invalid command";
         }
     }
 
-    private String getHelpCommand(){
-        return "_uptime_ - zwraca czas życia serwera, _info_ - zwraca numer wersji serwera, datę jego utworzenia, _help_ - zwraca listę dostępnych komend z krótkim opisem (tych komend, z tej listy, którą właśnie czytasz, czyli inaczej, komend realizowanych przez serwer), _stop_ - zatrzymuje jednocześnie serwer i klienta";
+    private String getHelpCommand() {
+        ObjectNode helpCommandAsJson = objectMapper.createObjectNode();
+        helpCommandAsJson.put("info","zwraca numer wersji serwera, datę jego utworzenia");
+        helpCommandAsJson.put("uptime","zwraca czas życia serwera");
+        helpCommandAsJson.put("help","zwraca listę dostępnych komend z krótkim opisem");
+        helpCommandAsJson.put("stop","zatrzymuje jednocześnie serwer i klienta");
+
+        String jsonString = helpCommandAsJson.toString();
+        return jsonString;
     }
 
     private String getInfoCommand(){
-        return "server was created: " + createdServerDate + ", version of this app is: " + applicationVersion ;
+        ObjectNode infoCommandAsJson = objectMapper.createObjectNode();
+        infoCommandAsJson.put("createdServerDate",createdServerDate);
+        infoCommandAsJson.put("appVersion",applicationVersion);
+
+        String jsonString = infoCommandAsJson.toString();
+        return jsonString;
     }
 
     private String getUpTimeCommand() {
+        ObjectNode upTimeCommandAsJson = objectMapper.createObjectNode();
         Duration duration = Duration.between(createdInstant, Instant.now());
         long durationSeconds = duration.getSeconds() % 60;
         long durationMinutes = duration.toMinutes() % 60;
         long durationHours = duration.toHours();
         long durationDays = duration.toDays();
+        upTimeCommandAsJson.put("days",durationDays);
+        upTimeCommandAsJson.put("hours",durationHours);
+        upTimeCommandAsJson.put("minutes",durationMinutes);
+        upTimeCommandAsJson.put("seconds",durationSeconds);
 
-        return durationDays + "days : " +durationHours+ "hours : " + durationMinutes+ "minutes : " + durationSeconds+"seconds ";
+        String jsonString = upTimeCommandAsJson.toString();
+        return jsonString;
     }
 
     private void closeConnection() throws IOException {
