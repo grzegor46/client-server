@@ -2,7 +2,6 @@ package client;
 
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 import java.util.Scanner;
@@ -10,7 +9,6 @@ import java.util.Scanner;
 public class Client {
 
     private Socket socket = null;
-    private ServerSocket serverSocket = null;
     private InputStreamReader inputStreamReader = null;
     private OutputStreamWriter outputStreamWriter = null;
     private BufferedReader bufferedReader = null;
@@ -19,7 +17,7 @@ public class Client {
     private String hostNameServer;
 
     private void loadProperties() throws IOException {
-        InputStream inputStream = new FileInputStream("src/main/resources/application.properties");
+        InputStream inputStream = new FileInputStream("src/main/resources/application-server.properties");
         Properties prop = new Properties();
         prop.load(inputStream);
         serverPort = Integer.parseInt(prop.getProperty("server.port"));
@@ -51,7 +49,10 @@ public class Client {
 
 
                 String msgFromServer =  bufferedReader.readLine();
-
+                if(msgFromServer == null) {
+                    closeConnection();
+                    break;
+                }
                 System.out.println("Server: " + msgFromServer);
 
             }
@@ -68,7 +69,6 @@ public class Client {
         inputStreamReader.close();
         outputStreamWriter.close();
         socket.close();
-        serverSocket.close();
     }
 
     public static void main(String[] args) throws IOException {
