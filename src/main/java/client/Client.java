@@ -26,7 +26,7 @@ public class Client {
     private String hostNameServer;
 
     private void loadProperties() throws IOException {
-        InputStream inputStream = new FileInputStream("src/main/resources/application-server.properties");
+        InputStream inputStream = new FileInputStream("src/main/resources/application.properties");
         Properties prop = new Properties();
         prop.load(inputStream);
         serverPort = Integer.parseInt(prop.getProperty("server.port"));
