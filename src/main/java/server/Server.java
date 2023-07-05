@@ -126,6 +126,7 @@ public class Server {
         outputStreamWriter.close();
         socket.close();
         serverSocket.close();
+
     }
 
     public static void main(String[] args) throws IOException {
@@ -133,5 +134,4 @@ public class Server {
         server.loadProperties();
         server.startServer();
     }
-
 }
