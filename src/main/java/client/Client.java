@@ -18,20 +18,14 @@ public class Client {
     private String hostNameServer = LoadProperties.hostNameServer;
 
 
-    private void connectToServerAndCreateStreams() throws IOException {
-        socket = new Socket(hostNameServer, serverPort);
-        inputStreamReader = new InputStreamReader(socket.getInputStream());
-        outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
-
-        bufferedReader = new BufferedReader(inputStreamReader);
-        bufferedWriter = new BufferedWriter(outputStreamWriter);
-    }
-
     private void startConnection() throws IOException {
 
         try {
 
-            connectToServerAndCreateStreams();
+            socket = new Socket(hostNameServer, serverPort);
+
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
             Scanner scanner = new Scanner(System.in);
             while (true) {
@@ -44,6 +38,7 @@ public class Client {
 
                 String msgFromServer = bufferedReader.readLine();
                 if (msgFromServer == null) {
+//                    TODO not working after sent stop msg
                     throw new NoConnectionToTheServer("No connection to the server");
                 }
                 System.out.println("Server: " + msgFromServer);
