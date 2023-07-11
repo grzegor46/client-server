@@ -1,6 +1,9 @@
 package client;
 
 
+import exception.NotLoadedPropertiesException;
+import utils.LoadProperties;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Properties;
@@ -13,16 +16,9 @@ public class Client {
     private OutputStreamWriter outputStreamWriter = null;
     private BufferedReader bufferedReader = null;
     private BufferedWriter bufferedWriter = null;
-    private int serverPort;
-    private String hostNameServer;
+    private int serverPort = LoadProperties.serverPort;
+    private String hostNameServer = LoadProperties.hostNameServer;
 
-    private void loadProperties() throws IOException {
-        InputStream inputStream = new FileInputStream("src/main/resources/application-server.properties");
-        Properties prop = new Properties();
-        prop.load(inputStream);
-        serverPort = Integer.parseInt(prop.getProperty("server.port"));
-        hostNameServer = prop.getProperty("server.host");
-    }
 
     private void connectToServerAndCreateStreams() throws IOException {
         socket = new Socket(hostNameServer, serverPort);
@@ -73,7 +69,6 @@ public class Client {
 
     public static void main(String[] args) throws IOException {
         Client client = new Client();
-        client.loadProperties();
         client.startConnection();
     }
 }

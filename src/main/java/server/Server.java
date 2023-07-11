@@ -3,6 +3,8 @@ package server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import utils.LoadProperties;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,23 +16,16 @@ import java.util.Properties;
 public class Server {
 
     private Socket socket = null;
-    private ServerSocket serverSocket = null;
+    private ServerSocket serverSocket;
     private InputStreamReader inputStreamReader = null;
     private OutputStreamWriter outputStreamWriter = null;
     private BufferedReader bufferedReader = null;
     private BufferedWriter bufferedWriter = null;
     private String createdServerDate = LocalDate.now().toString();
-    private Instant createdInstant = Instant.now();
-    private String applicationVersion;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final Instant createdInstant = Instant.now();
+    private final String applicationVersion = LoadProperties.applicationVersion;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private void loadProperties() throws IOException {
-        InputStream inputStream = new FileInputStream("src/main/resources/application-server.properties");
-        Properties prop = new Properties();
-        prop.load(inputStream);
-        serverSocket = new ServerSocket(Integer.parseInt(prop.getProperty("server.port")));
-        applicationVersion = prop.getProperty("application.version");
-    }
 
     private void acceptClientAndCreateStreams() throws IOException {
         socket = serverSocket.accept();
@@ -44,6 +39,7 @@ public class Server {
     private void startServer() throws IOException {
 
         try {
+            serverSocket = new ServerSocket(LoadProperties.serverPort);
             acceptClientAndCreateStreams();
             while (true) {
 
@@ -130,7 +126,6 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
         Server server = new Server();
-        server.loadProperties();
         server.startServer();
     }
 }
