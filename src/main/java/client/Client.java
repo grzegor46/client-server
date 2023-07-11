@@ -1,12 +1,10 @@
 package client;
 
 
-import exception.NotLoadedPropertiesException;
+import exception.NoConnectionToTheServer;
 import utils.LoadProperties;
-
 import java.io.*;
 import java.net.Socket;
-import java.util.Properties;
 import java.util.Scanner;
 
 public class Client {
@@ -44,27 +42,29 @@ public class Client {
                 bufferedWriter.flush();
 
 
-                String msgFromServer =  bufferedReader.readLine();
-                if(msgFromServer == null) {
-                    closeConnection();
-                    break;
+                String msgFromServer = bufferedReader.readLine();
+                if (msgFromServer == null) {
+                    throw new NoConnectionToTheServer("No connection to the server");
                 }
                 System.out.println("Server: " + msgFromServer);
-
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } finally {
+            System.out.println("closing connection");
+            closeConnection();
         }
-        closeConnection();
     }
 
-    private void closeConnection() throws IOException {
-        bufferedReader.close();
-        bufferedWriter.close();
-        inputStreamReader.close();
-        outputStreamWriter.close();
-        socket.close();
+    private void closeConnection() {
+        try {
+            bufferedReader.close();
+            bufferedWriter.close();
+            inputStreamReader.close();
+            outputStreamWriter.close();
+            socket.close();
+        }catch(IOException e) {
+            System.out.println("attempt to close all stream failed");
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws IOException {

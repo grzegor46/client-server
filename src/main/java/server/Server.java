@@ -59,8 +59,9 @@ public class Server {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            closeConnection();
         }
-        closeConnection();
     }
 
     private String returnResponse(String msgFromClient) throws IOException {
@@ -121,7 +122,6 @@ public class Server {
         outputStreamWriter.close();
         socket.close();
         serverSocket.close();
-
     }
 
     public static void main(String[] args) throws IOException {
