@@ -2,6 +2,7 @@ package client;
 
 
 import exception.NoConnectionToTheServer;
+import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
 
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class ClientConnectionImpl implements ClientConnection {
+public class ClientConnectionImpl implements Connection {
 
     private final int serverPort = PropertiesUtils.serverPort;
     private final String hostNameServer = PropertiesUtils.hostNameServer;

@@ -1,15 +1,13 @@
 package client;
 
+import utils.Connection;
+
 public class Client {
 
-    ClientConnection clientConnection = new ClientConnectionImpl();
+    Connection connection = new ClientConnectionImpl();
 
     public static void main(String[] args) {
         Client client = new Client();
-        client.start();
-    }
-
-    private void start() {
-        clientConnection.startConnection();
+        client.connection.startConnection();
     }
 }
