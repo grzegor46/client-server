@@ -4,6 +4,7 @@ package server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import utils.PropertiesUtils;
+import utils.Stream;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -16,42 +17,32 @@ public class Server {
 
     private Socket socket = null;
     private ServerSocket serverSocket;
-    private InputStreamReader inputStreamReader = null;
-    private OutputStreamWriter outputStreamWriter = null;
-    private BufferedReader bufferedReader = null;
-    private BufferedWriter bufferedWriter = null;
     private String createdServerDate = LocalDate.now().toString();
     private final Instant createdInstant = Instant.now();
     private final String applicationVersion = PropertiesUtils.applicationVersion;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private Stream stream = null;
 
-
-    private void acceptClientAndCreateStreams() throws IOException {
-        socket = serverSocket.accept();
-        inputStreamReader = new InputStreamReader(socket.getInputStream());
-        outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
-
-        bufferedReader = new BufferedReader(inputStreamReader);
-        bufferedWriter = new BufferedWriter(outputStreamWriter);
-    }
-
-    private void startServer() throws IOException {
+        private void startServer() throws IOException {
 
         try {
+
             serverSocket = new ServerSocket(PropertiesUtils.serverPort);
-            acceptClientAndCreateStreams();
+            socket = serverSocket.accept();
+            this.stream = new Stream(socket);
+
             while (true) {
 
-                String msgFromClient = bufferedReader.readLine();
+                String msgFromClient = stream.bufferedReader.readLine();
 
                 System.out.println("Client: " + msgFromClient);
 
                 if(!msgFromClient.contains("stop")) {
                     String msgToClient = returnResponse(msgFromClient);
 
-                    bufferedWriter.write(msgToClient);
-                    bufferedWriter.newLine();
-                    bufferedWriter.flush();
+                    stream.bufferedWriter.write(msgToClient);
+                    stream.bufferedWriter.newLine();
+                    stream.bufferedWriter.flush();
                 } else {
                     break;
                 }
@@ -115,12 +106,9 @@ public class Server {
     }
 
     private void closeConnection() throws IOException {
-        bufferedReader.close();
-        bufferedWriter.close();
-        inputStreamReader.close();
-        outputStreamWriter.close();
         socket.close();
         serverSocket.close();
+        stream.closeStreams();
     }
 
     public static void main(String[] args) throws IOException {
