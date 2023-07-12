@@ -1,7 +1,8 @@
 package client;
 
 
-import utils.LoadProperties;
+import exception.NoConnectionToTheServer;
+import utils.PropertiesUtils;
 import utils.Stream;
 
 import java.io.IOException;
@@ -11,8 +12,8 @@ import java.util.Scanner;
 public class Client {
 
     private Socket socket = null;
-    private final int serverPort = LoadProperties.serverPort;
-    private final String hostNameServer = LoadProperties.hostNameServer;
+    private final int serverPort = PropertiesUtils.serverPort;
+    private final String hostNameServer = PropertiesUtils.hostNameServer;
     private Stream stream = null;
 
     public static void main(String[] args) throws IOException {
@@ -36,9 +37,8 @@ public class Client {
 
                 String msgFromServer = stream.bufferedReader.readLine();
                 if (msgFromServer == null) {
-                    System.out.println("server is closed");
                     scanner.close();
-                    break;
+                    throw new NoConnectionToTheServer("server is not responding");
                 }
                 System.out.println("Server: " + msgFromServer);
             }

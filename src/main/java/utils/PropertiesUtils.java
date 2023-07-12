@@ -1,6 +1,6 @@
 package utils;
 
-public class LoadProperties {
+public class PropertiesUtils {
 
     public static int serverPort = 1234;
     public static String hostNameServer = "localhost";

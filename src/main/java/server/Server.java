@@ -3,7 +3,7 @@ package server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import utils.LoadProperties;
+import utils.PropertiesUtils;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -22,7 +22,7 @@ public class Server {
     private BufferedWriter bufferedWriter = null;
     private String createdServerDate = LocalDate.now().toString();
     private final Instant createdInstant = Instant.now();
-    private final String applicationVersion = LoadProperties.applicationVersion;
+    private final String applicationVersion = PropertiesUtils.applicationVersion;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -38,7 +38,7 @@ public class Server {
     private void startServer() throws IOException {
 
         try {
-            serverSocket = new ServerSocket(LoadProperties.serverPort);
+            serverSocket = new ServerSocket(PropertiesUtils.serverPort);
             acceptClientAndCreateStreams();
             while (true) {
 
