@@ -1,7 +1,6 @@
 package server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import message.Message;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
@@ -9,7 +8,6 @@ import utils.Stream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -17,11 +15,11 @@ public class ServerConnectionImpl implements Connection {
 
     private final Instant createdInstant = Instant.now();
     private final String applicationVersion = PropertiesUtils.applicationVersion;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String createdServerDate = LocalDate.now().toString();
     private Socket socket = null;
     private ServerSocket serverSocket;
-    private final String createdServerDate = LocalDate.now().toString();
     private Stream stream = null;
+    private Message message;
 
 
     @Override
@@ -32,6 +30,7 @@ public class ServerConnectionImpl implements Connection {
             serverSocket = new ServerSocket(PropertiesUtils.serverPort);
             socket = serverSocket.accept();
             this.stream = new Stream(socket);
+            this.message = new Message();
 
             while (true) {
 
@@ -54,7 +53,6 @@ public class ServerConnectionImpl implements Connection {
         } finally {
             closeConnection();
         }
-
     }
 
     @Override
@@ -73,52 +71,16 @@ public class ServerConnectionImpl implements Connection {
     private String returnResponse(String msgFromClient) throws IOException {
         switch (msgFromClient) {
             case "help":
-                return getHelpCommand();
+                return message.getHelp();
             case "info":
-                return getInfoCommand();
+                return message.getInfo(createdServerDate, applicationVersion);
             case "uptime":
-                return getUpTimeCommand();
+                return message.getUpTime(createdInstant);
             case "stop":
                 closeConnection();
             default:
                 return "Invalid command";
         }
-    }
-
-    private String getHelpCommand() {
-        ObjectNode helpCommandAsJson = objectMapper.createObjectNode();
-        helpCommandAsJson.put("info", "zwraca numer wersji serwera, datę jego utworzenia");
-        helpCommandAsJson.put("uptime", "zwraca czas życia serwera");
-        helpCommandAsJson.put("help", "zwraca listę dostępnych komend z krótkim opisem");
-        helpCommandAsJson.put("stop", "zatrzymuje jednocześnie serwer i klienta");
-
-        String jsonString = helpCommandAsJson.toString();
-        return jsonString;
-    }
-
-    private String getInfoCommand() {
-        ObjectNode infoCommandAsJson = objectMapper.createObjectNode();
-        infoCommandAsJson.put("createdServerDate", createdServerDate);
-        infoCommandAsJson.put("appVersion", applicationVersion);
-
-        String jsonString = infoCommandAsJson.toString();
-        return jsonString;
-    }
-
-    private String getUpTimeCommand() {
-        ObjectNode upTimeCommandAsJson = objectMapper.createObjectNode();
-        Duration duration = Duration.between(createdInstant, Instant.now());
-        long durationSeconds = duration.getSeconds() % 60;
-        long durationMinutes = duration.toMinutes() % 60;
-        long durationHours = duration.toHours();
-        long durationDays = duration.toDays();
-        upTimeCommandAsJson.put("days", durationDays);
-        upTimeCommandAsJson.put("hours", durationHours);
-        upTimeCommandAsJson.put("minutes", durationMinutes);
-        upTimeCommandAsJson.put("seconds", durationSeconds);
-
-        String jsonString = upTimeCommandAsJson.toString();
-        return jsonString;
     }
 
 }
