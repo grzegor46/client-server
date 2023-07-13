@@ -50,6 +50,7 @@ public class ServerConnectionImpl implements Connection {
                 }
             }
         } catch (IOException e) {
+            System.out.println("server encountered an error ");
             e.printStackTrace();
         } finally {
             closeConnection();
