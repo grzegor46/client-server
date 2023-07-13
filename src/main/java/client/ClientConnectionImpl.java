@@ -38,7 +38,7 @@ public class ClientConnectionImpl implements Connection {
                 System.out.println("Server: " + msgFromServer);
             }
         } catch (IOException e) {
-            System.out.println("failed to start connection to the server.");
+            System.out.println("client encountered an error ");
             e.printStackTrace();
         } finally {
             closeConnection();

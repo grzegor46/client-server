@@ -45,6 +45,7 @@ public class ServerConnectionImpl implements Connection {
                     stream.bufferedWriter.newLine();
                     stream.bufferedWriter.flush();
                 } else {
+                    System.out.println("received 'stop' command from client");
                     break;
                 }
             }
@@ -52,19 +53,6 @@ public class ServerConnectionImpl implements Connection {
             e.printStackTrace();
         } finally {
             closeConnection();
-        }
-    }
-
-    @Override
-    public void closeConnection() {
-        try {
-            stream.closeStreams();
-            socket.close();
-            serverSocket.close();
-            System.out.println("connection closed");
-        } catch (IOException e) {
-            System.out.println("attempt to close all streams failed");
-            e.printStackTrace();
         }
     }
 
@@ -80,6 +68,19 @@ public class ServerConnectionImpl implements Connection {
                 closeConnection();
             default:
                 return "Invalid command";
+        }
+    }
+
+    @Override
+    public void closeConnection() {
+        try {
+            stream.closeStreams();
+            socket.close();
+            serverSocket.close();
+            System.out.println("connection closed");
+        } catch (IOException e) {
+            System.out.println("attempt to close all streams failed");
+            e.printStackTrace();
         }
     }
 
