@@ -33,12 +33,12 @@ public class ClientConnectionImpl implements Connection {
 
                 String msgFromServer = stream.bufferedReader.readLine();
                 if (msgFromServer == null) {
-                    throw new NoConnectionToTheServer("no connection with the server");
+                    throw new NoConnectionToTheServer("No connection with the server");
                 }
                 System.out.println("Server: " + msgFromServer);
             }
         } catch (IOException e) {
-            System.out.println("client encountered an error ");
+            System.out.println("Client encountered an error ");
             e.printStackTrace();
         } finally {
             closeConnection();
@@ -50,9 +50,9 @@ public class ClientConnectionImpl implements Connection {
         try {
             stream.closeStreams();
             socket.close();
-            System.out.println("connection closed");
+            System.out.println("Client: connection closed");
         } catch (IOException e) {
-            System.out.println("attempt to close all streams failed");
+            System.out.println("Attempt to close all streams failed");
             e.printStackTrace();
         }
     }

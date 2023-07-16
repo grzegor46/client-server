@@ -45,12 +45,12 @@ public class ServerConnectionImpl implements Connection {
                     stream.bufferedWriter.newLine();
                     stream.bufferedWriter.flush();
                 } else {
-                    System.out.println("received 'stop' command from client");
+                    System.out.println("Received 'stop' command from client");
                     break;
                 }
             }
         } catch (IOException e) {
-            System.out.println("server encountered an error ");
+            System.out.println("Server encountered an error ");
             e.printStackTrace();
         } finally {
             closeConnection();
@@ -78,9 +78,9 @@ public class ServerConnectionImpl implements Connection {
             stream.closeStreams();
             socket.close();
             serverSocket.close();
-            System.out.println("connection closed");
+            System.out.println("Server: connection closed");
         } catch (IOException e) {
-            System.out.println("attempt to close all streams failed");
+            System.out.println("Attempt to close all streams failed");
             e.printStackTrace();
         }
     }
