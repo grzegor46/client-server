@@ -1,5 +1,6 @@
 package server;
 
+import exception.ConnectionLostException;
 import message.Message;
 import utils.Connection;
 import utils.PropertiesUtils;
@@ -46,7 +47,8 @@ public class ServerConnectionImpl implements Connection {
                     stream.bufferedWriter.flush();
                 } else {
                     System.out.println("Received 'stop' command from client");
-                    break;
+                    throw new ConnectionLostException("The connection has been terminated");
+
                 }
             }
         } catch (IOException e) {
@@ -75,9 +77,9 @@ public class ServerConnectionImpl implements Connection {
     @Override
     public void closeConnection() {
         try {
+            serverSocket.close();
             stream.closeStreams();
             socket.close();
-            serverSocket.close();
             System.out.println("Server: connection closed");
         } catch (IOException e) {
             System.out.println("Attempt to close all streams failed");

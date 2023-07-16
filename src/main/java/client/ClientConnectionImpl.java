@@ -1,7 +1,6 @@
 package client;
 
 
-import exception.NoConnectionToTheServer;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
@@ -27,13 +26,14 @@ public class ClientConnectionImpl implements Connection {
             Scanner scanner = new Scanner(System.in);
             while (true) {
 
-                stream.bufferedWriter.write(scanner.nextLine());
+                String msgToServer = scanner.nextLine();
+                stream.bufferedWriter.write(msgToServer);
                 stream.bufferedWriter.newLine();
                 stream.bufferedWriter.flush();
 
                 String msgFromServer = stream.bufferedReader.readLine();
-                if (msgFromServer == null) {
-                    throw new NoConnectionToTheServer("No connection with the server");
+                if (msgFromServer == null && msgToServer.equals("stop")) {
+                    break;
                 }
                 System.out.println("Server: " + msgFromServer);
             }
