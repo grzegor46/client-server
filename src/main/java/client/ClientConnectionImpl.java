@@ -34,7 +34,7 @@ public class ClientConnectionImpl implements Connection {
 
                 String msgFromServer = stream.bufferedReader.readLine();
                 if (msgFromServer == null && msgToServer.equals("stop")) {
-                    throw new ConnectionLostException("The connection has been terminated");
+                    break;
                 }
                 System.out.println("Server: " + msgFromServer);
             }
