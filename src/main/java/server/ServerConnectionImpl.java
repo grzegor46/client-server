@@ -47,7 +47,7 @@ public class ServerConnectionImpl implements Connection {
                     stream.bufferedWriter.flush();
                 } else {
                     System.out.println("Received 'stop' command from client");
-                    throw new ConnectionLostException("The connection has been terminated");
+                    break;
 
                 }
             }

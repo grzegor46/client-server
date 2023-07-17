@@ -1,6 +1,7 @@
 package client;
 
 
+import exception.ConnectionLostException;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
@@ -33,7 +34,7 @@ public class ClientConnectionImpl implements Connection {
 
                 String msgFromServer = stream.bufferedReader.readLine();
                 if (msgFromServer == null && msgToServer.equals("stop")) {
-                    break;
+                    throw new ConnectionLostException("The connection has been terminated");
                 }
                 System.out.println("Server: " + msgFromServer);
             }
