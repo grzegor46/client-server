@@ -1,6 +1,7 @@
 package user;
 
 import constant.Role;
+import message.Message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +11,13 @@ public class User {
     private String nickName;
     private String password;
     private Role role;
-    private List mailBox;
+    private List<Message> mailBox;
 
     public User() {
         if(role.equals(Role.USER)) {
-            this.mailBox = new ArrayList<String>(5);
+            this.mailBox = new ArrayList<Message>(5);
         } else {
-            this.mailBox = new ArrayList<String>();
+            this.mailBox = new ArrayList<Message>();
         }
     }
 
