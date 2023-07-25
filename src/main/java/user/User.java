@@ -13,17 +13,19 @@ public class User {
     private Role role;
     private List<Message> mailBox;
 
-    public User() {
+
+    public User(String nickName, String password, Role role) {
+        this.nickName = nickName;
+        this.password = password;
+        this.role = role;
         if(role.equals(Role.USER)) {
-            this.mailBox = new ArrayList<Message>(5);
+            this.mailBox = new ArrayList<>(5);
         } else {
-            this.mailBox = new ArrayList<Message>();
+            this.mailBox = new ArrayList<>();
         }
     }
 
-    public String getNickName() {
-        return nickName;
-    }
+    public String getNickName() { return nickName; }
 
     public String getPassword() {
         return password;

@@ -33,7 +33,7 @@ public class Message {
     public void setReceiver(String receiver) {
         this.receiver = receiver;
     }
-
+//  TODO refactor this
     public void setContent(String content) {
         if(content.length() > 255) {
             throw new RuntimeException("content of this msg is greater than 255 characters");
@@ -47,6 +47,8 @@ public class Message {
         helpCommandAsJson.put("uptime", "zwraca czas życia serwera");
         helpCommandAsJson.put("help", "zwraca listę dostępnych komend z krótkim opisem");
         helpCommandAsJson.put("stop", "zatrzymuje jednocześnie serwer i klienta");
+        helpCommandAsJson.put("create user","powoduje utworzenie nowego użytkownika");
+        helpCommandAsJson.put("login", "logowanie się na konto użytkownika");
 
         String jsonString = helpCommandAsJson.toString();
         return jsonString;

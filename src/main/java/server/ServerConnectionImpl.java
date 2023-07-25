@@ -2,6 +2,7 @@ package server;
 
 import exception.ConnectionLostException;
 import message.Message;
+import user.User;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
@@ -69,6 +70,13 @@ public class ServerConnectionImpl implements Connection {
                 return message.getUpTime(createdInstant);
             case "stop":
                 closeConnection();
+            case "create user":
+//            TODO    CREATING USER
+//                UserManagement.createUser();
+                return "user created";
+            case "login":
+//            TODO   LOGGING USER
+                return "logged out";
             default:
                 return "Invalid command";
         }
