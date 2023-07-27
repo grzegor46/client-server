@@ -2,6 +2,7 @@ package server;
 
 import exception.ConnectionLostException;
 import message.Message;
+import service.UserManagement;
 import user.User;
 import utils.Connection;
 import utils.PropertiesUtils;
@@ -22,7 +23,7 @@ public class ServerConnectionImpl implements Connection {
     private ServerSocket serverSocket;
     private Stream stream = null;
     private Message message;
-
+    private UserManagement userManagement;
 
     @Override
     public void startConnection() {
@@ -33,7 +34,7 @@ public class ServerConnectionImpl implements Connection {
             socket = serverSocket.accept();
             this.stream = new Stream(socket);
             this.message = new Message();
-
+            this. userManagement = new UserManagement(socket, serverSocket, stream);
             while (true) {
 
                 String msgFromClient = stream.bufferedReader.readLine();
@@ -96,3 +97,4 @@ public class ServerConnectionImpl implements Connection {
     }
 
 }
+// TODO w login stworz funckje z petla while i wysylaniem wiadomosci itp?
