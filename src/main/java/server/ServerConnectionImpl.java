@@ -1,18 +1,33 @@
 package server;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import exception.ConnectionLostException;
 import message.Message;
+import repository.UserRepository;
 import service.UserManagement;
 import user.User;
+import user.UserList;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class ServerConnectionImpl implements Connection {
 
@@ -24,6 +39,9 @@ public class ServerConnectionImpl implements Connection {
     private Stream stream = null;
     private Message message;
     private UserManagement userManagement;
+    private UserRepository userRepository;
+    private UserList userList = new UserList();
+
 
     @Override
     public void startConnection() {
@@ -34,7 +52,8 @@ public class ServerConnectionImpl implements Connection {
             socket = serverSocket.accept();
             this.stream = new Stream(socket);
             this.message = new Message();
-            this. userManagement = new UserManagement(socket, serverSocket, stream);
+            this.userManagement = new UserManagement(socket, serverSocket, stream);
+            this.userRepository = new UserRepository();
             while (true) {
 
                 String msgFromClient = stream.bufferedReader.readLine();
@@ -73,7 +92,7 @@ public class ServerConnectionImpl implements Connection {
                 closeConnection();
             case "create user":
 //            TODO    CREATING USER
-//                UserManagement.createUser();
+                createUser();
                 return "user created";
             case "login":
 //            TODO   LOGGING USER
@@ -94,6 +113,32 @@ public class ServerConnectionImpl implements Connection {
             System.out.println("Attempt to close all streams failed");
             e.printStackTrace();
         }
+    }
+
+    public void createUser() throws IOException {
+// TODO REFACTOR stream.bufferedWriter
+        stream.bufferedWriter.write("write name");
+        stream.bufferedWriter.newLine();
+        stream.bufferedWriter.flush();
+        String name = stream.bufferedReader.readLine();
+
+        stream.bufferedWriter.write("write pssword");
+        stream.bufferedWriter.newLine();
+        stream.bufferedWriter.flush();
+        String password = stream.bufferedReader.readLine();
+
+
+
+
+        User user = new User(name, password);
+        userList.add(user);
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+
+        mapper.writeValue(new File("src/main/java/database/UserDB.json"), this.userList);
+
+
     }
 
 }
