@@ -116,7 +116,7 @@ public class ServerConnectionImpl implements Connection {
     }
 
     public void createUser() throws IOException {
-// TODO REFACTOR stream.bufferedWriter
+// TODO REFACTOR stream.bufferedWriter do osobnej metody
         stream.bufferedWriter.write("write name");
         stream.bufferedWriter.newLine();
         stream.bufferedWriter.flush();
@@ -129,7 +129,7 @@ public class ServerConnectionImpl implements Connection {
 
 
 
-
+// TODO przenieść do user management jakos
         User user = new User(name, password);
         userList.add(user);
 
