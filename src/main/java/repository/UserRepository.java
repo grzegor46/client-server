@@ -1,8 +1,10 @@
 package repository;
 
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import user.UserList;
 
 
 import java.io.File;
@@ -15,16 +17,11 @@ public class UserRepository {
 //    TODO method getAll --> this method will be get list of created users
 //    TODO method delete --> this method will delete created users
 
-    public void save(ObjectNode user) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode rootNode = objectMapper.createObjectNode();
-        File file = new File("src/main/java/database/UserDB.json");
-        if(!file.exists()) {
-            rootNode.set("User",user);
-            objectMapper.writeValue(new File("src/main/java/database/UserDB.json"), user);
-        } else {
+    public void save(UserList userList) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 
-        }
+        mapper.writeValue(new File("src/main/java/database/UserDB.json"), userList);
     }
 
 }

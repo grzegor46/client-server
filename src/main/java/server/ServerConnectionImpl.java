@@ -113,6 +113,7 @@ public class ServerConnectionImpl implements Connection {
 
     public void createUser() throws IOException {
 // TODO REFACTOR stream.bufferedWriter do osobnej metody
+// TODO przenieść do user management jakos
         stream.bufferedWriter.write("write name");
         stream.bufferedWriter.newLine();
         stream.bufferedWriter.flush();
@@ -129,15 +130,11 @@ public class ServerConnectionImpl implements Connection {
         String role = stream.bufferedReader.readLine();
 
 
-// TODO przenieść do user management jakos
         User user = new User(name, password, role);
         userList.add(user);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-
-        mapper.writeValue(new File("src/main/java/database/UserDB.json"), this.userList);
-
+//        saving to UserDB.json file
+        userRepository.save(this.userList);
 
     }
 
