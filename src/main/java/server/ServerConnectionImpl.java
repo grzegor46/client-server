@@ -20,13 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 
 
 public class ServerConnectionImpl implements Connection {
@@ -127,10 +123,14 @@ public class ServerConnectionImpl implements Connection {
         stream.bufferedWriter.flush();
         String password = stream.bufferedReader.readLine();
 
+        stream.bufferedWriter.write("write role");
+        stream.bufferedWriter.newLine();
+        stream.bufferedWriter.flush();
+        String role = stream.bufferedReader.readLine();
 
 
 // TODO przenieść do user management jakos
-        User user = new User(name, password);
+        User user = new User(name, password, role);
         userList.add(user);
 
         ObjectMapper mapper = new ObjectMapper();

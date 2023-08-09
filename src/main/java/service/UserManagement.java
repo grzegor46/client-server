@@ -36,7 +36,8 @@ public class UserManagement {
         stream.bufferedWriter.write("write pssword");
         String password = stream.bufferedReader.readLine();
         stream.bufferedWriter.write("write role");
-        User user = new User(name, password);
+        String role = stream.bufferedReader.readLine();
+        User user = new User(name, password, role);
         objectMapper.writeValue(new File("src/main/java/database/UserDB.json"), user);
     }
 

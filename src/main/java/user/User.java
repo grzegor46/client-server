@@ -1,14 +1,9 @@
 package user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import constant.Role;
 import message.Message;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -16,18 +11,19 @@ public class User {
 
     private String nickName;
     private String password;
-    private Role role;
+    private String role;
     private List<Message> mailBox;
 
 
-    public User(String nickName, String password) {
+    public User(String nickName, String password, String role) {
         this.nickName = nickName;
         this.password = password;
-//        if(role.equals(Role.USER)) {
-//            this.mailBox = new ArrayList<>(5);
-//        } else {
-//            this.mailBox = new ArrayList<>();
-//        }
+        if(role.equals("user")) {
+            this.mailBox = new ArrayList<>(5);
+        } else {
+            this.mailBox = new ArrayList<>();
+        }
+        this.role = role.toUpperCase();
     }
 
     public String getNickName() { return nickName; }
@@ -36,7 +32,7 @@ public class User {
         return password;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
