@@ -79,6 +79,9 @@ public class ServerConnectionImpl implements Connection {
             case "create user":
                 createUser();
                 return "user created";
+            case "delete user":
+                deleteUser();
+                return "user deleted";
             case "login":
 //            TODO   LOGGING USER
                 return "logged out";
@@ -113,6 +116,12 @@ public class ServerConnectionImpl implements Connection {
         String role = userInput();
 
         userManagement.createUser(new String[]{name, password, role});
+    }
+
+    public void deleteUser() throws IOException {
+        stream.bufferedWriter.write("write nickname to delete");
+        String name = userInput();
+        userManagement.deleteUser(name);
     }
 
     private String userInput() throws IOException {

@@ -44,7 +44,9 @@ public class UserRepository {
 
     public void delete(String nickname) {
         User userToDelete = findUserName(nickname);
-
+        List<User> userList = readUsersFromJson(pathToFileDB);
+        userList.remove(userToDelete);
+        writeUsersToJson(pathToFileDB,userList);
     }
 
     private static List<User> readUsersFromJson(String fileName) {

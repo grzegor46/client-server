@@ -14,9 +14,8 @@ public class UserManagement {
         userRepository.save(user);
     }
 
-    private void deleteUser(String nickname) {
-
-//        userRepository.delete(nickname);
+    public void deleteUser(String nickname) {
+        userRepository.delete(nickname);
     }
 
     private void updateUser(String nickname) {
