@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonRootName("Users")
+
+//@JsonRootName("Users")
 public class UserList {
 
     List<User> userList;

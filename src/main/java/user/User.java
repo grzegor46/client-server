@@ -14,7 +14,6 @@ public class User {
     private String role;
     private List<Message> mailBox;
 
-
     public User(String nickName, String password, String role) {
         this.nickName = nickName;
         this.password = password;

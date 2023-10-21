@@ -1,12 +1,5 @@
 package server;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import exception.ConnectionLostException;
 import message.Message;
 import repository.UserRepository;
 import service.UserManagement;
@@ -22,7 +15,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.time.LocalDate;
-
+import java.util.List;
 
 
 public class ServerConnectionImpl implements Connection {
@@ -35,21 +28,18 @@ public class ServerConnectionImpl implements Connection {
     private Stream stream = null;
     private Message message;
     private UserManagement userManagement;
-    private UserRepository userRepository;
-    private UserList userList = new UserList();
+
 
 
     @Override
     public void startConnection() {
 
         try {
-
             serverSocket = new ServerSocket(PropertiesUtils.serverPort);
             socket = serverSocket.accept();
             this.stream = new Stream(socket);
             this.message = new Message();
-            this.userManagement = new UserManagement(socket, serverSocket, stream);
-            this.userRepository = new UserRepository();
+            this.userManagement = new UserManagement();
             while (true) {
 
                 String msgFromClient = stream.bufferedReader.readLine();
@@ -87,7 +77,6 @@ public class ServerConnectionImpl implements Connection {
             case "stop":
                 closeConnection();
             case "create user":
-//            TODO    CREATING USER
                 createUser();
                 return "user created";
             case "login":
@@ -115,27 +104,21 @@ public class ServerConnectionImpl implements Connection {
 // TODO REFACTOR stream.bufferedWriter do osobnej metody
 // TODO przenieść do user management jakos
         stream.bufferedWriter.write("write name");
-        stream.bufferedWriter.newLine();
-        stream.bufferedWriter.flush();
-        String name = stream.bufferedReader.readLine();
+        String name = userInput();
 
-        stream.bufferedWriter.write("write pssword");
-        stream.bufferedWriter.newLine();
-        stream.bufferedWriter.flush();
-        String password = stream.bufferedReader.readLine();
+        stream.bufferedWriter.write("write password");
+        String password = userInput();
 
         stream.bufferedWriter.write("write role");
+        String role = userInput();
+
+        userManagement.createUser(new String[]{name, password, role});
+    }
+
+    private String userInput() throws IOException {
         stream.bufferedWriter.newLine();
         stream.bufferedWriter.flush();
-        String role = stream.bufferedReader.readLine();
-
-
-        User user = new User(name, password, role);
-        userList.add(user);
-
-//        saving to UserDB.json file
-        userRepository.save(this.userList);
-
+        return stream.bufferedReader.readLine();
     }
 
 }
