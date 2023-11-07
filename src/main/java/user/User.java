@@ -25,6 +25,15 @@ public class User {
         this.role = role.toUpperCase();
     }
 
+    public User(String nickName, String password) {
+        this.nickName = nickName;
+        this.password = password;
+    }
+
+    // this constructor should be because during deserialization (reading from file) error appears
+    public User() {
+    }
+
     public String getNickName() { return nickName; }
 
     public String getPassword() {
@@ -39,6 +48,13 @@ public class User {
         return mailBox;
     }
 
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
 
 

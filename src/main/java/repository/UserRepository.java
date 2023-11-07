@@ -7,49 +7,50 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import user.User;
-import user.UserList;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
 
 
 public class UserRepository {
 
     final String pathToFileDB = "src/main/java/database/UserDB.json";
+    private List<User> userList = readUsersFromJson(pathToFileDB);
 
 
-//    TODO method save --> this method will be saving User to Json File
-//    TODO method findByName --> this method will be finding created user from json file
+
 //    TODO method getAll --> this method will be get list of created users
-//    TODO method delete --> this method will delete created users
+//    TODO method update --> this method will be update password
 
-    public void save(User user) throws IOException {
+
+    public void save(User user) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 
-        boolean isDBExists = Path.of(pathToFileDB).getFileName().endsWith("UserDB.json");
-        List<User> userList = readUsersFromJson(pathToFileDB);
-        userList.add(user);
-        writeUsersToJson(pathToFileDB, userList);
+        this.userList.add(user);
+        writeUsersToJson(pathToFileDB, this.userList);
+    }
+
+    public void update(String nickname) {
+
     }
 
     public void delete(String nickname) {
         User userToDelete = findUserName(nickname);
-        List<User> userList = readUsersFromJson(pathToFileDB);
-        userList.remove(userToDelete);
-        writeUsersToJson(pathToFileDB,userList);
+
+        boolean isDeleted = userList.remove(userToDelete);
+        if(isDeleted) {
+            writeUsersToJson(pathToFileDB,this.userList);
+        } else {
+            System.out.println("there is no user with this nickname");
+        }
     }
 
-    private static List<User> readUsersFromJson(String fileName) {
+    private List<User> readUsersFromJson(String fileName) {
         ObjectMapper objectMapper = new ObjectMapper();
         File jsonFile = new File(fileName);
 
@@ -67,7 +68,7 @@ public class UserRepository {
         }
     }
 
-        private static void writeUsersToJson (String fileName, List<User> userList){
+        private void writeUsersToJson (String fileName, List<User> userList){
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -82,14 +83,12 @@ public class UserRepository {
         }
 
         private User findUserName(String name) {
-            List<User> userList = readUsersFromJson(pathToFileDB);
-            for(User user : userList) {
-                if(user.getNickName().contains(name)) {
+            for(User user : this.userList) {
+                if(user.getNickName().toLowerCase().contains(name)){
                     return user;
                 }
             }
             return null;
         }
-
 
     }

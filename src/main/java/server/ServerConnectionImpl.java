@@ -1,21 +1,17 @@
 package server;
 
 import message.Message;
-import repository.UserRepository;
 import service.UserManagement;
 import user.User;
-import user.UserList;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
+
 
 
 public class ServerConnectionImpl implements Connection {
@@ -28,6 +24,7 @@ public class ServerConnectionImpl implements Connection {
     private Stream stream = null;
     private Message message;
     private UserManagement userManagement;
+    public static User activeUser;
 
 
 
@@ -82,9 +79,12 @@ public class ServerConnectionImpl implements Connection {
             case "delete user":
                 deleteUser();
                 return "user deleted";
+//            case "update user":
+//                updateUser();
+//                return "user deleted";
             case "login":
-//            TODO   LOGGING USER
-                return "logged out";
+                loginUser();
+                return "user logged";
             default:
                 return "Invalid command";
         }
@@ -104,8 +104,7 @@ public class ServerConnectionImpl implements Connection {
     }
 
     public void createUser() throws IOException {
-// TODO REFACTOR stream.bufferedWriter do osobnej metody
-// TODO przenieść do user management jakos
+
         stream.bufferedWriter.write("write name");
         String name = userInput();
 
@@ -118,16 +117,32 @@ public class ServerConnectionImpl implements Connection {
         userManagement.createUser(new String[]{name, password, role});
     }
 
+    //TODO admin panel
     public void deleteUser() throws IOException {
         stream.bufferedWriter.write("write nickname to delete");
         String name = userInput();
         userManagement.deleteUser(name);
     }
+    //TODO admin and User panel
+//    public void updateUser() throws IOException {
+//        stream.bufferedWriter.write("write nickname to update");
+//    }
 
     private String userInput() throws IOException {
         stream.bufferedWriter.newLine();
         stream.bufferedWriter.flush();
         return stream.bufferedReader.readLine();
+    }
+
+    private void loginUser() throws IOException {
+        stream.bufferedWriter.write("write login");
+        String login = userInput();
+        activeUser.setNickName(login);
+
+        stream.bufferedWriter.write("write password");
+        String password = userInput();
+        activeUser.setPassword(password);
+
     }
 
 }
