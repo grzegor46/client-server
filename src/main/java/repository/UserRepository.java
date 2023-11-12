@@ -23,9 +23,12 @@ public class UserRepository {
 
 
 
-//    TODO method getAll --> this method will be get list of created users
 //    TODO method update --> this method will be update password
 
+
+    public void getAllUsaers() {
+        System.out.println(this.userList);
+    }
 
     public void save(User user) {
         ObjectMapper mapper = new ObjectMapper();
@@ -35,14 +38,17 @@ public class UserRepository {
         writeUsersToJson(pathToFileDB, this.userList);
     }
 
-    public void update(String nickname) {
-
+    public void update(String nickname, String passwordToChange) {
+        User user = findUserName(nickname);
+        this.delete(nickname);
+        user.setPassword(passwordToChange);
+        this.save(user);
     }
 
     public void delete(String nickname) {
         User userToDelete = findUserName(nickname);
 
-        boolean isDeleted = userList.remove(userToDelete);
+        boolean isDeleted = this.userList.remove(userToDelete);
         if(isDeleted) {
             writeUsersToJson(pathToFileDB,this.userList);
         } else {
@@ -82,7 +88,7 @@ public class UserRepository {
             }
         }
 
-        private User findUserName(String name) {
+        public User findUserName(String name) {
             for(User user : this.userList) {
                 if(user.getNickName().toLowerCase().contains(name)){
                     return user;

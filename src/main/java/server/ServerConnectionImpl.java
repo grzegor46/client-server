@@ -79,9 +79,9 @@ public class ServerConnectionImpl implements Connection {
             case "delete user":
                 deleteUser();
                 return "user deleted";
-//            case "update user":
-//                updateUser();
-//                return "user deleted";
+            case "update user":
+                updateUser();
+                return "";
             case "login":
                 loginUser();
                 return "user logged";
@@ -121,28 +121,40 @@ public class ServerConnectionImpl implements Connection {
     public void deleteUser() throws IOException {
         stream.bufferedWriter.write("write nickname to delete");
         String name = userInput();
+
         userManagement.deleteUser(name);
     }
     //TODO admin and User panel
-//    public void updateUser() throws IOException {
-//        stream.bufferedWriter.write("write nickname to update");
-//    }
+    public void updateUser() throws IOException {
+        stream.bufferedWriter.write("write nickname to update");
+        String nickname = userInput();
+        stream.bufferedWriter.write("write password to change");
+        String passwordToChange = userInput();
+        userManagement.updateUser(nickname,passwordToChange);
+    }
 
     private String userInput() throws IOException {
         stream.bufferedWriter.newLine();
         stream.bufferedWriter.flush();
         return stream.bufferedReader.readLine();
     }
-
+// TODO first need tyo find in DB this user and then set username and password
     private void loginUser() throws IOException {
         stream.bufferedWriter.write("write login");
         String login = userInput();
+        activeUser = new User();
         activeUser.setNickName(login);
 
         stream.bufferedWriter.write("write password");
         String password = userInput();
         activeUser.setPassword(password);
 
+        User user = userManagement.findUser(activeUser.getNickName());
+        if(activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+            stream.bufferedWriter.write("user successfully logged in");
+        } else {
+            stream.bufferedWriter.write("there is no such user in DB");
+        }
     }
 
 }

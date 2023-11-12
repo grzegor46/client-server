@@ -17,8 +17,12 @@ public class UserManagement {
         userRepository.delete(nickname);
     }
 
-    private void updateUser(String nickname) {
-        userRepository.update(nickname);
+    public void updateUser(String nickname, String passwordToChange) {
+        userRepository.update(nickname,passwordToChange);
+    }
+
+    public User findUser(String nickname) {
+        return userRepository.findUserName(nickname);
     }
 
 }
