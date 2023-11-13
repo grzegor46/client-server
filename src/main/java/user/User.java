@@ -1,7 +1,7 @@
 package user;
 
 
-import message.Message;
+import message.ServerMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ public class User {
     private String nickName;
     private String password;
     private String role;
-    private List<Message> mailBox;
+    private List<ServerMessage> mailBox;
 
     public User(String nickName, String password, String role) {
         this.nickName = nickName;

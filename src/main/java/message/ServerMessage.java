@@ -6,40 +6,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.Duration;
 import java.time.Instant;
 
-public class Message {
+public class ServerMessage {
 
-    private String sender;
-    private String receiver;
-    private String content;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-
-    public String getSender() {
-        return sender;
-    }
-
-    public String getReceiver() {
-        return receiver;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
-//  TODO refactor this
-    public void setContent(String content) {
-        if(content.length() > 255) {
-            throw new RuntimeException("content of this msg is greater than 255 characters");
-        }
-        this.content = content;
-    }
 
     public String getHelp() {
         ObjectNode helpCommandAsJson = objectMapper.createObjectNode();

@@ -1,11 +1,12 @@
 package server;
 
-import message.Message;
+import message.ServerMessage;
 import service.UserManagement;
 import user.User;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -13,20 +14,17 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 
-
 public class ServerConnectionImpl implements Connection {
 
+    public static User activeUser = null;
     private final Instant createdInstant = Instant.now();
     private final String applicationVersion = PropertiesUtils.applicationVersion;
     private final String createdServerDate = LocalDate.now().toString();
     private Socket socket = null;
     private ServerSocket serverSocket;
     private Stream stream = null;
-    private Message message;
+    private ServerMessage serverMessage;
     private UserManagement userManagement;
-    public static User activeUser;
-
-
 
     @Override
     public void startConnection() {
@@ -35,7 +33,7 @@ public class ServerConnectionImpl implements Connection {
             serverSocket = new ServerSocket(PropertiesUtils.serverPort);
             socket = serverSocket.accept();
             this.stream = new Stream(socket);
-            this.message = new Message();
+            this.serverMessage = new ServerMessage();
             this.userManagement = new UserManagement();
             while (true) {
 
@@ -66,11 +64,11 @@ public class ServerConnectionImpl implements Connection {
     private String returnResponse(String msgFromClient) throws IOException {
         switch (msgFromClient) {
             case "help":
-                return message.getHelp();
+                return serverMessage.getHelp();
             case "info":
-                return message.getInfo(createdServerDate, applicationVersion);
+                return serverMessage.getInfo(createdServerDate, applicationVersion);
             case "uptime":
-                return message.getUpTime(createdInstant);
+                return serverMessage.getUpTime(createdInstant);
             case "stop":
                 closeConnection();
             case "create user":
@@ -78,10 +76,9 @@ public class ServerConnectionImpl implements Connection {
                 return "user created";
             case "delete user":
                 deleteUser();
-                return "user deleted";
             case "update user":
                 updateUser();
-                return "";
+                return "user password updated";
             case "login":
                 loginUser();
                 return "user logged";
@@ -119,18 +116,27 @@ public class ServerConnectionImpl implements Connection {
 
     //TODO admin panel
     public void deleteUser() throws IOException {
-        stream.bufferedWriter.write("write nickname to delete");
-        String name = userInput();
 
-        userManagement.deleteUser(name);
+        if (activeUser.getRole().equals("ADMIN")) {
+            stream.bufferedWriter.write("write nickname to delete");
+            String name = userInput();
+            userManagement.deleteUser(name);
+        } else {
+            stream.bufferedWriter.write("you dont have permission");
+            userInput();
+        }
     }
+
     //TODO admin and User panel
     public void updateUser() throws IOException {
+
         stream.bufferedWriter.write("write nickname to update");
         String nickname = userInput();
+
         stream.bufferedWriter.write("write password to change");
         String passwordToChange = userInput();
-        userManagement.updateUser(nickname,passwordToChange);
+
+        userManagement.updateUser(nickname, passwordToChange);
     }
 
     private String userInput() throws IOException {
@@ -140,20 +146,25 @@ public class ServerConnectionImpl implements Connection {
     }
 
     private void loginUser() throws IOException {
-        stream.bufferedWriter.write("write login");
-        String login = userInput();
-        activeUser = new User();
-        activeUser.setNickName(login);
+        if(activeUser==null) {
+            stream.bufferedWriter.write("write login");
+            String login = userInput();
+            activeUser = new User();
+            activeUser.setNickName(login);
 
-        stream.bufferedWriter.write("write password");
-        String password = userInput();
-        activeUser.setPassword(password);
+            stream.bufferedWriter.write("write password");
+            String password = userInput();
+            activeUser.setPassword(password);
 
-        User user = userManagement.findUser(activeUser.getNickName());
-        if(activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
-            stream.bufferedWriter.write("user successfully logged in");
+            User user = userManagement.findUser(activeUser.getNickName());
+            if (activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+                stream.bufferedWriter.write("user successfully logged in");
+            } else {
+                stream.bufferedWriter.write("there is no such user in DB");
+            }
         } else {
-            stream.bufferedWriter.write("there is no such user in DB");
+            activeUser = null;
+            this.loginUser();
         }
     }
 
