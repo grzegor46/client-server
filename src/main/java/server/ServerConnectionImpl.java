@@ -138,7 +138,7 @@ public class ServerConnectionImpl implements Connection {
         stream.bufferedWriter.flush();
         return stream.bufferedReader.readLine();
     }
-// TODO first need tyo find in DB this user and then set username and password
+
     private void loginUser() throws IOException {
         stream.bufferedWriter.write("write login");
         String login = userInput();
