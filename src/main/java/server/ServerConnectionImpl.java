@@ -76,12 +76,13 @@ public class ServerConnectionImpl implements Connection {
                 return "user created";
             case "delete user":
                 deleteUser();
+                return "";
             case "update user":
                 updateUser();
-                return "user password updated";
+                return "";
             case "login":
                 loginUser();
-                return "user logged";
+                return "";
             default:
                 return "Invalid command";
         }
@@ -116,14 +117,13 @@ public class ServerConnectionImpl implements Connection {
 
     //TODO admin panel
     public void deleteUser() throws IOException {
-
+// first login before delete user, otherwise return null
         if (activeUser.getRole().equals("ADMIN")) {
             stream.bufferedWriter.write("write nickname to delete");
             String name = userInput();
             userManagement.deleteUser(name);
         } else {
             stream.bufferedWriter.write("you dont have permission");
-            userInput();
         }
     }
 
@@ -158,6 +158,7 @@ public class ServerConnectionImpl implements Connection {
 
             User user = userManagement.findUser(activeUser.getNickName());
             if (activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+                activeUser.setRole(user.getRole());
                 stream.bufferedWriter.write("user successfully logged in");
             } else {
                 stream.bufferedWriter.write("there is no such user in DB");
