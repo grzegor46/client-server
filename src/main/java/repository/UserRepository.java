@@ -18,17 +18,8 @@ import java.util.List;
 
 public class UserRepository {
 
-    final String pathToFileDB = "src/main/java/database/UserDB.json";
+    private static final String pathToFileDB = "src/main/java/database/UserDB.json";
     private List<User> userList = readUsersFromJson(pathToFileDB);
-
-
-
-//    TODO method update --> this method will be update password
-
-
-    public void getAllUsaers() {
-        System.out.println(this.userList);
-    }
 
     public void save(User user) {
         ObjectMapper mapper = new ObjectMapper();
@@ -40,9 +31,13 @@ public class UserRepository {
 
     public void update(String nickname, String passwordToChange) {
         User user = findUserName(nickname);
-        this.delete(nickname);
-        user.setPassword(passwordToChange);
-        this.save(user);
+        if (user != null) {
+            this.delete(nickname);
+            user.setPassword(passwordToChange);
+            this.save(user);
+        } else {
+            System.out.println("User not found.");
+        }
     }
 
     public void delete(String nickname) {
@@ -90,7 +85,7 @@ public class UserRepository {
 
         public User findUserName(String name) {
             for(User user : this.userList) {
-                if(user.getNickName().toLowerCase().contains(name)){
+                if(user.getNickName().toLowerCase().contains(name.toLowerCase())){
                     return user;
                 }
             }

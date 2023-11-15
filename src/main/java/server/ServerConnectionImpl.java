@@ -83,6 +83,9 @@ public class ServerConnectionImpl implements Connection {
             case "login":
                 loginUser();
                 return "";
+            case "show users":
+//                TODO make function to list users
+                return "";
             default:
                 return "Invalid command";
         }
@@ -101,7 +104,7 @@ public class ServerConnectionImpl implements Connection {
         }
     }
 
-    public void createUser() throws IOException {
+    private void createUser() throws IOException {
 
         stream.bufferedWriter.write("write name");
         String name = userInput();
@@ -109,15 +112,14 @@ public class ServerConnectionImpl implements Connection {
         stream.bufferedWriter.write("write password");
         String password = userInput();
 
-        stream.bufferedWriter.write("write role");
-        String role = userInput();
+        String role = "";
 
         userManagement.createUser(new String[]{name, password, role});
     }
 
-    //TODO admin panel
-    public void deleteUser() throws IOException {
-// first login before delete user, otherwise return null
+    private void deleteUser() throws IOException {
+
+        loginUser();
         if (activeUser.getRole().equals("ADMIN")) {
             stream.bufferedWriter.write("write nickname to delete");
             String name = userInput();
@@ -128,7 +130,7 @@ public class ServerConnectionImpl implements Connection {
     }
 
     //TODO admin and User panel
-    public void updateUser() throws IOException {
+    private void updateUser() throws IOException {
 
         stream.bufferedWriter.write("write nickname to update");
         String nickname = userInput();
@@ -168,6 +170,4 @@ public class ServerConnectionImpl implements Connection {
             this.loginUser();
         }
     }
-
 }
-// TODO w login stworz funckje z petla while i wysylaniem wiadomosci itp?

@@ -17,12 +17,12 @@ public class User {
     public User(String nickName, String password, String role) {
         this.nickName = nickName;
         this.password = password;
-        if(role.equals("user")) {
+        this.role = role.toUpperCase();
+        if(this.role.equalsIgnoreCase("user")) {
             this.mailBox = new ArrayList<>(5);
         } else {
             this.mailBox = new ArrayList<>();
         }
-        this.role = role.toUpperCase();
     }
 
     public User(String nickName, String password) {
