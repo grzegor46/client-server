@@ -131,14 +131,20 @@ public class ServerConnectionImpl implements Connection {
 
     //TODO admin and User panel
     private void updateUser() throws IOException {
+        String nickname = null;
 
-        stream.bufferedWriter.write("write nickname to update");
-        String nickname = userInput();
+        if (activeUser.getRole().equals("ADMIN")) {
+            stream.bufferedWriter.write("write nickname to update");
+            nickname = userInput();
 
-        stream.bufferedWriter.write("write password to change");
-        String passwordToChange = userInput();
+        } else if(activeUser.getRole().equals("USER")) {
+            nickname = activeUser.getNickName();
+        }
+        stream.bufferedWriter.write("Write new password: ");
+        String newPassword = userInput();
+        userManagement.updateUser(nickname, newPassword);
 
-        userManagement.updateUser(nickname, passwordToChange);
+        stream.bufferedWriter.write("Password changed for user: " + nickname);
     }
 
     private String userInput() throws IOException {
