@@ -1,8 +1,6 @@
 package repository;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -43,11 +41,13 @@ public class UserRepository {
     public void delete(String nickname) {
         User userToDelete = findUserName(nickname);
 
-        boolean isDeleted = this.userList.remove(userToDelete);
-        if(isDeleted) {
-            writeUsersToJson(pathToFileDB,this.userList);
+        if (userToDelete != null) {
+            boolean isUserDeleted = this.userList.remove(userToDelete);
+            if (isUserDeleted) {
+                writeUsersToJson(pathToFileDB, this.userList);
+            }
         } else {
-            System.out.println("there is no user with this nickname");
+            System.out.println("User not found.");
         }
     }
 

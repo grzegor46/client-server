@@ -119,11 +119,11 @@ public class ServerConnectionImpl implements Connection {
 
     private void deleteUser() throws IOException {
 
-        loginUser();
         if (activeUser.getRole().equals("ADMIN")) {
             stream.bufferedWriter.write("write nickname to delete");
             String name = userInput();
             userManagement.deleteUser(name);
+            stream.bufferedWriter.write("user deleted");
         } else {
             stream.bufferedWriter.write("you dont have permission");
         }
