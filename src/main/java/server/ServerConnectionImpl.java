@@ -1,5 +1,6 @@
 package server;
 
+import constant.Role;
 import message.ServerMessage;
 import message.UserMessage;
 import service.MessageManagement;
@@ -142,20 +143,18 @@ public class ServerConnectionImpl implements Connection {
         stream.bufferedWriter.write("write password");
         String password = userInput();
 
-        String role = "";
-
-        userManagement.createUser(new String[]{name, password, role});
+        userManagement.createUser(name,password);
     }
 
     private void deleteUser() throws IOException {
 
-        if (activeUser.getRole().equals("ADMIN")) {
+        if (activeUser.getRole().equals(Role.ADMIN)) {
             stream.bufferedWriter.write("write nickname to delete user");
             String name = userInput();
             userManagement.deleteUser(name);
             stream.bufferedWriter.write("user deleted");
         } else {
-            stream.bufferedWriter.write("you dont have permission");
+            stream.bufferedWriter.write("you don't have permission");
         }
     }
 
@@ -174,11 +173,11 @@ public class ServerConnectionImpl implements Connection {
     private void updateUser() throws IOException {
         String nickname = null;
 
-        if (activeUser.getRole().equals("ADMIN")) {
+        if (activeUser.getRole().equals(Role.ADMIN)) {
             stream.bufferedWriter.write("write nickname to update");
             nickname = userInput();
 
-        } else if (activeUser.getRole().equals("USER")) {
+        } else if (activeUser.getRole().equals(Role.USER)) {
             nickname = activeUser.getNickName();
         }
         stream.bufferedWriter.write("Write new password: ");

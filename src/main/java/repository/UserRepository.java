@@ -1,10 +1,10 @@
 package repository;
 
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import user.User;
 
 import java.io.File;
@@ -26,8 +26,8 @@ public class UserRepository {
 
     public void save(User user) {
         this.readUsersFromJson(pathToFileDB);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        ObjectMapper objectMapper = createObjectMapper();
+        objectMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 
         this.userList.add(user);
         writeUsersToJson(this.userList);
@@ -58,7 +58,8 @@ public class UserRepository {
     }
 
     private List<User> readUsersFromJson(String fileName) {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = createObjectMapper();
+
         File jsonFile = new File(fileName);
 
         // Jeśli plik nie istnieje, tworzymy nową pustą listę
@@ -76,7 +77,7 @@ public class UserRepository {
     }
 
         public void writeUsersToJson (List<User> userList){
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = createObjectMapper();
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
             try {
@@ -97,5 +98,13 @@ public class UserRepository {
             }
             return null;
         }
+
+    private ObjectMapper createObjectMapper() {
+        final ObjectMapper mapper = new ObjectMapper();
+        // enable toString method of enums to return the value to be mapped
+        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+        return mapper;
+    }
 
     }

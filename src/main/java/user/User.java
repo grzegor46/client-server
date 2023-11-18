@@ -1,6 +1,7 @@
 package user;
 
 
+import constant.Role;
 import message.UserMessage;
 
 import java.util.ArrayList;
@@ -8,17 +9,19 @@ import java.util.List;
 
 
 public class User {
-
     private String nickName;
     private String password;
-    private String role;
+//    private String role;
+    private Role userRole;
     private List<UserMessage> mailBox;
 
-    public User(String nickName, String password, String role) {
+    public User(String nickName, String password, Role userRole) {
         this.nickName = nickName;
         this.password = password;
-        this.role = role.toUpperCase();
-        if(this.role.equalsIgnoreCase("user")) {
+//        this.role = role.toUpperCase();
+        this.userRole = userRole;
+//        if(this.role.equalsIgnoreCase("user")) {
+        if(this.userRole.equals(Role.USER)) {
             this.mailBox = new ArrayList<>(5);
         } else {
             this.mailBox = new ArrayList<>();
@@ -40,8 +43,8 @@ public class User {
         return password;
     }
 
-    public String getRole() {
-        return role;
+    public Role getRole() {
+        return userRole;
     }
 
     public List<UserMessage> getMailBox() {
@@ -56,8 +59,8 @@ public class User {
         this.password = password;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRole(Role userRole) {
+        this.userRole = userRole;
     }
 
     public void setMailBox(List<UserMessage> mailBox) {

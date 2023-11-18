@@ -1,5 +1,6 @@
 package service;
 
+import constant.Role;
 import repository.UserRepository;
 import user.User;
 
@@ -10,14 +11,15 @@ public class UserManagement {
 
     private final UserRepository userRepository = new UserRepository();
 
-    public void createUser(String[] userInput) {
+    public void createUser(String nickname, String password) {
 
-        if(userInput[0].endsWith("_admin")) {
-            userInput[2] = "ADMIN";
+        Role userRole;
+        if(nickname.endsWith("_admin")) {
+            userRole = Role.ADMIN;
         } else {
-            userInput[2] = "USER";
+            userRole = Role.USER;
         }
-        User user = new User(userInput[0], userInput[1], userInput[2]);
+        User user = new User(nickname, password, userRole);
         userRepository.save(user);
     }
 

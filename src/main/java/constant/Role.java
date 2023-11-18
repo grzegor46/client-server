@@ -1,8 +1,12 @@
 package constant;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum Role {
 
-    USER,
-    ADMIN
+    @JsonProperty("ADMIN")
+    ADMIN,
+    @JsonProperty("USER")
+    USER
 
 }
