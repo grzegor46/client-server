@@ -227,6 +227,7 @@ public class ServerConnectionImpl implements Connection {
         String messageToSend = userInput();
         UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
         messageManagement.sendMessage(userMessage);
+
     }
 }
 

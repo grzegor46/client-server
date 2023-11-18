@@ -9,17 +9,20 @@ public class UserMessage {
     public UserMessage(String sender, String receiver, String content) {
         this.sender = sender;
         this.receiver = receiver;
+
+        if(content.length() > 255) {
+            content = content.substring(0,255);
+        }
         this.content = content;
+
+
     }
 
     public UserMessage() {
     }
 
     public void setContent(String content) {
-        if(content.length() > 255) {
-            throw new RuntimeException("content of this msg is greater than 255 characters");
-        }
-        this.content = content;
+
     }
 
     public String getSender() {

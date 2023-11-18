@@ -13,13 +13,16 @@ public class MessageManagement {
     public void sendMessage(UserMessage sentMessage) {
 
         User receiver = userRepository.findUserName(sentMessage.getReceiver());
-        userRepository.delete(receiver.getNickName());
         if(receiver.getMailBox().size() <5) {
+            userRepository.delete(receiver.getNickName());
             List<UserMessage> tmpUserMessageMailBox = receiver.getMailBox();
             tmpUserMessageMailBox.add(sentMessage);
 
             receiver.setMailBox(tmpUserMessageMailBox);
             userRepository.save(receiver);
+        } else {
+            System.out.print("user has more than 5 msgs");
+//            TODO throw excpetion, use try catch
         }
     }
 }
