@@ -1,6 +1,8 @@
 package server;
 
 import message.ServerMessage;
+import message.UserMessage;
+import service.MessageManagement;
 import service.UserManagement;
 import user.User;
 import utils.Connection;
@@ -8,10 +10,13 @@ import utils.PropertiesUtils;
 import utils.Stream;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 
 public class ServerConnectionImpl implements Connection {
@@ -26,6 +31,10 @@ public class ServerConnectionImpl implements Connection {
     private ServerMessage serverMessage;
     private UserManagement userManagement;
 
+    private MessageManagement messageManagement;
+
+    private PrintWriter printWriter;
+
     @Override
     public void startConnection() {
 
@@ -35,6 +44,8 @@ public class ServerConnectionImpl implements Connection {
             this.stream = new Stream(socket);
             this.serverMessage = new ServerMessage();
             this.userManagement = new UserManagement();
+            this.printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()),true);
+            this.messageManagement = new MessageManagement();
             while (true) {
 
                 String msgFromClient = stream.bufferedReader.readLine();
@@ -84,10 +95,22 @@ public class ServerConnectionImpl implements Connection {
                 loginUser();
                 return "";
             case "show users":
-//                TODO make function to list users
+                showUser();
+                return "";
+            case "send msg":
+                sendMsg();
+                return "";
+            case "check mailbox":
+                checkMailBox();
                 return "";
             default:
                 return "Invalid command";
+        }
+    }
+
+    private void checkMailBox() {
+        if(activeUser!= null) {
+//            stream.bufferedWriter.write(activeUser.getMailBox());
         }
     }
 
@@ -106,7 +129,8 @@ public class ServerConnectionImpl implements Connection {
 
     private void createUser() throws IOException {
 
-        stream.bufferedWriter.write("write name");
+//        stream.bufferedWriter.write("write name");
+        printWriter.write("write name");
         String name = userInput();
 
         stream.bufferedWriter.write("write password");
@@ -126,6 +150,18 @@ public class ServerConnectionImpl implements Connection {
             stream.bufferedWriter.write("user deleted");
         } else {
             stream.bufferedWriter.write("you dont have permission");
+        }
+    }
+
+    private void showUser() throws IOException {
+        if(activeUser!=null) {
+            List<User> users = userManagement.showUsers();
+
+            for (User user : users) {
+                stream.bufferedWriter.write(user.getNickName() + ", ");
+            }
+        } else {
+            stream.bufferedWriter.write("you need to be logged to check users");
         }
     }
 
@@ -175,5 +211,16 @@ public class ServerConnectionImpl implements Connection {
             activeUser = null;
             this.loginUser();
         }
+    }
+
+    private void sendMsg() throws IOException {
+        stream.bufferedWriter.write("to which user you want send a msg?");
+        String receiver = userInput();
+//        TODO function to find user if exists
+
+        stream.bufferedWriter.write("type you message. Remember only 255 characters");
+        String messageToSend = userInput();
+        UserMessage userMessage = new UserMessage(activeUser.getNickName(),receiver,messageToSend);
+        messageManagement.sendMessage(userMessage);
     }
 }

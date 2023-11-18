@@ -19,12 +19,18 @@ public class UserRepository {
     private static final String pathToFileDB = "src/main/java/database/UserDB.json";
     private List<User> userList = readUsersFromJson(pathToFileDB);
 
+
+    public List<User> getAllUsers(){
+        return this.userList;
+    }
+
     public void save(User user) {
+        this.readUsersFromJson(pathToFileDB);
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 
         this.userList.add(user);
-        writeUsersToJson(pathToFileDB, this.userList);
+        writeUsersToJson(this.userList);
     }
 
     public void update(String nickname, String passwordToChange) {
@@ -44,7 +50,7 @@ public class UserRepository {
         if (userToDelete != null) {
             boolean isUserDeleted = this.userList.remove(userToDelete);
             if (isUserDeleted) {
-                writeUsersToJson(pathToFileDB, this.userList);
+                writeUsersToJson(this.userList);
             }
         } else {
             System.out.println("User not found.");
@@ -69,7 +75,7 @@ public class UserRepository {
         }
     }
 
-        private void writeUsersToJson (String fileName, List<User> userList){
+        public void writeUsersToJson (List<User> userList){
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -77,7 +83,7 @@ public class UserRepository {
                 ObjectWriter objectWriter = objectMapper.writerFor(objectMapper
                         .getTypeFactory()
                         .constructCollectionType(List.class, User.class));
-                objectWriter.writeValue(new File(fileName), userList);
+                objectWriter.writeValue(new File(pathToFileDB), userList);
             } catch (IOException e) {
                 e.printStackTrace();
             }

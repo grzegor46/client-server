@@ -33,4 +33,8 @@ public class UserManagement {
         return userRepository.findUserName(nickname);
     }
 
+    public List<User> showUsers() {
+        return userRepository.getAllUsers();
+    }
+
 }
