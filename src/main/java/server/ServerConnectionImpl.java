@@ -222,12 +222,15 @@ public class ServerConnectionImpl implements Connection {
         stream.bufferedWriter.write("to which user do you want send a msg?");
         String receiver = userInput();
 //        TODO function to find user if exists
+        if(userManagement.findUser(receiver)!=null) {
 
-        stream.bufferedWriter.write("type you message. Remember only 255 characters");
-        String messageToSend = userInput();
-        UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-        messageManagement.sendMessage(userMessage);
-
+            stream.bufferedWriter.write("type you message. Remember only 255 characters");
+            String messageToSend = userInput();
+            UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+            messageManagement.sendMessage(userMessage);
+        }else {
+            stream.bufferedWriter.write("didn't find user");
+        }
     }
 }
 
