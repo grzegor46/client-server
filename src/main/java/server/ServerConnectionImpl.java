@@ -44,7 +44,7 @@ public class ServerConnectionImpl implements Connection {
             this.stream = new Stream(socket);
             this.serverMessage = new ServerMessage();
             this.userManagement = new UserManagement();
-            this.printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()),true);
+            this.printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
             this.messageManagement = new MessageManagement();
             while (true) {
 
@@ -108,9 +108,15 @@ public class ServerConnectionImpl implements Connection {
         }
     }
 
-    private void checkMailBox() {
-        if(activeUser!= null) {
-//            stream.bufferedWriter.write(activeUser.getMailBox());
+    private void checkMailBox() throws IOException {
+        if (activeUser != null) {
+            List<UserMessage> userMailBox = userManagement.findUser(activeUser.getNickName()).getMailBox();
+
+            for (UserMessage userMsgs : userMailBox) {
+                stream.bufferedWriter.write(userMsgs.getContent() + ";   ");
+            }
+        } else {
+            stream.bufferedWriter.write("you need to be logged to check users");
         }
     }
 
@@ -144,7 +150,7 @@ public class ServerConnectionImpl implements Connection {
     private void deleteUser() throws IOException {
 
         if (activeUser.getRole().equals("ADMIN")) {
-            stream.bufferedWriter.write("write nickname to delete");
+            stream.bufferedWriter.write("write nickname to delete user");
             String name = userInput();
             userManagement.deleteUser(name);
             stream.bufferedWriter.write("user deleted");
@@ -154,9 +160,8 @@ public class ServerConnectionImpl implements Connection {
     }
 
     private void showUser() throws IOException {
-        if(activeUser!=null) {
+        if (activeUser != null) {
             List<User> users = userManagement.showUsers();
-
             for (User user : users) {
                 stream.bufferedWriter.write(user.getNickName() + ", ");
             }
@@ -173,7 +178,7 @@ public class ServerConnectionImpl implements Connection {
             stream.bufferedWriter.write("write nickname to update");
             nickname = userInput();
 
-        } else if(activeUser.getRole().equals("USER")) {
+        } else if (activeUser.getRole().equals("USER")) {
             nickname = activeUser.getNickName();
         }
         stream.bufferedWriter.write("Write new password: ");
@@ -190,7 +195,7 @@ public class ServerConnectionImpl implements Connection {
     }
 
     private void loginUser() throws IOException {
-        if(activeUser==null) {
+        if (activeUser == null) {
             stream.bufferedWriter.write("write login");
             String login = userInput();
             activeUser = new User();
@@ -214,13 +219,16 @@ public class ServerConnectionImpl implements Connection {
     }
 
     private void sendMsg() throws IOException {
-        stream.bufferedWriter.write("to which user you want send a msg?");
+        stream.bufferedWriter.write("to which user do you want send a msg?");
         String receiver = userInput();
 //        TODO function to find user if exists
 
         stream.bufferedWriter.write("type you message. Remember only 255 characters");
         String messageToSend = userInput();
-        UserMessage userMessage = new UserMessage(activeUser.getNickName(),receiver,messageToSend);
+        UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
         messageManagement.sendMessage(userMessage);
     }
 }
+
+// TODO check if msgs can be more than 5 in mailbox
+// TODO check if is allwed more than 255 chars in content
