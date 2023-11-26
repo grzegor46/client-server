@@ -137,7 +137,7 @@ public class ServerConnectionImpl implements Connection {
     private void createUser() throws IOException {
 
 //        stream.bufferedWriter.write("write name");
-        printWriter.write("write name");
+        printWriter.println("write name");
         String name = userInput();
 
         stream.bufferedWriter.write("write password");
@@ -220,7 +220,7 @@ public class ServerConnectionImpl implements Connection {
     private void sendMsg() throws IOException {
         stream.bufferedWriter.write("to which user do you want send a msg?");
         String receiver = userInput();
-//        TODO function to find user if exists
+
         if(userManagement.findUser(receiver)!=null) {
 
             stream.bufferedWriter.write("type you message. Remember only 255 characters");
@@ -235,3 +235,4 @@ public class ServerConnectionImpl implements Connection {
 
 // TODO check if msgs can be more than 5 in mailbox
 // TODO check if is allwed more than 255 chars in content
+// TODO refactor stream.bufferedWriter.write, maybe printwriter?
