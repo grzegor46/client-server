@@ -13,22 +13,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 public class UserRepository {
 
     private static final String pathToFileDB = "src/main/java/database/UserDB.json";
-    private List<User> userList = readUsersFromJson(pathToFileDB);
+    private static final ObjectMapper objectMapper = createObjectMapper();
+    private final List<User> userList = readUsersFromJson(pathToFileDB);
 
+    private static ObjectMapper createObjectMapper() {
+        final ObjectMapper mapper = new ObjectMapper();
+        // enable toString method of enums to return the value to be mapped
+        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+        return mapper;
+    }
 
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         return this.userList;
     }
 
     public void save(User user) {
         this.readUsersFromJson(pathToFileDB);
-        ObjectMapper objectMapper = createObjectMapper();
-        objectMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-
         this.userList.add(user);
         writeUsersToJson(this.userList);
     }
@@ -58,53 +62,38 @@ public class UserRepository {
     }
 
     private List<User> readUsersFromJson(String fileName) {
-        ObjectMapper objectMapper = createObjectMapper();
-
         File jsonFile = new File(fileName);
 
-        // Jeśli plik nie istnieje, tworzymy nową pustą listę
         if (!jsonFile.exists()) {
             return new ArrayList<>();
         }
 
         try {
-            return objectMapper.readValue(jsonFile, objectMapper.getTypeFactory()
-                    .constructCollectionType(List.class, User.class));
+            return objectMapper.readValue(jsonFile, objectMapper.getTypeFactory().constructCollectionType(List.class, User.class));
         } catch (IOException e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
-        public void writeUsersToJson (List<User> userList){
-            ObjectMapper objectMapper = createObjectMapper();
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    public void writeUsersToJson(List<User> userList) {
 
-            try {
-                ObjectWriter objectWriter = objectMapper.writerFor(objectMapper
-                        .getTypeFactory()
-                        .constructCollectionType(List.class, User.class));
-                objectWriter.writeValue(new File(pathToFileDB), userList);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+
+            ObjectWriter objectWriter = objectMapper.writer().withRootValueSeparator("\n").withDefaultPrettyPrinter();
+            objectWriter.writeValue(new File(pathToFileDB), userList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        public User findUserName(String name) {
-            for(User user : this.userList) {
-                if(user.getNickName().toLowerCase().contains(name.toLowerCase())){
-                    return user;
-                }
-            }
-            return null;
-        }
-
-    private ObjectMapper createObjectMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        // enable toString method of enums to return the value to be mapped
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-        return mapper;
     }
 
+    public User findUserName(String name) {
+        for (User user : this.userList) {
+            if (user.getNickName().toLowerCase().contains(name.toLowerCase())) {
+                return user;
+            }
+        }
+        return null;
     }
+}
