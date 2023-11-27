@@ -222,11 +222,14 @@ public class ServerConnectionImpl implements Connection {
         String receiver = userInput();
 
         if(userManagement.findUser(receiver)!=null) {
-
-            stream.bufferedWriter.write("type you message. Remember only 255 characters");
-            String messageToSend = userInput();
-            UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-            messageManagement.sendMessage(userMessage);
+            if(userManagement.findUser(receiver).getMailBox().size()<5) {
+                stream.bufferedWriter.write("type you message. Remember only 255 characters");
+                String messageToSend = userInput();
+                UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+                messageManagement.sendMessage(userMessage);
+            } else {
+                stream.bufferedWriter.write("user has more than 5 msgs");
+            }
         }else {
             stream.bufferedWriter.write("didn't find user");
         }
@@ -235,4 +238,3 @@ public class ServerConnectionImpl implements Connection {
 
 // TODO check if msgs can be more than 5 in mailbox
 // TODO check if is allwed more than 255 chars in content
-// TODO refactor stream.bufferedWriter.write, maybe printwriter?
