@@ -1,5 +1,7 @@
 package service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import message.UserMessage;
 import repository.UserRepository;
 import user.User;
@@ -26,8 +28,13 @@ public class MessageManagement {
         }
     }
 
-    public String getMessageAsJsonRepresentation() {
+    public String getMessageAsJsonRepresentation(String name, String content) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode helpCommandAsJson = objectMapper.createObjectNode();
+        helpCommandAsJson.put(name, content);
 
-        return "";
+        String jsonString = helpCommandAsJson.toString();
+        return jsonString;
+
     }
 }

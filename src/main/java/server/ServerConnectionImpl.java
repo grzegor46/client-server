@@ -11,12 +11,11 @@ import utils.PropertiesUtils;
 import utils.Stream;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -110,12 +109,14 @@ public class ServerConnectionImpl implements Connection {
         if (activeUser != null) {
             User user = userManagement.findUser(activeUser.getNickName());
             List<UserMessage> userMailBox = user.getMailBox();
-
+            List<String> stringList = new ArrayList<>();
             for (UserMessage userMsgs : userMailBox) {
-                stream.bufferedWriter.write("Sender: " + userMsgs.getSender() + ", message: " + userMsgs.getContent() + " <> ");
-                stream.bufferedWriter.newLine();
-                stream.bufferedWriter.flush();
+
+                String mail =  messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(),userMsgs.getContent());
+                stringList.add(mail);
+
             }
+            stream.bufferedWriter.write(stringList.toString());
         } else {
             stream.bufferedWriter.write("you need to be logged to check users");
         }
