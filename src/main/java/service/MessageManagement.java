@@ -25,4 +25,9 @@ public class MessageManagement {
 //            TODO throw excpetion, use try catch
         }
     }
+
+    public String getMessageAsJsonRepresentation() {
+
+        return "";
+    }
 }

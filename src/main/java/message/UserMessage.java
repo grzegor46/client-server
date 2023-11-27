@@ -22,7 +22,7 @@ public class UserMessage {
     }
 
     public void setContent(String content) {
-
+        this.content = content;
     }
 
     public String getSender() {

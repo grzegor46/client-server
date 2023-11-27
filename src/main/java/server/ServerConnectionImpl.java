@@ -24,17 +24,15 @@ public class ServerConnectionImpl implements Connection {
 
     public static User activeUser = null;
     private final Instant createdInstant = Instant.now();
-    private final String applicationVersion = PropertiesUtils.applicationVersion;
     private final String createdServerDate = LocalDate.now().toString();
     private Socket socket = null;
     private ServerSocket serverSocket;
     private Stream stream = null;
     private ServerMessage serverMessage;
     private UserManagement userManagement;
-
     private MessageManagement messageManagement;
 
-    private PrintWriter printWriter;
+
 
     @Override
     public void startConnection() {
@@ -45,7 +43,6 @@ public class ServerConnectionImpl implements Connection {
             this.stream = new Stream(socket);
             this.serverMessage = new ServerMessage();
             this.userManagement = new UserManagement();
-            this.printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
             this.messageManagement = new MessageManagement();
             while (true) {
 
@@ -78,7 +75,7 @@ public class ServerConnectionImpl implements Connection {
             case "help":
                 return serverMessage.getHelp();
             case "info":
-                return serverMessage.getInfo(createdServerDate, applicationVersion);
+                return serverMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion);
             case "uptime":
                 return serverMessage.getUpTime(createdInstant);
             case "stop":
@@ -96,7 +93,7 @@ public class ServerConnectionImpl implements Connection {
                 loginUser();
                 return "";
             case "show users":
-                showUser();
+                getUsers();
                 return "";
             case "send msg":
                 sendMsg();
@@ -111,10 +108,13 @@ public class ServerConnectionImpl implements Connection {
 
     private void checkMailBox() throws IOException {
         if (activeUser != null) {
-            List<UserMessage> userMailBox = userManagement.findUser(activeUser.getNickName()).getMailBox();
+            User user = userManagement.findUser(activeUser.getNickName());
+            List<UserMessage> userMailBox = user.getMailBox();
 
             for (UserMessage userMsgs : userMailBox) {
-                stream.bufferedWriter.write(userMsgs.getContent() + ";   ");
+                stream.bufferedWriter.write("Sender: " + userMsgs.getSender() + ", message: " + userMsgs.getContent() + " <> ");
+                stream.bufferedWriter.newLine();
+                stream.bufferedWriter.flush();
             }
         } else {
             stream.bufferedWriter.write("you need to be logged to check users");
@@ -136,8 +136,7 @@ public class ServerConnectionImpl implements Connection {
 
     private void createUser() throws IOException {
 
-//        stream.bufferedWriter.write("write name");
-        printWriter.println("write name");
+        stream.bufferedWriter.write("write name");
         String name = userInput();
 
         stream.bufferedWriter.write("write password");
@@ -158,7 +157,7 @@ public class ServerConnectionImpl implements Connection {
         }
     }
 
-    private void showUser() throws IOException {
+    private void getUsers() throws IOException {
         if (activeUser != null) {
             List<User> users = userManagement.showUsers();
             for (User user : users) {
@@ -169,7 +168,6 @@ public class ServerConnectionImpl implements Connection {
         }
     }
 
-    //TODO admin and User panel
     private void updateUser() throws IOException {
         String nickname = null;
 
@@ -207,11 +205,12 @@ public class ServerConnectionImpl implements Connection {
             User user = userManagement.findUser(activeUser.getNickName());
             if (activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
                 activeUser.setRole(user.getRole());
-                stream.bufferedWriter.write("user successfully logged in");
+                stream.bufferedWriter.write("user successfully logged in as: " + activeUser.getNickName());
             } else {
                 stream.bufferedWriter.write("there is no such user in DB");
             }
         } else {
+            //  logout current user and login with new credentials
             activeUser = null;
             this.loginUser();
         }

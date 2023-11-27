@@ -11,16 +11,13 @@ import java.util.List;
 public class User {
     private String nickName;
     private String password;
-//    private String role;
     private Role userRole;
     private List<UserMessage> mailBox;
 
     public User(String nickName, String password, Role userRole) {
         this.nickName = nickName;
         this.password = password;
-//        this.role = role.toUpperCase();
         this.userRole = userRole;
-//        if(this.role.equalsIgnoreCase("user")) {
         if(this.userRole.equals(Role.USER)) {
             this.mailBox = new ArrayList<>(5);
         } else {
