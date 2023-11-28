@@ -19,14 +19,6 @@ public class UserRepository {
     private static final ObjectMapper objectMapper = createObjectMapper();
     private final List<User> userList = readUsersFromJson(pathToFileDB);
 
-    private static ObjectMapper createObjectMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        // enable toString method of enums to return the value to be mapped
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-        return mapper;
-    }
-
     public List<User> getAllUsers() {
         return this.userList;
     }
@@ -64,7 +56,7 @@ public class UserRepository {
     private List<User> readUsersFromJson(String fileName) {
         File jsonFile = new File(fileName);
 
-        if (!jsonFile.exists()) {
+        if (!jsonFile.exists() || jsonFile.length() == 0) {
             return new ArrayList<>();
         }
 
@@ -95,5 +87,13 @@ public class UserRepository {
             }
         }
         return null;
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        final ObjectMapper mapper = new ObjectMapper();
+        // enable toString method of enums to return the value to be mapped
+        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+        return mapper;
     }
 }

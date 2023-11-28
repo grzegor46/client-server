@@ -218,23 +218,30 @@ public class ServerConnectionImpl implements Connection {
     }
 
     private void sendMsg() throws IOException {
-        stream.bufferedWriter.write("to which user do you want send a msg?");
-        String receiver = userInput();
-
-        if(userManagement.findUser(receiver)!=null) {
-            if(userManagement.findUser(receiver).getMailBox().size()<5) {
+        if (activeUser == null) {
+            stream.bufferedWriter.write("first log in to send msg --> ");
+            loginUser();
+        } else {
+            stream.bufferedWriter.write("to which user do you want send a msg?");
+            String receiver = userInput();
+            User existingUser = userManagement.findUser(receiver);
+            if (existingUser != null) {
                 stream.bufferedWriter.write("type you message. Remember only 255 characters");
                 String messageToSend = userInput();
-                UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-                messageManagement.sendMessage(userMessage);
+                int mailBoxCapacity = existingUser.getMailBox().size();
+                if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
+                    UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+                    messageManagement.sendMessage(userMessage);
+                } else {
+                    stream.bufferedWriter.write("user has more than 5 msgs");
+                }
             } else {
-                stream.bufferedWriter.write("user has more than 5 msgs");
+                stream.bufferedWriter.write("didn't find user");
             }
-        }else {
-            stream.bufferedWriter.write("didn't find user");
         }
     }
 }
 
 // TODO check if msgs can be more than 5 in mailbox
 // TODO check if is allwed more than 255 chars in content
+// TODO przetestuj funkcje gdy uzytkownik ma wiecej niz 5 wiadomosci -> tylko USER, admin powinien miec nieograniczona
