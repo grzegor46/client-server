@@ -42,7 +42,7 @@ public class ServerConnectionImpl implements Connection {
             socket = serverSocket.accept();
             this.stream = new Stream(socket);
             this.serverMessage = new ServerMessage();
-            this.userManagement = new UserManagement();
+            this.userManagement = new UserManagement(stream);
             this.messageManagement = new MessageManagement();
             while (true) {
 
@@ -71,26 +71,38 @@ public class ServerConnectionImpl implements Connection {
         switch (msgFromClient) {
             case "help":
                 stream.printWriter.println(serverMessage.getHelp());
+                return;
             case "info":
                 stream.printWriter.println(serverMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion));
+                return;
             case "uptime":
                 stream.printWriter.println(serverMessage.getUpTime(createdInstant));
+                return;
             case "stop":
                 closeConnection();
+                return;
             case "create user":
                 createUser();
+                return;
             case "delete user":
                 deleteUser();
+                return;
             case "update user":
                 updateUser();
+                return;
             case "login":
-                loginUser();
+//                loginUser();
+                userManagement.loginUser();
+                return;
             case "show users":
                 getUsers();
+                return;
             case "send msg":
                 sendMsg();
+                return;
             case "check mailbox":
                 checkMailBox();
+                return;
             default:
                 invalidCommand();
         }
@@ -182,35 +194,35 @@ public class ServerConnectionImpl implements Connection {
         return stream.bufferedReader.readLine();
     }
 
-    private void loginUser() throws IOException {
-        if (activeUser == null) {
-            stream.printWriter.println("write login:");
-            String login = userInput();
-            activeUser = new User();
-            activeUser.setNickName(login);
-
-            stream.printWriter.println("write password:");
-            String password = userInput();
-            activeUser.setPassword(password);
-
-            User user = userManagement.findUser(activeUser.getNickName());
-            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
-                activeUser.setRole(user.getRole());
-                stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
-            } else {
-                stream.printWriter.println("there is no such user in DB");
-            }
-        } else {
-            //  logout current user and login with new credentials
-            activeUser = null;
-            this.loginUser();
-        }
-    }
+//    private void loginUser() throws IOException {
+//        if (activeUser == null) {
+//            stream.printWriter.println("write login:");
+//            String login = userInput();
+//            activeUser = new User();
+//            activeUser.setNickName(login);
+//
+//            stream.printWriter.println("write password:");
+//            String password = userInput();
+//            activeUser.setPassword(password);
+//
+//            User user = userManagement.findUser(activeUser.getNickName());
+//            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+//                activeUser.setRole(user.getRole());
+//                stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
+//            } else {
+//                stream.printWriter.println("there is no such user in DB");
+//            }
+//        } else {
+//            //  logout current user and login with new credentials
+//            activeUser = null;
+//            this.loginUser();
+//        }
+//    }
 
     private void sendMsg() throws IOException {
         if (activeUser == null) {
             stream.printWriter.write("first log in to send msg --> ");
-            loginUser();
+//            loginUser();
         } else {
             stream.printWriter.println("to which user do you want send a msg?");
             String receiver = userInput();
