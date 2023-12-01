@@ -67,6 +67,12 @@ public class ServerConnectionImpl implements Connection {
         }
     }
 
+
+//    TODO take via one method just amessage from client
+//    private void returnResponse1(String msgFromClient) {
+//        userManagement.takeRequest(msgFromClient);
+//    }
+
     private void returnResponse(String msgFromClient) throws IOException {
         switch (msgFromClient) {
             case "help":

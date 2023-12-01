@@ -21,6 +21,12 @@ public class UserManagement {
 
 
 
+    void takeRequest(String commandFromClient) {
+//        take over switch from responsemethod?
+    }
+
+
+
 
     public void loginUser() throws IOException {
         if (activeUser == null) {
