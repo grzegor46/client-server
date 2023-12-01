@@ -28,9 +28,9 @@ public class ClientConnectionImpl implements Connection {
             while (true) {
 
                 String msgToServer = scanner.nextLine();
-                stream.bufferedWriter.write(msgToServer);
-                stream.bufferedWriter.newLine();
-                stream.bufferedWriter.flush();
+                stream.printWriter.println(msgToServer);
+//                stream.bufferedWriter.newLine();
+//                stream.bufferedWriter.flush();
 
                 String msgFromServer = stream.bufferedReader.readLine();
                 if (msgFromServer == null && msgToServer.equals("stop")) {

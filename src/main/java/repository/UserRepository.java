@@ -24,7 +24,6 @@ public class UserRepository {
     }
 
     public void save(User user) {
-        this.readUsersFromJson(pathToFileDB);
         this.userList.add(user);
         writeUsersToJson(this.userList);
     }

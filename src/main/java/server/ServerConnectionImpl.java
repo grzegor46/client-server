@@ -1,6 +1,7 @@
 package server;
 
 import constant.Role;
+import exception.NoUserFoundException;
 import message.ServerMessage;
 import message.UserMessage;
 import service.MessageManagement;
@@ -45,16 +46,13 @@ public class ServerConnectionImpl implements Connection {
             this.messageManagement = new MessageManagement();
             while (true) {
 
-                String msgFromClient = stream.bufferedReader.readLine();
+                String msgFromClient = userInput();
 
                 System.out.println("Client: " + msgFromClient);
 
                 if (!msgFromClient.contains("stop")) {
-                    String msgToClient = returnResponse(msgFromClient);
+                    returnResponse(msgFromClient);
 
-                    stream.bufferedWriter.write(msgToClient);
-                    stream.bufferedWriter.newLine();
-                    stream.bufferedWriter.flush();
                 } else {
                     System.out.println("Received 'stop' command from client");
                     break;
@@ -69,43 +67,36 @@ public class ServerConnectionImpl implements Connection {
         }
     }
 
-    private String returnResponse(String msgFromClient) throws IOException {
+    private void returnResponse(String msgFromClient) throws IOException {
         switch (msgFromClient) {
             case "help":
-                return serverMessage.getHelp();
+                stream.printWriter.println(serverMessage.getHelp());
             case "info":
-                return serverMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion);
+                stream.printWriter.println(serverMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion));
             case "uptime":
-                return serverMessage.getUpTime(createdInstant);
+                stream.printWriter.println(serverMessage.getUpTime(createdInstant));
             case "stop":
                 closeConnection();
             case "create user":
                 createUser();
-                return "user created";
             case "delete user":
                 deleteUser();
-                return "";
             case "update user":
                 updateUser();
-                return "";
             case "login":
                 loginUser();
-                return "";
             case "show users":
                 getUsers();
-                return "";
             case "send msg":
                 sendMsg();
-                return "";
             case "check mailbox":
                 checkMailBox();
-                return "";
             default:
-                return "Invalid command";
+                invalidCommand();
         }
     }
 
-    private void checkMailBox() throws IOException {
+    private void checkMailBox() {
         if (activeUser != null) {
             User user = userManagement.findUser(activeUser.getNickName());
             List<UserMessage> userMailBox = user.getMailBox();
@@ -116,9 +107,9 @@ public class ServerConnectionImpl implements Connection {
                 stringList.add(mail);
 
             }
-            stream.bufferedWriter.write(stringList.toString());
+            stream.printWriter.println(stringList);
         } else {
-            stream.bufferedWriter.write("you need to be logged to check users");
+            stream.printWriter.println("you need to be logged to check users");
         }
     }
 
@@ -137,35 +128,36 @@ public class ServerConnectionImpl implements Connection {
 
     private void createUser() throws IOException {
 
-        stream.bufferedWriter.write("write name");
+        stream.printWriter.println("write name");
         String name = userInput();
 
-        stream.bufferedWriter.write("write password");
+        stream.printWriter.println("write password");
         String password = userInput();
 
         userManagement.createUser(name,password);
+        stream.printWriter.println("User created");
     }
 
     private void deleteUser() throws IOException {
 
         if (activeUser.getRole().equals(Role.ADMIN)) {
-            stream.bufferedWriter.write("write nickname to delete user");
+            stream.printWriter.println("write nickname to delete user");
             String name = userInput();
             userManagement.deleteUser(name);
-            stream.bufferedWriter.write("user deleted");
+            stream.printWriter.println("user deleted");
         } else {
-            stream.bufferedWriter.write("you don't have permission");
+            stream.printWriter.println("you don't have permission");
         }
     }
 
-    private void getUsers() throws IOException {
+    private void getUsers(){
         if (activeUser != null) {
             List<User> users = userManagement.showUsers();
             for (User user : users) {
-                stream.bufferedWriter.write(user.getNickName() + ", ");
+                stream.printWriter.println(user.getNickName() + ", ");
             }
         } else {
-            stream.bufferedWriter.write("you need to be logged to check users");
+            stream.printWriter.println("you need to be logged to check list of users");
         }
     }
 
@@ -173,42 +165,40 @@ public class ServerConnectionImpl implements Connection {
         String nickname = null;
 
         if (activeUser.getRole().equals(Role.ADMIN)) {
-            stream.bufferedWriter.write("write nickname to update");
+            stream.printWriter.println("write nickname to update");
             nickname = userInput();
 
         } else if (activeUser.getRole().equals(Role.USER)) {
             nickname = activeUser.getNickName();
         }
-        stream.bufferedWriter.write("Write new password: ");
+        stream.printWriter.println("Write new password: ");
         String newPassword = userInput();
         userManagement.updateUser(nickname, newPassword);
 
-        stream.bufferedWriter.write("Password changed for user: " + nickname);
+        stream.printWriter.println("Password changed for user: " + nickname);
     }
 
     private String userInput() throws IOException {
-        stream.bufferedWriter.newLine();
-        stream.bufferedWriter.flush();
         return stream.bufferedReader.readLine();
     }
 
     private void loginUser() throws IOException {
         if (activeUser == null) {
-            stream.bufferedWriter.write("write login");
+            stream.printWriter.println("write login:");
             String login = userInput();
             activeUser = new User();
             activeUser.setNickName(login);
 
-            stream.bufferedWriter.write("write password");
+            stream.printWriter.println("write password:");
             String password = userInput();
             activeUser.setPassword(password);
 
             User user = userManagement.findUser(activeUser.getNickName());
-            if (activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
                 activeUser.setRole(user.getRole());
-                stream.bufferedWriter.write("user successfully logged in as: " + activeUser.getNickName());
+                stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
             } else {
-                stream.bufferedWriter.write("there is no such user in DB");
+                stream.printWriter.println("there is no such user in DB");
             }
         } else {
             //  logout current user and login with new credentials
@@ -219,29 +209,30 @@ public class ServerConnectionImpl implements Connection {
 
     private void sendMsg() throws IOException {
         if (activeUser == null) {
-            stream.bufferedWriter.write("first log in to send msg --> ");
+            stream.printWriter.write("first log in to send msg --> ");
             loginUser();
         } else {
-            stream.bufferedWriter.write("to which user do you want send a msg?");
+            stream.printWriter.println("to which user do you want send a msg?");
             String receiver = userInput();
             User existingUser = userManagement.findUser(receiver);
             if (existingUser != null) {
-                stream.bufferedWriter.write("type you message. Remember only 255 characters");
+                stream.printWriter.println("type you message. Remember only 255 characters");
                 String messageToSend = userInput();
                 int mailBoxCapacity = existingUser.getMailBox().size();
                 if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
                     UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
                     messageManagement.sendMessage(userMessage);
                 } else {
-                    stream.bufferedWriter.write("user has more than 5 msgs");
+                    stream.printWriter.println("user has more than 5 msgs");
                 }
             } else {
-                stream.bufferedWriter.write("didn't find user");
+                stream.printWriter.println("didn't find user");
             }
         }
     }
-}
 
-// TODO check if msgs can be more than 5 in mailbox
-// TODO check if is allwed more than 255 chars in content
-// TODO przetestuj funkcje gdy uzytkownik ma wiecej niz 5 wiadomosci -> tylko USER, admin powinien miec nieograniczona
+    private void invalidCommand() {
+        stream.printWriter.println("There is no such command");
+    }
+}
+//TODO przenies wszystko do userManagement

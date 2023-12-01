@@ -1,0 +1,31 @@
+[ {
+  "nickName" : "mama",
+  "password" : "tata",
+  "mailBox" : [ ],
+  "role" : "USER"
+}, {
+  "nickName" : "kl;op",
+  "password" : "lop",
+  "mailBox" : [ ],
+  "role" : "USER"
+}, {
+  "nickName" : "tata",
+  "password" : "tata",
+  "mailBox" : [ ],
+  "role" : "USER"
+}, {
+  "nickName" : "dup",
+  "password" : "dup",
+  "mailBox" : [ ],
+  "role" : "USER"
+}, {
+  "nickName" : "pot",
+  "password" : "pot",
+  "mailBox" : [ ],
+  "role" : "USER"
+}, {
+  "nickName" : "tata_admin",
+  "password" : "tata",
+  "mailBox" : [ ],
+  "role" : "ADMIN"
+} ]
