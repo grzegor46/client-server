@@ -22,7 +22,7 @@ public class UserManagement {
     private Stream stream;
     private final Instant createdInstant;
     private final String createdServerDate;
-    private final MessageManagement messageManagement;
+    private MessageManagement messageManagement;
 
     public UserManagement(Stream stream,String date, Instant instant) {
         this.stream = stream;
@@ -196,14 +196,24 @@ public class UserManagement {
             List<String> stringList = new ArrayList<>();
             for (UserMessage userMsgs : userMailBox) {
 
-                String mail =  messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(),userMsgs.getContent());
+                String mail;
+                if(!userMsgs.isRead()) {
+                    mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+                } else {
+                    mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+                }
                 stringList.add(mail);
-
             }
             stream.printWriter.println(stringList);
         } else {
             stream.printWriter.println("you need to be logged to check users");
         }
+    }
+
+    private void readMessage() throws IOException {
+        stream.printWriter.println("please type number of message to read it");
+        String numberOfMessage = userInput();
+
     }
 
     private void invalidCommand() {

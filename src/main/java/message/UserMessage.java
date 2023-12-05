@@ -5,6 +5,7 @@ public class UserMessage {
     private String sender;
     private String receiver;
     private String content;
+    private boolean isRead;
 
     public UserMessage(String sender, String receiver, String content) {
         this.sender = sender;
@@ -15,7 +16,7 @@ public class UserMessage {
         }
         this.content = content;
 
-
+        this.isRead = false;
     }
 
     public UserMessage() {
@@ -43,5 +44,13 @@ public class UserMessage {
 
     public String getContent() {
         return content;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
     }
 }
