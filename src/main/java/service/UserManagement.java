@@ -212,7 +212,14 @@ public class UserManagement {
 
     private void readMessage() throws IOException {
         stream.printWriter.println("please type number of message to read it");
-        String numberOfMessage = userInput();
+        Integer numberOfMessage = Integer.parseInt(userInput())-1;
+        User user = findUser(activeUser.getNickName());
+        List<UserMessage> userMailBox = user.getMailBox();
+        if(userMailBox.isEmpty()) {
+            stream.printWriter.println("there are no mails to read");
+        } else {
+            stream.printWriter.println(user.getMailBox().get(numberOfMessage));
+        }
 
     }
 
