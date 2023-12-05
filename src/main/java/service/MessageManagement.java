@@ -32,4 +32,24 @@ public class MessageManagement {
         return jsonString;
 
     }
+
+// TODO    checkMailBox()
+
+//        private void checkMailBox() {
+//        if (activeUser != null) {
+//            User user = userManagement.findUser(activeUser.getNickName());
+//            List<UserMessage> userMailBox = user.getMailBox();
+//            List<String> stringList = new ArrayList<>();
+//            for (UserMessage userMsgs : userMailBox) {
+//
+//                String mail =  messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(),userMsgs.getContent());
+//                stringList.add(mail);
+//
+//            }
+//            stream.printWriter.println(stringList);
+//        } else {
+//            stream.printWriter.println("you need to be logged to check users");
+//        }
+//    }
+//    zwrocimy tutaj liste z mailami i przekazemy ja do userManagement o odczytanie
 }
