@@ -52,7 +52,6 @@ public class ServerConnectionImpl implements Connection {
 
                 if (!msgFromClient.contains("stop")) {
                     userManagement.takeRequest(msgFromClient);
-
                 } else {
                     System.out.println("Received 'stop' command from client");
                     break;

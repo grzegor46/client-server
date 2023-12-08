@@ -21,6 +21,7 @@ public class MessageManagement {
         receiver.setMailBox(tmpUserMessageMailBox);
         userRepository.save(receiver);
 
+
     }
 
     public String getMessageAsJsonRepresentation(String name, String content) {

@@ -10,7 +10,6 @@ import utils.Stream;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -171,7 +170,7 @@ public class UserManagement {
     private void sendMsg() throws IOException {
         if (activeUser == null) {
             stream.printWriter.write("first log in to send msg --> ");
-//            loginUser();
+            loginUser();
         } else {
             stream.printWriter.println("to which user do you want send a msg?");
             String receiver = userInput();
@@ -183,6 +182,7 @@ public class UserManagement {
                 if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
                     UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
                     messageManagement.sendMessage(userMessage);
+                    stream.printWriter.println("message sent");
                 } else {
                     stream.printWriter.println("user has more than 5 msgs");
                 }
