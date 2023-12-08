@@ -64,6 +64,9 @@ public class UserManagement {
             case "check mailbox":
                 checkMailBox();
                 return;
+            case "read mail":
+                readMessage();
+                return;
             default:
                 invalidCommand();
         }
@@ -164,7 +167,7 @@ public class UserManagement {
 
         stream.printWriter.println("User created");
     }
-
+//TODO podczas wysylania wiadomosci nie konczy zadania
     private void sendMsg() throws IOException {
         if (activeUser == null) {
             stream.printWriter.write("first log in to send msg --> ");
@@ -193,32 +196,36 @@ public class UserManagement {
         if (activeUser != null) {
             User user = findUser(activeUser.getNickName());
             List<UserMessage> userMailBox = user.getMailBox();
-            List<String> stringList = new ArrayList<>();
-            for (UserMessage userMsgs : userMailBox) {
+            if(!userMailBox.isEmpty()) {
+                List<String> stringList = new ArrayList<>();
+                for (UserMessage userMsgs : userMailBox) {
 
-                String mail;
-                if(!userMsgs.isRead()) {
-                    mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
-                } else {
-                    mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+                    String mail;
+                    if (!userMsgs.isRead()) {
+                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+                    } else {
+                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+                    }
+                    stringList.add(mail);
                 }
-                stringList.add(mail);
+                stream.printWriter.println(stringList);
+            } else {
+                stream.printWriter.println("there are no mails to read");
             }
-            stream.printWriter.println(stringList);
         } else {
             stream.printWriter.println("you need to be logged to check users");
         }
     }
-
+//TODO dodaj funkcje ktora nie pozwala wyslac wiecej wiadomosci jezeli nieodczytanych wiadomosci jest wiecej niz 5
     private void readMessage() throws IOException {
-        stream.printWriter.println("please type number of message to read it");
-        Integer numberOfMessage = Integer.parseInt(userInput())-1;
+        stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
+        int numberOfMessage = Integer.parseInt(userInput())-1;
         User user = findUser(activeUser.getNickName());
         List<UserMessage> userMailBox = user.getMailBox();
         if(userMailBox.isEmpty()) {
             stream.printWriter.println("there are no mails to read");
         } else {
-            stream.printWriter.println(user.getMailBox().get(numberOfMessage));
+            stream.printWriter.println(messageManagement.readMessageFromMailBox(user,numberOfMessage));
         }
 
     }
