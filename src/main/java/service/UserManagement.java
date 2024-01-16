@@ -116,9 +116,7 @@ public class UserManagement {
     private void getUsers(){
         if (activeUser != null) {
             List<User> users = showUsers();
-            for (User user : users) {
-                stream.printWriter.println(user.getNickName() + ", ");
-            }
+            stream.printWriter.println(users.toString());
         } else {
             stream.printWriter.println("you need to be logged to check list of users");
         }
@@ -166,7 +164,7 @@ public class UserManagement {
 
         stream.printWriter.println("User created");
     }
-//TODO podczas wysylania wiadomosci nie konczy zadania
+
     private void sendMsg() throws IOException {
         if (activeUser == null) {
             stream.printWriter.write("first log in to send msg --> ");

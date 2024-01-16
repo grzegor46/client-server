@@ -63,6 +63,11 @@ public class User {
     public void setMailBox(List<UserMessage> mailBox) {
         this.mailBox = mailBox;
     }
+
+    @Override
+    public String toString() {
+        return this.getNickName();
+    }
 }
 
 
