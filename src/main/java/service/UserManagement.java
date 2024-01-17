@@ -75,8 +75,8 @@ public class UserManagement {
 
     private void checkMailBox(){
         if (activeUser != null) {
-        User user = findUser(activeUser.getNickName());
-        stream.printWriter.println(messageManagement.checkMailBox(user));
+//        User user = findUser(activeUser.getNickName());
+        stream.printWriter.println(messageManagement.checkMailBox(activeUser));
         }else {
             stream.printWriter.println("you need to be logged to check users");
         }
@@ -96,7 +96,8 @@ public class UserManagement {
 
             User user = findUser(activeUser.getNickName());
             if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
-                activeUser.setRole(user.getRole());
+                activeUser = user;
+//                activeUser.setRole(user.getRole());
                 stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
             } else {
                 stream.printWriter.println("there is no such user in DB");
@@ -172,7 +173,6 @@ public class UserManagement {
         stream.printWriter.println("User created");
     }
 
-    //TODO dodaj funkcje ktora nie pozwala wyslac wiecej wiadomosci jezeli nieodczytanych wiadomosci jest wiecej niz 5
     private void sendMsg() throws IOException {
         if (activeUser == null) {
             stream.printWriter.write("first log in to send msg --> ");
@@ -185,7 +185,6 @@ public class UserManagement {
                 stream.printWriter.println("type you message. Remember only 255 characters");
                 String messageToSend = userInput();
                 int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
-                //TODO dodaj metoda zliczajaca ilosc nieodczytanych wiadomosci
                 if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
                     UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
                     messageManagement.sendMessage(userMessage);
@@ -202,12 +201,12 @@ public class UserManagement {
     private void readMessage() throws IOException {
         stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
         int numberOfMessage = Integer.parseInt(userInput())-1;
-        User user = findUser(activeUser.getNickName());
-        List<UserMessage> userMailBox = user.getMailBox();
+//        User user = findUser(activeUser.getNickName());
+        List<UserMessage> userMailBox = activeUser.getMailBox();
         if(userMailBox.isEmpty()) {
             stream.printWriter.println("there are no mails to read");
         } else {
-            stream.printWriter.println(messageManagement.readMessageFromMailBox(user,numberOfMessage));
+            stream.printWriter.println(messageManagement.readMessageFromMailBox(activeUser,numberOfMessage));
         }
 
     }

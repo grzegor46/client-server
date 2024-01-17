@@ -50,15 +50,22 @@ public class MessageManagement {
 
 
     public List<String> checkMailBox(User user) {
-            List<UserMessage> userMailBox = user.getMailBox();
+        List<UserMessage> userMailBox = user.getMailBox();
+        if (!userMailBox.isEmpty()) {
             List<String> stringList = new ArrayList<>();
             for (UserMessage userMsgs : userMailBox) {
-                String mail =  this.getMessageAsJsonRepresentation(userMsgs.getSender(),userMsgs.getContent());
+                String mail;
+                if (!userMsgs.isRead()) {
+                    mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+                } else {
+                    mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+                }
                 stringList.add(mail);
             }
             return stringList;
         }
-
+        return null;
+    }
     public int countUnreadUserMsgs(User user) {
         List<UserMessage> userMailBox = user.getMailBox();
         int unreadMsgsDigit = 0;
@@ -70,4 +77,3 @@ public class MessageManagement {
         return unreadMsgsDigit;
     }
 }
-
