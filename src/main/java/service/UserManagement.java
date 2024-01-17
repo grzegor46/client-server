@@ -3,6 +3,7 @@ package service;
 import constant.Role;
 import message.ServerMessage;
 import message.UserMessage;
+import repository.Repository;
 import repository.UserRepository;
 import user.User;
 import utils.PropertiesUtils;
@@ -10,70 +11,76 @@ import utils.Stream;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class UserManagement {
 
-    private final UserRepository userRepository = new UserRepository();
-    public static User activeUser = null;
+    private final Repository userRepository;
+    public static User activeUser=null;
     private Stream stream;
     private final Instant createdInstant;
     private final String createdServerDate;
-    private MessageManagement messageManagement;
+    private final MessageManagement messageManagement;
 
     public UserManagement(Stream stream,String date, Instant instant) {
         this.stream = stream;
         this.createdInstant = instant;
         this.createdServerDate = date;
         this.messageManagement = new MessageManagement();
+        this.userRepository = new UserRepository();
     }
 
 
-    public void takeRequest(String commandFromClient) throws IOException {
+    public String takeRequest(String commandFromClient) throws IOException {
         switch (commandFromClient) {
             case "help":
                 stream.printWriter.println(ServerMessage.getHelp());
-                return;
+                return"";
             case "info":
                 stream.printWriter.println(ServerMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion));
-                return;
+                return"";
             case "uptime":
                 stream.printWriter.println(ServerMessage.getUpTime(createdInstant));
-                return;
+                return"";
             case "create user":
                 createUser();
-                return;
+                return"";
             case "delete user":
                 deleteUser();
-                return;
+                return"";
             case "update user":
                 updateUser();
-                return;
+                return"";
             case "login":
                 loginUser();
-                return;
+                return"";
             case "show users":
                 getUsers();
-                return;
+                return"";
             case "send msg":
                 sendMsg();
-                return;
+                return"";
             case "check mailbox":
                 checkMailBox();
-                return;
+                return"";
             case "read mail":
                 readMessage();
-                return;
+                return"";
             default:
                 invalidCommand();
         }
+        return commandFromClient;
     }
 
-//    checkMailBox(User user/activeUser){
-//    stream.printWriter(messageManagement.checkMailbox(activeUser))
-//    }
+    private void checkMailBox(){
+        if (activeUser != null) {
+        User user = findUser(activeUser.getNickName());
+        stream.printWriter.println(messageManagement.checkMailBox(user));
+        }else {
+            stream.printWriter.println("you need to be logged to check users");
+        }
+    }
 
 
     private void loginUser() throws IOException {
@@ -160,8 +167,8 @@ public class UserManagement {
         String password = userInput();
 
         User user = new User(name, password, userRole);
-        userRepository.save(user);
-
+//        userRepository.save(user);
+        saveUser(user);
         stream.printWriter.println("User created");
     }
 
@@ -177,6 +184,7 @@ public class UserManagement {
                 stream.printWriter.println("type you message. Remember only 255 characters");
                 String messageToSend = userInput();
                 int mailBoxCapacity = existingUser.getMailBox().size();
+                //TODO dodaj metoda zliczajaca ilosc nieodczytanych wiadomosci
                 if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
                     UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
                     messageManagement.sendMessage(userMessage);
@@ -190,30 +198,30 @@ public class UserManagement {
         }
     }
 
-    private void checkMailBox() {
-        if (activeUser != null) {
-            User user = findUser(activeUser.getNickName());
-            List<UserMessage> userMailBox = user.getMailBox();
-            if(!userMailBox.isEmpty()) {
-                List<String> stringList = new ArrayList<>();
-                for (UserMessage userMsgs : userMailBox) {
-
-                    String mail;
-                    if (!userMsgs.isRead()) {
-                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
-                    } else {
-                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
-                    }
-                    stringList.add(mail);
-                }
-                stream.printWriter.println(stringList);
-            } else {
-                stream.printWriter.println("there are no mails to read");
-            }
-        } else {
-            stream.printWriter.println("you need to be logged to check users");
-        }
-    }
+//    private void checkMailBox() {
+//        if (activeUser != null) {
+//            User user = findUser(activeUser.getNickName());
+//            List<UserMessage> userMailBox = user.getMailBox();
+//            if(!userMailBox.isEmpty()) {
+//                List<String> stringList = new ArrayList<>();
+//                for (UserMessage userMsgs : userMailBox) {
+//
+//                    String mail;
+//                    if (!userMsgs.isRead()) {
+//                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+//                    } else {
+//                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+//                    }
+//                    stringList.add(mail);
+//                }
+//                stream.printWriter.println(stringList);
+//            } else {
+//                stream.printWriter.println("there are no mails to read");
+//            }
+//        } else {
+//            stream.printWriter.println("you need to be logged to check users");
+//        }
+//    }
 //TODO dodaj funkcje ktora nie pozwala wyslac wiecej wiadomosci jezeli nieodczytanych wiadomosci jest wiecej niz 5
     private void readMessage() throws IOException {
         stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
@@ -242,6 +250,10 @@ public class UserManagement {
 
     public User findUser(String nickname) {
         return userRepository.findUserName(nickname);
+    }
+
+    private void saveUser(User user) {
+        userRepository.save(user);
     }
 
     public List<User> showUsers() {

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class UserRepository {
+public class UserRepository implements Repository {
 
     private static final String pathToFileDB = "src/main/java/database/UserDB.json";
     private static final ObjectMapper objectMapper = createObjectMapper();
