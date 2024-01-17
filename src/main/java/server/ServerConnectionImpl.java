@@ -1,12 +1,7 @@
 package server;
 
-import constant.Role;
-import exception.NoUserFoundException;
-import message.ServerMessage;
-import message.UserMessage;
-import service.MessageManagement;
+
 import service.UserManagement;
-import user.User;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
@@ -16,8 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class ServerConnectionImpl implements Connection {

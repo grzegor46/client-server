@@ -72,7 +72,7 @@ public class UserRepository implements Repository {
         try {
 
             ObjectWriter objectWriter = objectMapper.writer().withRootValueSeparator("\n").withDefaultPrettyPrinter();
-            objectWriter.writeValue(new File(pathToFileDB), userList);
+            objectWriter.writeValue(new File(pathToFileDB), this.userList);
 
         } catch (IOException e) {
             e.printStackTrace();

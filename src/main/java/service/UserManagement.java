@@ -27,8 +27,8 @@ public class UserManagement {
         this.stream = stream;
         this.createdInstant = instant;
         this.createdServerDate = date;
-        this.messageManagement = new MessageManagement();
         this.userRepository = new UserRepository();
+        this.messageManagement = new MessageManagement(this.userRepository);
     }
 
 
@@ -167,11 +167,12 @@ public class UserManagement {
         String password = userInput();
 
         User user = new User(name, password, userRole);
-//        userRepository.save(user);
+
         saveUser(user);
         stream.printWriter.println("User created");
     }
 
+    //TODO dodaj funkcje ktora nie pozwala wyslac wiecej wiadomosci jezeli nieodczytanych wiadomosci jest wiecej niz 5
     private void sendMsg() throws IOException {
         if (activeUser == null) {
             stream.printWriter.write("first log in to send msg --> ");
@@ -183,7 +184,7 @@ public class UserManagement {
             if (existingUser != null) {
                 stream.printWriter.println("type you message. Remember only 255 characters");
                 String messageToSend = userInput();
-                int mailBoxCapacity = existingUser.getMailBox().size();
+                int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
                 //TODO dodaj metoda zliczajaca ilosc nieodczytanych wiadomosci
                 if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
                     UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
@@ -198,31 +199,6 @@ public class UserManagement {
         }
     }
 
-//    private void checkMailBox() {
-//        if (activeUser != null) {
-//            User user = findUser(activeUser.getNickName());
-//            List<UserMessage> userMailBox = user.getMailBox();
-//            if(!userMailBox.isEmpty()) {
-//                List<String> stringList = new ArrayList<>();
-//                for (UserMessage userMsgs : userMailBox) {
-//
-//                    String mail;
-//                    if (!userMsgs.isRead()) {
-//                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
-//                    } else {
-//                        mail = messageManagement.getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
-//                    }
-//                    stringList.add(mail);
-//                }
-//                stream.printWriter.println(stringList);
-//            } else {
-//                stream.printWriter.println("there are no mails to read");
-//            }
-//        } else {
-//            stream.printWriter.println("you need to be logged to check users");
-//        }
-//    }
-//TODO dodaj funkcje ktora nie pozwala wyslac wiecej wiadomosci jezeli nieodczytanych wiadomosci jest wiecej niz 5
     private void readMessage() throws IOException {
         stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
         int numberOfMessage = Integer.parseInt(userInput())-1;

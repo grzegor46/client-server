@@ -3,7 +3,7 @@ package service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import message.UserMessage;
-import repository.UserRepository;
+import repository.Repository;
 import user.User;
 
 import java.util.ArrayList;
@@ -11,11 +11,11 @@ import java.util.List;
 
 public class MessageManagement {
 
-    private final UserRepository userRepository;
+    private final Repository userRepository;
 
 
-    public MessageManagement() {
-        this.userRepository = new UserRepository();
+    public MessageManagement(Repository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public void sendMessage(UserMessage sentMessage) {
@@ -26,7 +26,6 @@ public class MessageManagement {
         tmpUserMessageMailBox.add(sentMessage);
         receiver.setMailBox(tmpUserMessageMailBox);
         userRepository.save(receiver);
-
 
     }
 
@@ -59,5 +58,16 @@ public class MessageManagement {
             }
             return stringList;
         }
+
+    public int countUnreadUserMsgs(User user) {
+        List<UserMessage> userMailBox = user.getMailBox();
+        int unreadMsgsDigit = 0;
+        for (UserMessage userMsg : userMailBox) {
+            if(!userMsg.isRead()){
+                unreadMsgsDigit++;
+            }
+        }
+        return unreadMsgsDigit;
+    }
 }
 
