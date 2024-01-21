@@ -1,7 +1,6 @@
 package client;
 
 
-import exception.ConnectionLostException;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;

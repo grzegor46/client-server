@@ -80,7 +80,7 @@ public class UserRepository implements Repository {
 
     public User findUserName(String name) {
         for (User user : this.userList) {
-            if (user.getNickName().toLowerCase().contains(name.toLowerCase())) {
+            if (user.getNickName().equals(name.toLowerCase())) {
                 return user;
             }
         }

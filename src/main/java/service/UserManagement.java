@@ -75,7 +75,12 @@ public class UserManagement {
 
     private void checkMailBox(){
         if (activeUser != null) {
-        stream.printWriter.println(messageManagement.checkMailBox(activeUser));
+        List<String> mailbox = messageManagement.checkMailBox(activeUser);
+        if(mailbox == null) {
+            stream.printWriter.println("your mailbox is empty");
+        } else {
+            stream.printWriter.println(mailbox);
+        }
         }else {
             stream.printWriter.println("you need to be logged to check users");
         }
