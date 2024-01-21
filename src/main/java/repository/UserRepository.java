@@ -28,12 +28,11 @@ public class UserRepository implements Repository {
         writeUsersToJson(this.userList);
     }
 
-    public void update(String nickname, String passwordToChange) {
-        User user = findUserName(nickname);
-        if (user != null) {
-            this.delete(nickname);
-            user.setPassword(passwordToChange);
-            this.save(user);
+    public void update(User userWithNewUpdatedData) {
+        User userToUpdate = findUserName(userWithNewUpdatedData.getNickName());
+        if (userToUpdate != null) {
+            this.delete(userToUpdate.getNickName());
+            this.save(userToUpdate);
         } else {
             System.out.println("User not found.");
         }

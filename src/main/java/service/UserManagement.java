@@ -75,7 +75,6 @@ public class UserManagement {
 
     private void checkMailBox(){
         if (activeUser != null) {
-//        User user = findUser(activeUser.getNickName());
         stream.printWriter.println(messageManagement.checkMailBox(activeUser));
         }else {
             stream.printWriter.println("you need to be logged to check users");
@@ -100,7 +99,7 @@ public class UserManagement {
 //                activeUser.setRole(user.getRole());
                 stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
             } else {
-                stream.printWriter.println("there is no such user in DB");
+                stream.printWriter.println("there is no such user in DB or incorrect password");
             }
         } else {
             //  logout current user and login with new credentials
@@ -131,20 +130,48 @@ public class UserManagement {
     }
 
     private void updateUser() throws IOException {
-        String nickname = null;
+        User user = null;
 
         if (activeUser.getRole().equals(Role.ADMIN)) {
             stream.printWriter.println("write nickname to update");
-            nickname = userInput();
+            String nickname = userInput();
+            user = findUser(nickname);
+
+            stream.printWriter.println("what do you want to update: role or password?");
+            String userChoice = userInput().toLowerCase();
+            if(userChoice.equals("role")) {
+                changeRoleName(user);
+            }
+            if(userChoice.equals("password")) {
+                changePassword(user);
+            }
 
         } else if (activeUser.getRole().equals(Role.USER)) {
-            nickname = activeUser.getNickName();
+            user = findUser(activeUser.getNickName());
+            changePassword(user);
         }
+        updateUser(user);
+
+
+    }
+
+    private void changeRoleName(User user) throws IOException {
+        stream.printWriter.println("which role do you want add? ");
+        String role = userInput().toLowerCase();
+        if (role.equals("user") && user.getNickName().endsWith("_admin")) {
+            int position  = user.getNickName().lastIndexOf("_admin");
+            user.setNickName(user.getNickName().substring(0,position));
+        } else {
+        user.setNickName(user.getNickName() + "_admin");
+        user.setRole(Role.ADMIN);
+        }
+        stream.printWriter.println("Role changed for user: " + user.getNickName());
+    }
+    private void changePassword(User user) throws IOException {
         stream.printWriter.println("Write new password: ");
         String newPassword = userInput();
-        updateUser(nickname, newPassword);
-
-        stream.printWriter.println("Password changed for user: " + nickname);
+        user.setPassword(newPassword);
+        stream.printWriter.println("Password changed for user: " + user.getNickName());
     }
 
 // TODO make as interface?
@@ -219,8 +246,8 @@ public class UserManagement {
         userRepository.delete(nickname);
     }
 
-    public void updateUser(String nickname, String passwordToChange) {
-        userRepository.update(nickname,passwordToChange);
+    public void updateUser(User userWithUpdatedData) {
+        userRepository.update(userWithUpdatedData);
     }
 
     public User findUser(String nickname) {
