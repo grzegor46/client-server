@@ -33,8 +33,7 @@ public class MessageManagement {
         ObjectNode helpCommandAsJson = objectMapper.createObjectNode();
         helpCommandAsJson.put(name, content);
 
-        String jsonString = helpCommandAsJson.toString();
-        return jsonString;
+        return helpCommandAsJson.toString();
     }
 
     public String readMessageFromMailBox(User user, int indexOfMessage ) {

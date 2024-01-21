@@ -19,8 +19,7 @@ public class ServerMessage {
         helpCommandAsJson.put("create user","powoduje utworzenie nowego użytkownika");
         helpCommandAsJson.put("login", "logowanie się na konto użytkownika");
 
-        String jsonString = helpCommandAsJson.toString();
-        return jsonString;
+        return helpCommandAsJson.toString();
     }
 
     public static String getInfo(String createdServerDate, String applicationVersion) {
@@ -28,8 +27,7 @@ public class ServerMessage {
         infoCommandAsJson.put("createdServerDate", createdServerDate);
         infoCommandAsJson.put("appVersion", applicationVersion);
 
-        String jsonString = infoCommandAsJson.toString();
-        return jsonString;
+        return infoCommandAsJson.toString();
     }
 
     public static String getUpTime(Instant createdInstant) {
@@ -44,8 +42,7 @@ public class ServerMessage {
         upTimeCommandAsJson.put("minutes", durationMinutes);
         upTimeCommandAsJson.put("seconds", durationSeconds);
 
-        String jsonString = upTimeCommandAsJson.toString();
-        return jsonString;
+        return upTimeCommandAsJson.toString();
     }
 
 }
