@@ -26,7 +26,6 @@ public class MessageManagement {
         tmpUserMessageMailBox.add(sentMessage);
         receiver.setMailBox(tmpUserMessageMailBox);
         userRepository.save(receiver);
-
     }
 
     public String getMessageAsJsonRepresentation(String name, String content) {
@@ -36,7 +35,6 @@ public class MessageManagement {
 
         String jsonString = helpCommandAsJson.toString();
         return jsonString;
-
     }
 
     public String readMessageFromMailBox(User user, int indexOfMessage ) {
@@ -46,8 +44,6 @@ public class MessageManagement {
         userRepository.save(user);
         return (userMessage.getSender()+ ": " +userMessage.getContent());
     }
-
-
 
     public List<String> checkMailBox(User user) {
         List<UserMessage> userMailBox = user.getMailBox();
@@ -66,6 +62,7 @@ public class MessageManagement {
         }
         return null;
     }
+
     public int countUnreadUserMsgs(User user) {
         List<UserMessage> userMailBox = user.getMailBox();
         int unreadMsgsDigit = 0;

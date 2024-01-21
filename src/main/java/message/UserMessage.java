@@ -18,7 +18,7 @@ public class UserMessage {
 
         this.isRead = false;
     }
-
+    // this constructor should be because during deserialization (reading from file) error appears
     public UserMessage() {
     }
 

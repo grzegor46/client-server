@@ -81,7 +81,6 @@ public class UserManagement {
         }
     }
 
-
     private void loginUser() throws IOException {
         if (activeUser == null) {
             stream.printWriter.println("write login:");
@@ -96,7 +95,6 @@ public class UserManagement {
             User user = findUser(activeUser.getNickName());
             if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
                 activeUser = user;
-//                activeUser.setRole(user.getRole());
                 stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
             } else {
                 stream.printWriter.println("there is no such user in DB or incorrect password");
@@ -174,7 +172,6 @@ public class UserManagement {
         stream.printWriter.println("Password changed for user: " + user.getNickName());
     }
 
-// TODO make as interface?
     private String userInput() throws IOException {
         return stream.bufferedReader.readLine();
     }
@@ -228,14 +225,12 @@ public class UserManagement {
     private void readMessage() throws IOException {
         stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
         int numberOfMessage = Integer.parseInt(userInput())-1;
-//        User user = findUser(activeUser.getNickName());
         List<UserMessage> userMailBox = activeUser.getMailBox();
         if(userMailBox.isEmpty()) {
             stream.printWriter.println("there are no mails to read");
         } else {
             stream.printWriter.println(messageManagement.readMessageFromMailBox(activeUser,numberOfMessage));
         }
-
     }
 
     private void invalidCommand() {
