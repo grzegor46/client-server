@@ -51,7 +51,11 @@ public class MessageManagement {
             for (UserMessage userMsgs : userMailBox) {
                 String mail;
                 if (!userMsgs.isRead()) {
-                    mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+                    if(userMsgs.getContent().length() <= 5) {
+                        mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+                    } else {
+                        mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+                    }
                 } else {
                     mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
                 }
