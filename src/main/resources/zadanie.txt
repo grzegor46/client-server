@@ -7,28 +7,3 @@ Serwer ma obsługiwać następujące polecenia (i zwracać odpowiedź w JSONie).
 "help" - zwraca listę dostępnych komend z krótkim opisem (tych komend, z tej listy, którą właśnie czytasz, czyli inaczej, komend realizowanych przez serwer)
 "stop" - zatrzymuje jednocześnie serwer i klienta
 
-CLIENT CONSOLE
-hi
-
-> Task :Client.main()
-Server: Invalid command
-info
-Server: {"createdServerDate":"2023-07-13","appVersion":"1.0.0"}
-help
-Server: {"info":"zwraca numer wersji serwera, datę jego utworzenia","uptime":"zwraca czas życia serwera","help":"zwraca listę dostępnych komend z krótkim opisem","stop":"zatrzymuje jednocześnie serwer i klienta"}
-stop
-failed to start connection to the server.
-connection closed
-exception.NoConnectionToTheServer: no connection with the server
-	at client.ClientConnectionImpl.startConnection(ClientConnectionImpl.java:36)
-	at client.Client.main(Client.java:11)
-
-
-
-SERVER CONSOLE
-Client: hi
-Client: info
-Client: help
-Client: stop
-recieved 'stop' command from client
-connection closed
