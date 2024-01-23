@@ -112,14 +112,17 @@ public class UserManagement {
     }
 
     private void deleteUser() throws IOException {
-
-        if (activeUser.getRole().equals(Role.ADMIN)) {
-            stream.printWriter.println("write nickname to delete user");
-            String name = userInput();
-            deleteUser(name);
-            stream.printWriter.println("user deleted");
+        if(activeUser != null){
+            if (activeUser.getRole().equals(Role.ADMIN)) {
+                stream.printWriter.println("write nickname to delete user");
+                String name = userInput();
+                deleteUser(name);
+                stream.printWriter.println("user deleted");
+            } else {
+                stream.printWriter.println("you don't have permission");
+            }
         } else {
-            stream.printWriter.println("you don't have permission");
+            stream.printWriter.println("you need to be logged to delete user data");
         }
     }
 
@@ -133,29 +136,32 @@ public class UserManagement {
     }
 
     private void updateUser() throws IOException {
-        User user = null;
-
-        if (activeUser.getRole().equals(Role.ADMIN)) {
+        User user;
+        if(activeUser != null){
             stream.printWriter.println("write nickname to update");
             String nickname = userInput();
-            user = findUser(nickname);
-
-            stream.printWriter.println("what do you want to update: role or password?");
-            String userChoice = userInput().toLowerCase();
-            if(userChoice.equals("role")) {
-                changeRoleName(user);
-            }
-            if(userChoice.equals("password")) {
+            if (activeUser.getRole().equals(Role.ADMIN)) {
+                user = findUser(nickname);
+                if(user != null) {
+                    stream.printWriter.println("what do you want to update: role or password?");
+                    String userChoice = userInput().toLowerCase();
+                    if (userChoice.equals("role")) {
+                        changeRoleName(user);
+                    }
+                    if (userChoice.equals("password")) {
+                        changePassword(user);
+                    }
+                    updateUser(user);
+                }else {
+                    stream.printWriter.println("there is no such user in DB");
+                }
+            } else if (activeUser.getRole().equals(Role.USER)) {
+                user = findUser(activeUser.getNickName());
                 changePassword(user);
             }
-
-        } else if (activeUser.getRole().equals(Role.USER)) {
-            user = findUser(activeUser.getNickName());
-            changePassword(user);
+        } else {
+            stream.printWriter.println("you need to be logged to update user data");
         }
-        updateUser(user);
-
-
     }
 
     private void changeRoleName(User user) throws IOException {
