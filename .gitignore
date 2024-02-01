@@ -20,4 +20,4 @@ out/
 *.ipr
 *.iws
 *.json
-*/database
+*/database/
