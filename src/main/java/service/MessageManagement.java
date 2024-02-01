@@ -38,9 +38,9 @@ public class MessageManagement {
 
     public String readMessageFromMailBox(User user, int indexOfMessage ) {
         UserMessage userMessage = user.getMailBox().get(indexOfMessage);
-        userRepository.delete(user.getNickName());
+        this.userRepository.delete(user.getNickName());
         userMessage.setRead(true);
-        userRepository.save(user);
+        this.userRepository.save(user);
         return (userMessage.getSender()+ ": " +userMessage.getContent());
     }
 

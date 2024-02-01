@@ -116,7 +116,7 @@ public class UserManagement {
             if (activeUser.getRole().equals(Role.ADMIN)) {
                 stream.printWriter.println("write nickname to delete user");
                 String name = userInput();
-                deleteUser(name);
+                this.deleteUserFromDataBase(name);
                 stream.printWriter.println("user deleted");
             } else {
                 stream.printWriter.println("you don't have permission");
@@ -248,7 +248,7 @@ public class UserManagement {
         stream.printWriter.println("There is no such command");
     }
 
-    public void deleteUser(String nickname) {
+    public void deleteUserFromDataBase(String nickname) {
         userRepository.delete(nickname);
     }
 
