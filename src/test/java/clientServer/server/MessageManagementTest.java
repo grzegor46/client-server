@@ -37,13 +37,14 @@ public class MessageManagementTest {
     }
 //TODO wydziel czesci wspolne do osobnej metody
     @Test
-    public void shouldReturnSpecificUsersMessagesFromMailBox() {
+    public void shouldReturnUnreadSpecificUsersMessagesFromMailBox() {
         User user = new User(sender,password,Role.USER);
         List<UserMessage> mailbox = new ArrayList<>();
         mailbox.add(new UserMessage(sender,receiver,content));
         user.setMailBox(mailbox);
         List<String> messagesFromUserMailBox = messageManagement.checkMailBox(user);
         assertEquals("{\"Sender\":\"conte...\"}", messagesFromUserMailBox.get(0));
+        assertFalse(user.getMailBox().get(0).isRead());
     }
 
     @Test
