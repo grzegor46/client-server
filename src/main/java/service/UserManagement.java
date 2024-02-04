@@ -248,11 +248,11 @@ public class UserManagement {
         stream.printWriter.println("There is no such command");
     }
 
-    public void deleteUserFromDataBase(String nickname) {
+    private void deleteUserFromDataBase(String nickname) {
         userRepository.delete(nickname);
     }
 
-    public void updateUser(User userWithUpdatedData) {
+    private void updateUser(User userWithUpdatedData) {
         userRepository.update(userWithUpdatedData);
     }
 

@@ -23,24 +23,30 @@ public class ClientConnectionImpl implements Connection {
             socket = new Socket(hostNameServer, serverPort);
             this.stream = new Stream(socket);
 
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
+            CommunicationWithServer();
 
-                String msgToServer = scanner.nextLine();
-                stream.printWriter.println(msgToServer);
-
-                String msgFromServer = stream.bufferedReader.readLine();
-                if (msgFromServer == null && msgToServer.equals("stop")) {
-                    break;
-                }
-                System.out.println("Server: " + msgFromServer);
-            }
         } catch (IOException e) {
             System.out.println("Client encountered an error ");
             e.printStackTrace();
         } finally {
             closeConnection();
         }
+    }
+
+    private void CommunicationWithServer() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+
+            String msgToServer = scanner.nextLine();
+            stream.printWriter.println(msgToServer);
+
+            String msgFromServer = stream.bufferedReader.readLine();
+            if (msgFromServer == null && msgToServer.equals("stop")) {
+                break;
+            }
+            System.out.println("Server: " + msgFromServer);
+        }
+        scanner.close();
     }
 
     @Override

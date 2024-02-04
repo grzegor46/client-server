@@ -20,4 +20,4 @@ out/
 *.ipr
 *.iws
 *.json
-*/src/main/java/database/*.json
+**/database/*
