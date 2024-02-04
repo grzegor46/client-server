@@ -22,7 +22,7 @@ public class UserManagementIntegrationTest {
     }
 
     @Test
-    void shouldReturnListOfExistingUsers() {
+    void shouldServerHasConnectionWithClient() {
         assertNotNull(client);
         assertNotNull(server);
     }
