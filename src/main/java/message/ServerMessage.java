@@ -12,12 +12,12 @@ public class ServerMessage {
 
     public static String getHelp() {
         ObjectNode helpCommandAsJson = objectMapper.createObjectNode();
-        helpCommandAsJson.put("info", "zwraca numer wersji serwera, datę jego utworzenia");
-        helpCommandAsJson.put("uptime", "zwraca czas życia serwera");
-        helpCommandAsJson.put("help", "zwraca listę dostępnych komend z krótkim opisem");
-        helpCommandAsJson.put("stop", "zatrzymuje jednocześnie serwer i klienta");
-        helpCommandAsJson.put("create user","powoduje utworzenie nowego użytkownika");
-        helpCommandAsJson.put("login", "logowanie się na konto użytkownika");
+        helpCommandAsJson.put("info", "zwraca numer wersji serwera, date jego utworzenia");
+        helpCommandAsJson.put("uptime", "zwraca czas zycia serwera");
+        helpCommandAsJson.put("help", "zwraca liste dostepnych komend z krotkim opisem");
+        helpCommandAsJson.put("stop", "zatrzymuje jednoczesnie serwer i klienta");
+        helpCommandAsJson.put("create user","powoduje utworzenie nowego uzytkownika");
+        helpCommandAsJson.put("login", "logowanie sie na konto uzytkownika");
 
         return helpCommandAsJson.toString();
     }

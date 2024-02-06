@@ -1,4 +1,4 @@
-package clientServer.server;
+package clientServer.server.unitTests;
 
 import constant.Role;
 import message.UserMessage;
