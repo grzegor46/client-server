@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserManagementIntegrationTest {
 
     private final Stream streamClient;
-    private final Repository userRepository = new UserRepository();
 
     @Test
     void setUp(){
@@ -49,7 +48,7 @@ public class UserManagementIntegrationTest {
         String msgToServer = "create user";
         streamClient.printWriter.println(msgToServer);
 
-        String msgFromServer = streamClient.bufferedReader.readLine();
+        String msgFromServer = streamClient.bufferedReader.readLine(); // receiving info from server
         streamClient.printWriter.println("user_nickname");
         msgFromServer = streamClient.bufferedReader.readLine();
         streamClient.printWriter.println("user_password");
@@ -61,25 +60,41 @@ public class UserManagementIntegrationTest {
                 System.out.println("yes!");
             }
         }
-        new FileWriter(PropertiesUtils.databasePath, false).close();
     }
 
     @Test
-    void test2() throws IOException {
-
-        String msgToServer = "info";
+    void logInAsExistingUserInDataBase() throws IOException {
+        new FileWriter(PropertiesUtils.databasePath, true).append([{"nickName":"user_nickname","password":"user_password","mailBox":[],"role":"USER"})
+        //TODO wydziel czesc wspolna
+        String msgToServer = "login";
         streamClient.printWriter.println(msgToServer);
 
         String msgFromServer = streamClient.bufferedReader.readLine();
         System.out.println(msgFromServer);
+        streamClient.printWriter.println("user_nickname");
 
-        assertEquals(msgFromServer, "{\"createdServerDate\":\"2024-02-06\",\"appVersion\":\"1.1.0\"}");
+        msgFromServer = streamClient.bufferedReader.readLine(); //write password
+        streamClient.printWriter.println("user_password");
+         msgFromServer = streamClient.bufferedReader.readLine();
+        System.out.println(msgFromServer);
+         assertEquals(msgFromServer, "user successfully logged in as: user_nickname");
+
+        assertEquals(msgFromServer, "{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"}");
+    }
 
 
+
+
+    @AfterEach
+    void clenUpDataBase() throws IOException {
+        new FileWriter(PropertiesUtils.databasePath, false).close();
     }
 
     @AfterAll
-    void stopTheServer() {
+    void stopTheServer() throws IOException {
+        new FileWriter(PropertiesUtils.databasePath, false).close();
         streamClient.printWriter.println("stop");
+        streamClient.closeStreams();
     }
+
 }
