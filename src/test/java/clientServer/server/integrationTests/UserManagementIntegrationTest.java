@@ -17,9 +17,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -92,6 +93,8 @@ public class UserManagementIntegrationTest {
     @Test
     void shouldUpdateDataUserInDB() throws IOException {
         createUserWithUserRoleInDB();
+        byte[] f1 = Files.readAllBytes(Path.of(PropertiesUtils.databasePath));
+
         String msgToServer = "login";
         streamClient.printWriter.println(msgToServer);
 
@@ -103,6 +106,16 @@ public class UserManagementIntegrationTest {
         streamClient.printWriter.println("user_password");
         msgFromServer = streamClient.bufferedReader.readLine();
         System.out.println(msgFromServer);
+
+
+        streamClient.printWriter.println("update user");
+        msgFromServer = streamClient.bufferedReader.readLine();
+        streamClient.printWriter.println("user_newPassword1");
+        msgFromServer = streamClient.bufferedReader.readLine();
+        System.out.println(msgFromServer);
+        byte[] f2 = Files.readAllBytes(Path.of(PropertiesUtils.databasePath));
+//        TODO adjust that
+        assertEquals(f1, f2);
 
     }
 

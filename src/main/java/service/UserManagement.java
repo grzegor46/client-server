@@ -138,9 +138,9 @@ public class UserManagement {
     private void updateUser() throws IOException {
         User user;
         if(activeUser != null){
-            stream.printWriter.println("write nickname to update");
-            String nickname = userInput();
             if (activeUser.getRole().equals(Role.ADMIN)) {
+                stream.printWriter.println("write nickname to update");
+                String nickname = userInput();
                 user = findUser(nickname);
                 if(user != null) {
                     stream.printWriter.println("what do you want to update: role or password?");
@@ -158,6 +158,7 @@ public class UserManagement {
             } else if (activeUser.getRole().equals(Role.USER)) {
                 user = findUser(activeUser.getNickName());
                 changePassword(user);
+                updateUser(user);
             }
         } else {
             stream.printWriter.println("you need to be logged to update user data");
