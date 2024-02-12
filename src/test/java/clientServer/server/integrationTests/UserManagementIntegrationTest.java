@@ -64,7 +64,9 @@ public class UserManagementIntegrationTest {
 
     @Test
     void logInAsExistingUserInDataBase() throws IOException {
-        new FileWriter(PropertiesUtils.databasePath, true).append([{"nickName":"user_nickname","password":"user_password","mailBox":[],"role":"USER"})
+        FileWriter dB = new FileWriter(PropertiesUtils.databasePath);
+        dB.write("[{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"}]");
+        dB.close();
         //TODO wydziel czesc wspolna
         String msgToServer = "login";
         streamClient.printWriter.println(msgToServer);
@@ -78,8 +80,8 @@ public class UserManagementIntegrationTest {
          msgFromServer = streamClient.bufferedReader.readLine();
         System.out.println(msgFromServer);
          assertEquals(msgFromServer, "user successfully logged in as: user_nickname");
-
-        assertEquals(msgFromServer, "{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"}");
+//
+//        assertEquals(msgFromServer, "{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"}");
     }
 
 
@@ -87,14 +89,18 @@ public class UserManagementIntegrationTest {
 
     @AfterEach
     void clenUpDataBase() throws IOException {
-        new FileWriter(PropertiesUtils.databasePath, false).close();
+        cleanUpDB();
     }
 
     @AfterAll
     void stopTheServer() throws IOException {
-        new FileWriter(PropertiesUtils.databasePath, false).close();
+//        cleanUpDB();
         streamClient.printWriter.println("stop");
         streamClient.closeStreams();
+    }
+
+    void cleanUpDB() throws IOException {
+        new FileWriter(PropertiesUtils.databasePath, false).close();
     }
 
 }
