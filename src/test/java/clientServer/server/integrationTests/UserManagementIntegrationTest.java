@@ -29,7 +29,8 @@ public class UserManagementIntegrationTest {
 
     @Test
     void setUp(){
-        // before running these tests, please run first server manually or run gradle script "runServer"
+        // before running these tests, please run first server manually or run gradle script "runServer" ->
+        // in terminal please type command --> "./gradlew runServer"
     }
 
     public UserManagementIntegrationTest() throws IOException {
@@ -63,10 +64,51 @@ public class UserManagementIntegrationTest {
     }
 
     @Test
+    void shouldAsAdminDeleteExistingUserInDataBase() throws IOException {
+        createListOfUsersInDB();
+
+        String msgToServer = "login";
+        streamClient.printWriter.println(msgToServer);
+
+        String msgFromServer = streamClient.bufferedReader.readLine();
+        System.out.println(msgFromServer);
+        streamClient.printWriter.println("user_nickname_admin");
+
+        msgFromServer = streamClient.bufferedReader.readLine(); //write password
+        streamClient.printWriter.println("user_password");
+        msgFromServer = streamClient.bufferedReader.readLine();
+        System.out.println(msgFromServer);
+        // logged as admin
+
+        // step to delete user
+        streamClient.printWriter.println("delete user");
+        msgFromServer = streamClient.bufferedReader.readLine();
+        streamClient.printWriter.println("user_nickname");
+        msgFromServer = streamClient.bufferedReader.readLine();
+        System.out.println(msgFromServer);
+        assertEquals(120,new File(PropertiesUtils.databasePath).length());
+    }
+
+    @Test
+    void shouldUpdateDataUserInDB() throws IOException {
+        createUserWithUserRoleInDB();
+        String msgToServer = "login";
+        streamClient.printWriter.println(msgToServer);
+
+        String msgFromServer = streamClient.bufferedReader.readLine();
+        System.out.println(msgFromServer);
+        streamClient.printWriter.println("user_nickname");
+
+        msgFromServer = streamClient.bufferedReader.readLine(); //write password
+        streamClient.printWriter.println("user_password");
+        msgFromServer = streamClient.bufferedReader.readLine();
+        System.out.println(msgFromServer);
+
+    }
+
+    @Test
     void logInAsExistingUserInDataBase() throws IOException {
-        FileWriter dB = new FileWriter(PropertiesUtils.databasePath);
-        dB.write("[{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"}]");
-        dB.close();
+        createUserWithUserRoleInDB();
         //TODO wydziel czesc wspolna
         String msgToServer = "login";
         streamClient.printWriter.println(msgToServer);
@@ -80,24 +122,39 @@ public class UserManagementIntegrationTest {
          msgFromServer = streamClient.bufferedReader.readLine();
         System.out.println(msgFromServer);
          assertEquals(msgFromServer, "user successfully logged in as: user_nickname");
-//
-//        assertEquals(msgFromServer, "{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"}");
     }
 
 
 
-
-    @AfterEach
-    void clenUpDataBase() throws IOException {
-        cleanUpDB();
+    void createListOfUsersInDB() throws IOException {
+        FileWriter dB = new FileWriter(PropertiesUtils.databasePath);
+        dB.write("[{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"},{\"nickName\":\"user_nickname_admin\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"ADMIN\"}]");
+        dB.close();
     }
 
-    @AfterAll
-    void stopTheServer() throws IOException {
+    void createUserWithUserRoleInDB() throws IOException {
+        FileWriter dB = new FileWriter(PropertiesUtils.databasePath);
+        dB.write("[{\"nickName\":\"user_nickname\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"USER\"}]");
+        dB.close();
+    }
+
+    void createUserWithAdminRoleInDB() throws IOException {
+        FileWriter dB = new FileWriter(PropertiesUtils.databasePath);
+        dB.write("[{\"nickName\":\"user_nickname_admin\",\"password\":\"user_password\",\"mailBox\":[],\"role\":\"ADMIN\"}]");
+        dB.close();
+    }
+
+//    @AfterEach
+//    void cleanUpDataBase() throws IOException {
 //        cleanUpDB();
-        streamClient.printWriter.println("stop");
-        streamClient.closeStreams();
-    }
+//    }
+//
+//    @AfterAll
+//    void stopTheServer() throws IOException {
+//        cleanUpDB();
+//        streamClient.printWriter.println("stop");
+//        streamClient.closeStreams();
+//    }
 
     void cleanUpDB() throws IOException {
         new FileWriter(PropertiesUtils.databasePath, false).close();
