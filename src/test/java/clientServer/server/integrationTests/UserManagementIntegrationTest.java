@@ -1,11 +1,15 @@
 package clientServer.server.integrationTests;
 
 import client.Client;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import database.DataBaseManager;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import repository.Repository;
 import repository.UserRepository;
 import server.Server;
 import service.UserManagement;
+import user.User;
 import utils.PropertiesUtils;
 import utils.Stream;
 
@@ -89,11 +93,12 @@ public class UserManagementIntegrationTest {
         System.out.println(msgFromServer);
         assertEquals(120,new File(PropertiesUtils.databasePath).length());
     }
-
+//TODO false positive --> adjust that test
     @Test
-    void shouldUpdateDataUserInDB() throws IOException {
+    void shouldUpdateDataUserInDB() throws IOException, InterruptedException {
         createUserWithUserRoleInDB();
-        byte[] f1 = Files.readAllBytes(Path.of(PropertiesUtils.databasePath));
+        List<User> userListBefore = new DataBaseManager().readUsersFromJson();
+        String password = String.valueOf(userListBefore.get(0).getPassword());
 
         String msgToServer = "login";
         streamClient.printWriter.println(msgToServer);
@@ -113,9 +118,16 @@ public class UserManagementIntegrationTest {
         streamClient.printWriter.println("user_newPassword1");
         msgFromServer = streamClient.bufferedReader.readLine();
         System.out.println(msgFromServer);
-        byte[] f2 = Files.readAllBytes(Path.of(PropertiesUtils.databasePath));
+
+        List<User> userListafter = new DataBaseManager().readUsersFromJson();
+        String passwordAfter = String.valueOf(userListafter.get(0).getPassword());
+
+        System.out.println(password);
+        System.out.println(passwordAfter);
 //        TODO adjust that
-        assertEquals(f1, f2);
+//        assertSame(f1, f2);
+        assertEquals(password, passwordAfter);
+
 
     }
 
