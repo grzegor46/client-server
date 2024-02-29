@@ -1,4 +1,4 @@
-package clientServer.server.integrationTests;
+package clientServer.server.unitTests;
 
 import message.ServerMessage;
 import org.junit.jupiter.api.Test;
