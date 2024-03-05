@@ -113,18 +113,21 @@ public class UserManagement {
         }
     }
 
-    private void deleteUser() throws IOException {
+    public String deleteUser(String name){
         if(activeUser != null){
             if (activeUser.getRole().equals(Role.ADMIN)) {
-                stream.printWriter.println("write nickname to delete user");
-                String name = userInput();
+//                stream.printWriter.println("write nickname to delete user");
+//                String name = userInput();
                 this.deleteUserFromDataBase(name);
-                stream.printWriter.println("user deleted");
+//                stream.printWriter.println("user deleted");
+                return "user deleted";
             } else {
-                stream.printWriter.println("you don't have permission");
+//                stream.printWriter.println("you don't have permission");
+                return "you don't have permission";
             }
         } else {
-            stream.printWriter.println("you need to be logged to delete user data");
+//            stream.printWriter.println("you need to be logged to delete user data");
+            return "you need to be logged to delete user data";
         }
     }
 
@@ -141,7 +144,7 @@ public class UserManagement {
         User user;
         if(activeUser != null){
             if (activeUser.getRole().equals(Role.ADMIN)) {
-                stream.printWriter.println("write nickname to update");
+//                stream.printWriter.println("write nickname to update");
                 String nickname = userInput();
                 user = findUser(nickname);
                 if(user != null) {
