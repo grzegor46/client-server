@@ -140,15 +140,15 @@ public class UserManagement {
         }
     }
 
-    private void updateUser() throws IOException {
+    public void updateUser(String nickname) throws IOException {
         User user;
         if(activeUser != null){
             if (activeUser.getRole().equals(Role.ADMIN)) {
 //                stream.printWriter.println("write nickname to update");
-                String nickname = userInput();
+//                String nickname = userInput();
                 user = findUser(nickname);
                 if(user != null) {
-                    stream.printWriter.println("what do you want to update: role or password?");
+//                    stream.printWriter.println("what do you want to update: role or password?");
                     String userChoice = userInput().toLowerCase();
                     if (userChoice.equals("role")) {
                         changeRoleName(user);
@@ -171,7 +171,7 @@ public class UserManagement {
     }
 
     private void changeRoleName(User user) throws IOException {
-        stream.printWriter.println("which role do you want add? ");
+//        stream.printWriter.println("which role do you want add? ");
         String role = userInput().toLowerCase();
         if (role.equals("user") && user.getNickName().endsWith("_admin")) {
             int position  = user.getNickName().lastIndexOf("_admin");
