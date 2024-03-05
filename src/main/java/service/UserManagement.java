@@ -18,60 +18,62 @@ public class UserManagement {
 
     private final Repository userRepository;
     public static User activeUser=null;
-    private Stream stream;
-    private final Instant createdInstant;
-    private final String createdServerDate;
+//    private Stream stream;
+//    private final Instant createdInstant;
+//    private final String createdServerDate;
     private final MessageManagement messageManagement;
 
-    public UserManagement(Stream stream,String date, Instant instant) {
-        this.stream = stream;
-        this.createdInstant = instant;
-        this.createdServerDate = date;
+//    public UserManagement(Stream stream,String date, Instant instant) {
+        public UserManagement() {
+//        this.stream = stream;
+//        this.createdInstant = instant;
+//        this.createdServerDate = date;
         this.userRepository = new UserRepository();
         this.messageManagement = new MessageManagement(this.userRepository);
     }
 
 
-    public String takeRequest(String commandFromClient) throws IOException {
-        switch (commandFromClient) {
-            case "help":
-                stream.printWriter.println(ServerMessage.getHelp());
-                return"";
-            case "info":
-                stream.printWriter.println(ServerMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion));
-                return"";
-            case "uptime":
-                stream.printWriter.println(ServerMessage.getUpTime(createdInstant));
-                return"";
-            case "create user":
-                createUser();
-                return"";
-            case "delete user":
-                deleteUser();
-                return"";
-            case "update user":
-                updateUser();
-                return"";
-            case "login":
-                loginUser();
-                return"";
-            case "show users":
-                getUsers();
-                return"";
-            case "send msg":
-                sendMsg();
-                return"";
-            case "check mailbox":
-                checkMailBox();
-                return"";
-            case "read mail":
-                readMessage();
-                return"";
-            default:
-                invalidCommand();
-        }
-        return commandFromClient;
-    }
+//    public String takeRequest(String commandFromClient) throws IOException {
+//        switch (commandFromClient) {
+//            case "help":
+//                stream.printWriter.println(ServerMessage.getHelp());
+//                return"";
+//            case "info":
+//                stream.printWriter.println(ServerMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion));
+//                return"";
+//            case "uptime":
+//                stream.printWriter.println(ServerMessage.getUpTime(createdInstant));
+//                return"";
+//            case "create user":
+////                createUser();
+//                setCredentialsForNewUser();
+//                return"User created";
+//            case "delete user":
+//                deleteUser();
+//                return"";
+//            case "update user":
+//                updateUser();
+//                return"";
+//            case "login":
+//                loginUser();
+//                return"";
+//            case "show users":
+//                getUsers();
+//                return"";
+//            case "send msg":
+//                sendMsg();
+//                return"";
+//            case "check mailbox":
+//                checkMailBox();
+//                return"";
+//            case "read mail":
+//                readMessage();
+//                return"";
+//            default:
+//                invalidCommand();
+//        }
+//        return commandFromClient;
+//    }
 
     private void checkMailBox(){
         if (activeUser != null) {
@@ -184,29 +186,29 @@ public class UserManagement {
         stream.printWriter.println("Password changed for user: " + user.getNickName());
     }
 
-    private String userInput() throws IOException {
-        return stream.bufferedReader.readLine();
-    }
+//    private String userInput() throws IOException {
+//        return stream.bufferedReader.readLine();
+//    }
 
-    private void createUser() throws IOException {
+    public void createUser(String[] credentials) throws IOException {
         Role userRole;
 
-        stream.printWriter.println("write name");
-        String name = userInput();
+//        stream.printWriter.println("write name");
+//        String name = userInput();
 
-        if(name.endsWith("_admin")) {
+        if(credentials[0].endsWith("_admin")) {
             userRole = Role.ADMIN;
         } else {
             userRole = Role.USER;
         }
 
-        stream.printWriter.println("write password");
-        String password = userInput();
+//        stream.printWriter.println("write password");
+//        String password = userInput();
 
-        User user = new User(name, password, userRole);
+        User user = new User(credentials[0], credentials[1], userRole);
 
         saveUser(user);
-        stream.printWriter.println("User created");
+//        stream.printWriter.println("User created");
     }
 
     private void sendMsg() throws IOException {
@@ -245,9 +247,9 @@ public class UserManagement {
         }
     }
 
-    private void invalidCommand() {
-        stream.printWriter.println("There is no such command");
-    }
+//    private void invalidCommand() {
+//        stream.printWriter.println("There is no such command");
+//    }
 
     private void deleteUserFromDataBase(String nickname) {
         userRepository.delete(nickname);

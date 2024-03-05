@@ -20,7 +20,8 @@ public class ServerConnectionImpl implements Connection {
     private Socket socket = null;
     private ServerSocket serverSocket;
     private Stream stream = null;
-    private UserManagement userManagement;
+//    private UserManagement userManagement;
+    private RequestGetter requestGetter;
 
 
 
@@ -31,7 +32,8 @@ public class ServerConnectionImpl implements Connection {
             serverSocket = new ServerSocket(PropertiesUtils.serverPort);
             socket = serverSocket.accept();
             this.stream = new Stream(socket);
-            this.userManagement = new UserManagement(stream, createdServerDate, createdInstant);
+//            this.userManagement = new UserManagement(stream, createdServerDate, createdInstant);
+            this.requestGetter = new RequestGetter(stream, createdServerDate, createdInstant);
             while (true) {
 
                 String msgFromClient = userInput();
@@ -39,7 +41,8 @@ public class ServerConnectionImpl implements Connection {
                 System.out.println("Client: " + msgFromClient);
 
                 if (!msgFromClient.contains("stop")) {
-                    userManagement.takeRequest(msgFromClient);
+                    requestGetter.takeRequest(msgFromClient);
+//                    userManagement.takeRequest(msgFromClient);
                 } else {
                     System.out.println("Received 'stop' command from client");
                     break;
