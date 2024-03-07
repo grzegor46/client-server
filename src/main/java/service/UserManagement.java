@@ -17,7 +17,7 @@ import java.util.List;
 public class UserManagement {
 
     private final Repository userRepository;
-    public static User activeUser=null;
+    public static User activeUser;
     private final MessageManagement messageManagement;
 
         public UserManagement() {
@@ -52,12 +52,8 @@ public class UserManagement {
             } else {
                return "there is no such user in DB or incorrect password";
             }
-        } else {
-            //  logout current user and login with new credentials
-            activeUser = null;
-            this.loginUser(nicknameToLogIn, password);
         }
-        return "action login met problem";
+        return "action login met a problem";
     }
 
     public String deleteUser(String name){

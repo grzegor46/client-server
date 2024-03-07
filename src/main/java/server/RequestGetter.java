@@ -80,11 +80,19 @@ public class RequestGetter {
     }
 
     private void logIn() throws IOException {
-        stream.printWriter.println("write login:");
-        String login = userInput();
-        stream.printWriter.println("write password:");
-        String password = userInput();
-        stream.printWriter.println(userManagement.loginUser(login, password));
+        if(activeUser == null) {
+            stream.printWriter.println("write login:");
+            String login = userInput();
+            stream.printWriter.println("write password:");
+            String password = userInput();
+            stream.printWriter.println(userManagement.loginUser(login, password));
+        } else {
+            logout();
+            stream.printWriter.println("You have been logged out from active profile, if you want to login to other account, please login again");
+        }
+    }
+    private void logout() {
+        activeUser = null;
     }
 
     private void getUserNickNameToDelete() throws IOException {
