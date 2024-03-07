@@ -18,62 +18,12 @@ public class UserManagement {
 
     private final Repository userRepository;
     public static User activeUser=null;
-//    private Stream stream;
-//    private final Instant createdInstant;
-//    private final String createdServerDate;
     private final MessageManagement messageManagement;
 
-//    public UserManagement(Stream stream,String date, Instant instant) {
         public UserManagement() {
-//        this.stream = stream;
-//        this.createdInstant = instant;
-//        this.createdServerDate = date;
         this.userRepository = new UserRepository();
         this.messageManagement = new MessageManagement(this.userRepository);
     }
-
-
-//    public String takeRequest(String commandFromClient) throws IOException {
-//        switch (commandFromClient) {
-//            case "help":
-//                stream.printWriter.println(ServerMessage.getHelp());
-//                return"";
-//            case "info":
-//                stream.printWriter.println(ServerMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion));
-//                return"";
-//            case "uptime":
-//                stream.printWriter.println(ServerMessage.getUpTime(createdInstant));
-//                return"";
-//            case "create user":
-////                createUser();
-//                setCredentialsForNewUser();
-//                return"User created";
-//            case "delete user":
-//                deleteUser();
-//                return"";
-//            case "update user":
-//                updateUser();
-//                return"";
-//            case "login":
-//                loginUser();
-//                return"";
-//            case "show users":
-//                getUsers();
-//                return"";
-//            case "send msg":
-//                sendMsg();
-//                return"";
-//            case "check mailbox":
-//                checkMailBox();
-//                return"";
-//            case "read mail":
-//                readMessage();
-//                return"";
-//            default:
-//                invalidCommand();
-//        }
-//        return commandFromClient;
-//    }
 
     private void checkMailBox(){
         if (activeUser != null) {
@@ -116,17 +66,12 @@ public class UserManagement {
     public String deleteUser(String name){
         if(activeUser != null){
             if (activeUser.getRole().equals(Role.ADMIN)) {
-//                stream.printWriter.println("write nickname to delete user");
-//                String name = userInput();
                 this.deleteUserFromDataBase(name);
-//                stream.printWriter.println("user deleted");
                 return "user deleted";
             } else {
-//                stream.printWriter.println("you don't have permission");
                 return "you don't have permission";
             }
         } else {
-//            stream.printWriter.println("you need to be logged to delete user data");
             return "you need to be logged to delete user data";
         }
     }
@@ -140,78 +85,76 @@ public class UserManagement {
         }
     }
 
-    public void updateUser(String nickname) throws IOException {
+    public String updateUserDataAsAdmin(String userNicknameToDataUpdate, String role, String password){
         User user;
         if(activeUser != null){
             if (activeUser.getRole().equals(Role.ADMIN)) {
-//                stream.printWriter.println("write nickname to update");
-//                String nickname = userInput();
-                user = findUser(nickname);
+                user = findUser(userNicknameToDataUpdate);
                 if(user != null) {
-//                    stream.printWriter.println("what do you want to update: role or password?");
-                    String userChoice = userInput().toLowerCase();
-                    if (userChoice.equals("role")) {
-                        changeRoleName(user);
+                    if (!role.isEmpty()) {
+                        changeRoleName(user, role);
+                        updateUser(user);
+                        return "Role changed for user: " + user.getNickName();
                     }
-                    if (userChoice.equals("password")) {
-                        changePassword(user);
+                    if (password.equals("password")) {
+                        changePassword(user, password);
+                        updateUser(user);
+                        return "Password changed for user: " + user.getNickName();
                     }
-                    updateUser(user);
                 }else {
-                    stream.printWriter.println("there is no such user in DB");
+                    return "there is no such user in DB";
                 }
-            } else if (activeUser.getRole().equals(Role.USER)) {
-                user = findUser(activeUser.getNickName());
-                changePassword(user);
-                updateUser(user);
             }
         } else {
-            stream.printWriter.println("you need to be logged to update user data");
+            return "you need to be logged to update user data";
         }
+        return "action update as admin met problem";
+    }
+    public String updateUserDataAsUser(String password) {
+        User user;
+        if(activeUser != null){
+            if (activeUser.getRole().equals(Role.USER)) {
+                user = findUser(activeUser.getNickName());
+                if(user != null) {
+                    changePassword(user, password);
+                    updateUser(user);
+                    return "Password changed for user: " + user.getNickName();
+                }else {
+                    return "there is no such user in DB";
+                }
+            }
+        } else {
+            return "you need to be logged to update user data";
+        }
+        return "operation update met problem";
     }
 
-    private void changeRoleName(User user) throws IOException {
-//        stream.printWriter.println("which role do you want add? ");
-        String role = userInput().toLowerCase();
+    private void changeRoleName(User user, String role){
         if (role.equals("user") && user.getNickName().endsWith("_admin")) {
             int position  = user.getNickName().lastIndexOf("_admin");
             user.setNickName(user.getNickName().substring(0,position));
         } else {
         user.setNickName(user.getNickName() + "_admin");
         user.setRole(Role.ADMIN);
+
         }
-        stream.printWriter.println("Role changed for user: " + user.getNickName());
     }
-    private void changePassword(User user) throws IOException {
-        stream.printWriter.println("Write new password: ");
-        String newPassword = userInput();
+    private void changePassword(User user, String password)  {
+        String newPassword = password;
         user.setPassword(newPassword);
-        stream.printWriter.println("Password changed for user: " + user.getNickName());
     }
 
-//    private String userInput() throws IOException {
-//        return stream.bufferedReader.readLine();
-//    }
-
-    public void createUser(String[] credentials) throws IOException {
+    public void createUser(String[] credentials) {
         Role userRole;
-
-//        stream.printWriter.println("write name");
-//        String name = userInput();
 
         if(credentials[0].endsWith("_admin")) {
             userRole = Role.ADMIN;
         } else {
             userRole = Role.USER;
         }
-
-//        stream.printWriter.println("write password");
-//        String password = userInput();
-
         User user = new User(credentials[0], credentials[1], userRole);
 
         saveUser(user);
-//        stream.printWriter.println("User created");
     }
 
     private void sendMsg() throws IOException {
@@ -250,9 +193,6 @@ public class UserManagement {
         }
     }
 
-//    private void invalidCommand() {
-//        stream.printWriter.println("There is no such command");
-//    }
 
     private void deleteUserFromDataBase(String nickname) {
         userRepository.delete(nickname);
