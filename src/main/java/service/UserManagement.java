@@ -89,7 +89,7 @@ public class UserManagement {
                         updateUser(user);
                         return "Role changed for user: " + user.getNickName();
                     }
-                    if (password.equals("password")) {
+                    if (!password.isEmpty()) {
                         changePassword(user, password);
                         updateUser(user);
                         return "Password changed for user: " + user.getNickName();
