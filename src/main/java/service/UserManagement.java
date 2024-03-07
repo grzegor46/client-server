@@ -132,8 +132,7 @@ public class UserManagement {
 
         }
     }
-    private void changePassword(User user, String password)  {
-        String newPassword = password;
+    private void changePassword(User user, String newPassword)  {
         user.setPassword(newPassword);
     }
 
