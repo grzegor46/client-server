@@ -1,4 +1,4 @@
-package server;
+package Controller;
 
 import constant.Role;
 import message.ServerMessage;
@@ -11,21 +11,21 @@ import java.time.Instant;
 
 import static service.UserManagement.activeUser;
 
-public class RequestGetter {
+public class RequestGetterController {
 
     private final Stream stream;
     private final Instant createdInstant;
     private final String createdServerDate;
     private UserManagement userManagement;
 
-    public RequestGetter(Stream stream, String date, Instant instant) {
+    public RequestGetterController(Stream stream, String date, Instant instant) {
         this.stream = stream;
         this.createdInstant = instant;
         this.createdServerDate = date;
         this.userManagement = new UserManagement();
     }
 
-    public String takeRequest(String commandFromClient) throws IOException {
+    public String getRequest(String commandFromClient) throws IOException {
         switch (commandFromClient) {
             case "help":
                 stream.printWriter.println(ServerMessage.getHelp());
