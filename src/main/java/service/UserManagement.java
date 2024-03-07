@@ -60,7 +60,7 @@ public class UserManagement {
         if(activeUser != null){
             if (activeUser.getRole().equals(Role.ADMIN)) {
                 this.deleteUserFromDataBase(name);
-                return "user deleted";
+                return "user " +name+ " deleted";
             } else {
                 return "you don't have permission";
             }
