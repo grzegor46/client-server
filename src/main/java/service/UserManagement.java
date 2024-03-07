@@ -38,30 +38,27 @@ public class UserManagement {
 //        }
 //    }
 
-//    private void loginUser() throws IOException {
-//        if (activeUser == null) {
-//            stream.printWriter.println("write login:");
-//            String login = userInput();
-//            activeUser = new User();
-//            activeUser.setNickName(login);
-//
-//            stream.printWriter.println("write password:");
-//            String password = userInput();
-//            activeUser.setPassword(password);
-//
-//            User user = findUser(activeUser.getNickName());
-//            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
-//                activeUser = user;
-//                stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
-//            } else {
-//                stream.printWriter.println("there is no such user in DB or incorrect password");
-//            }
-//        } else {
-//            //  logout current user and login with new credentials
-//            activeUser = null;
-//            this.loginUser();
-//        }
-//    }
+    public String loginUser(String nicknameToLogIn, String password)  {
+        if (activeUser == null) {
+
+            activeUser = new User();
+            activeUser.setNickName(nicknameToLogIn);
+            activeUser.setPassword(password);
+
+            User user = findUser(activeUser.getNickName());
+            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+                activeUser = user;
+                return "user successfully logged in as: " + activeUser.getNickName();
+            } else {
+               return "there is no such user in DB or incorrect password";
+            }
+        } else {
+            //  logout current user and login with new credentials
+            activeUser = null;
+            this.loginUser(nicknameToLogIn, password);
+        }
+        return "action login met problem";
+    }
 
     public String deleteUser(String name){
         if(activeUser != null){

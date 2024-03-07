@@ -47,20 +47,20 @@ public class RequestGetter {
                 updateUserData();
                 return"";
             case "login":
-                loginUser();
+                logIn();
                 return"";
-            case "show users":
-                getUsers();
-                return"";
-            case "send msg":
-                sendMsg();
-                return"";
-            case "check mailbox":
-                checkMailBox();
-                return"";
-            case "read mail":
-                readMessage();
-                return"";
+//            case "show users":
+//                getUsers();
+//                return"";
+//            case "send msg":
+//                sendMsg();
+//                return"";
+//            case "check mailbox":
+//                checkMailBox();
+//                return"";
+//            case "read mail":
+//                readMessage();
+//                return"";
             default:
                 invalidCommand();
         }
@@ -77,6 +77,14 @@ public class RequestGetter {
         String[] credentialsForNewUser = new String[] {name,password};
         userManagement.createUser(credentialsForNewUser);
         stream.printWriter.println("User created");
+    }
+
+    private void logIn() throws IOException {
+        stream.printWriter.println("write login:");
+        String login = userInput();
+        stream.printWriter.println("write password:");
+        String password = userInput();
+        stream.printWriter.println(userManagement.loginUser(login, password));
     }
 
     private void getUserNickNameToDelete() throws IOException {
