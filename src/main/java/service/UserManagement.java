@@ -25,43 +25,43 @@ public class UserManagement {
         this.messageManagement = new MessageManagement(this.userRepository);
     }
 
-    private void checkMailBox(){
-        if (activeUser != null) {
-        List<String> mailbox = messageManagement.checkMailBox(activeUser);
-        if(mailbox == null) {
-            stream.printWriter.println("your mailbox is empty");
-        } else {
-            stream.printWriter.println(mailbox);
-        }
-        }else {
-            stream.printWriter.println("you need to be logged to check users");
-        }
-    }
+//    private void checkMailBox(){
+//        if (activeUser != null) {
+//        List<String> mailbox = messageManagement.checkMailBox(activeUser);
+//        if(mailbox == null) {
+//            stream.printWriter.println("your mailbox is empty");
+//        } else {
+//            stream.printWriter.println(mailbox);
+//        }
+//        }else {
+//            stream.printWriter.println("you need to be logged to check users");
+//        }
+//    }
 
-    private void loginUser() throws IOException {
-        if (activeUser == null) {
-            stream.printWriter.println("write login:");
-            String login = userInput();
-            activeUser = new User();
-            activeUser.setNickName(login);
-
-            stream.printWriter.println("write password:");
-            String password = userInput();
-            activeUser.setPassword(password);
-
-            User user = findUser(activeUser.getNickName());
-            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
-                activeUser = user;
-                stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
-            } else {
-                stream.printWriter.println("there is no such user in DB or incorrect password");
-            }
-        } else {
-            //  logout current user and login with new credentials
-            activeUser = null;
-            this.loginUser();
-        }
-    }
+//    private void loginUser() throws IOException {
+//        if (activeUser == null) {
+//            stream.printWriter.println("write login:");
+//            String login = userInput();
+//            activeUser = new User();
+//            activeUser.setNickName(login);
+//
+//            stream.printWriter.println("write password:");
+//            String password = userInput();
+//            activeUser.setPassword(password);
+//
+//            User user = findUser(activeUser.getNickName());
+//            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+//                activeUser = user;
+//                stream.printWriter.println("user successfully logged in as: " + activeUser.getNickName());
+//            } else {
+//                stream.printWriter.println("there is no such user in DB or incorrect password");
+//            }
+//        } else {
+//            //  logout current user and login with new credentials
+//            activeUser = null;
+//            this.loginUser();
+//        }
+//    }
 
     public String deleteUser(String name){
         if(activeUser != null){
@@ -76,14 +76,14 @@ public class UserManagement {
         }
     }
 
-    private void getUsers(){
-        if (activeUser != null) {
-            List<User> users = showUsers();
-            stream.printWriter.println(users.toString());
-        } else {
-            stream.printWriter.println("you need to be logged to check list of users");
-        }
-    }
+//    private void getUsers(){
+//        if (activeUser != null) {
+//            List<User> users = showUsers();
+//            stream.printWriter.println(users.toString());
+//        } else {
+//            stream.printWriter.println("you need to be logged to check list of users");
+//        }
+//    }
 
     public String updateUserDataAsAdmin(String userNicknameToDataUpdate, String role, String password){
         User user;
@@ -157,41 +157,41 @@ public class UserManagement {
         saveUser(user);
     }
 
-    private void sendMsg() throws IOException {
-        if (activeUser == null) {
-            stream.printWriter.write("first log in to send msg --> ");
-            loginUser();
-        } else {
-            stream.printWriter.println("to which user do you want send a msg?");
-            String receiver = userInput();
-            User existingUser = findUser(receiver);
-            if (existingUser != null) {
-                stream.printWriter.println("type you message. Remember only 255 characters");
-                String messageToSend = userInput();
-                int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
-                if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
-                    UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-                    messageManagement.sendMessage(userMessage);
-                    stream.printWriter.println("message sent");
-                } else {
-                    stream.printWriter.println("user has more than 5 msgs");
-                }
-            } else {
-                stream.printWriter.println("didn't find user");
-            }
-        }
-    }
+//    private void sendMsg() throws IOException {
+//        if (activeUser == null) {
+//            stream.printWriter.write("first log in to send msg --> ");
+//            loginUser();
+//        } else {
+//            stream.printWriter.println("to which user do you want send a msg?");
+//            String receiver = userInput();
+//            User existingUser = findUser(receiver);
+//            if (existingUser != null) {
+//                stream.printWriter.println("type you message. Remember only 255 characters");
+//                String messageToSend = userInput();
+//                int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
+//                if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
+//                    UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+//                    messageManagement.sendMessage(userMessage);
+//                    stream.printWriter.println("message sent");
+//                } else {
+//                    stream.printWriter.println("user has more than 5 msgs");
+//                }
+//            } else {
+//                stream.printWriter.println("didn't find user");
+//            }
+//        }
+//    }
 
-    private void readMessage() throws IOException {
-        stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
-        int numberOfMessage = Integer.parseInt(userInput())-1;
-        List<UserMessage> userMailBox = activeUser.getMailBox();
-        if(userMailBox.isEmpty()) {
-            stream.printWriter.println("there are no mails to read");
-        } else {
-            stream.printWriter.println(messageManagement.readMessageFromMailBox(activeUser,numberOfMessage));
-        }
-    }
+//    private void readMessage() throws IOException {
+//        stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
+//        int numberOfMessage = Integer.parseInt(userInput())-1;
+//        List<UserMessage> userMailBox = activeUser.getMailBox();
+//        if(userMailBox.isEmpty()) {
+//            stream.printWriter.println("there are no mails to read");
+//        } else {
+//            stream.printWriter.println(messageManagement.readMessageFromMailBox(activeUser,numberOfMessage));
+//        }
+//    }
 
 
     private void deleteUserFromDataBase(String nickname) {
