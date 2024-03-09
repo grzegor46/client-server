@@ -49,9 +49,9 @@ public class RequestGetterController {
             case "login":
                 logIn();
                 return"";
-//            case "show users":
-//                getUsers();
-//                return"";
+            case "show users":
+                getAllExistingUsers();
+                return"";
 //            case "send msg":
 //                sendMsg();
 //                return"";
@@ -65,6 +65,10 @@ public class RequestGetterController {
                 invalidCommand();
         }
         return commandFromClient;
+    }
+
+    private void getAllExistingUsers() {
+        stream.printWriter.println(userManagement.getUsers());
     }
 //    TODO add activeUser here?
 

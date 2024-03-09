@@ -69,14 +69,14 @@ public class UserManagement {
         }
     }
 
-//    private void getUsers(){
-//        if (activeUser != null) {
-//            List<User> users = showUsers();
-//            stream.printWriter.println(users.toString());
-//        } else {
-//            stream.printWriter.println("you need to be logged to check list of users");
-//        }
-//    }
+    public String getUsers(){
+        if (activeUser != null) {
+            List<User> users = showUsers();
+            return users.toString();
+        } else {
+            return "you need to be logged to check list of users";
+        }
+    }
 
     public String updateUserDataAsAdmin(String userNicknameToDataUpdate, String role, String password){
         User user;
@@ -202,7 +202,7 @@ public class UserManagement {
         userRepository.save(user);
     }
 
-    public List<User> showUsers() {
+    private List<User> showUsers() {
         return userRepository.getAllUsers();
     }
 
