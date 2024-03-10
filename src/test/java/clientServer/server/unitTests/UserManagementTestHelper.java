@@ -29,7 +29,7 @@ public class UserManagementTestHelper {
         userManagement.loginUser("tata", "tataPassword");
     }
 
-    public String createTemproraryUser(){
+    public String createTemporaryUser(){
         String name = "tata";
         String[] credentialsUser = {name, "tataPassword"};
         userManagement.createUser(credentialsUser);

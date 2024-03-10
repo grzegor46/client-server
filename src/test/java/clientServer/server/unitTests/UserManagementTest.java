@@ -35,16 +35,16 @@ public class UserManagementTest {
 
     @Test
     void shouldDeleteUserAsAdmin() {
-        String UserTempname = userManagementTestHelper.createTemproraryUser();
+        String UserTempName = userManagementTestHelper.createTemporaryUser();
         userManagementTestHelper.loginAsAdmin();
-        String response = userManagement.deleteUser(UserTempname);
+        String response = userManagement.deleteUser(UserTempName);
 
-        assertEquals("user " +UserTempname+ " deleted",response);
+        assertEquals("user " +UserTempName+ " deleted",response);
     }
 
     @Test
     void shouldReturnExistingUsers() {
-        userManagementTestHelper.createTemproraryUser();
+        userManagementTestHelper.createTemporaryUser();
         userManagementTestHelper.loginAsAdmin();
         String response =userManagement.getUsers();
         assertEquals("[tata, tata_admin]", response);
@@ -52,7 +52,7 @@ public class UserManagementTest {
 
     @Test
     void shouldSendMsgWithSuccess(){
-        String nameTempUser = userManagementTestHelper.createTemproraryUser();
+        String nameTempUser = userManagementTestHelper.createTemporaryUser();
         userManagementTestHelper.loginAsAdmin();
         String response = userManagement.sendMsg(nameTempUser, "hej");
 
@@ -61,9 +61,11 @@ public class UserManagementTest {
 
     @Test
     void shouldReturnContentOfMailWithSuccess(){
-        String nameTempUser = userManagementTestHelper.createTemproraryUser();
+        String nameTempUser = userManagementTestHelper.createTemporaryUser();
         userManagementTestHelper.loginAsAdmin();
+
         userManagement.sendMsg(nameTempUser, "hej");
+
         userManagementTestHelper.logoutActiveUser();
         userManagementTestHelper.loginAsUser();
 
