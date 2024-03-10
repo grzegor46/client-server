@@ -19,6 +19,7 @@ public class UserManagementTest {
 
     private final UserManagement userManagement;
     public static User activeUser;
+    private UserManagementTestHelper userManagementTestHelper;
 
     public UserManagementTest() {
         this.userManagement = new UserManagement();
@@ -27,10 +28,10 @@ public class UserManagementTest {
 
     @Test
     void shouldReturnCreatedUserWithSuccess() {
-        String name = "tata";
-        String[] credentials = {name, "tataPassword"};
+        String[] credentials = UserManagementTestHelper.createCredentials();
         String infoFromServer = userManagement.createUser(credentials);
-        assertEquals("User " +name+ " created",infoFromServer);
+
+        assertEquals("User " +credentials[0] + " created",infoFromServer);
     }
 
     @Test
