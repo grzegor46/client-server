@@ -66,10 +66,24 @@ public class UserManagementTest {
         userManagement.sendMsg(nameTempUser, "hej");
 
         userManagementTestHelper.logoutActiveUser();
-        userManagementTestHelper.loginAsUser();
+        userManagementTestHelper.createAndLoginAsUser();
 
         String response = userManagement.readMessage("1");
         assertEquals("tata_admin: hej", response);
+    }
+
+    @Test
+    void shouldCheckMailBoxWithSuccess() {
+        String nameTempUser = userManagementTestHelper.createTemporaryUser();
+        userManagementTestHelper.createAndLoginAsAdmin();
+
+        userManagement.sendMsg(nameTempUser, "hej");
+
+        userManagementTestHelper.logoutActiveUser();
+        userManagementTestHelper.createAndLoginAsUser();
+
+        String response = userManagement.checkMailBox();
+        assertEquals("[{\"tata_admin\":\"hej\"}]", response);
     }
 
     @Test
@@ -78,6 +92,22 @@ public class UserManagementTest {
         userManagementTestHelper.createAndLoginAsAdmin();
         String response = userManagement.updateUserDataAsAdmin(nameTempUser,"admin","");
         assertEquals("Role changed for user: " + nameTempUser+"_admin", response);
+    }
+
+    @Test
+    void shouldUpdatePasswordUserDataAsAdminWithSuccess(){
+        String nameTempUser = userManagementTestHelper.createTemporaryUser();
+        userManagementTestHelper.createAndLoginAsAdmin();
+        String response = userManagement.updateUserDataAsAdmin(nameTempUser,"","NewPassword");
+        assertEquals("Password changed for user: " + nameTempUser, response);
+    }
+
+    @Test
+    void shouldUpdatePasswordUserDataAsUserWithSuccess(){
+        String nameTempUser = userManagementTestHelper.createTemporaryUser();
+        userManagementTestHelper.createAndLoginAsUser();
+        String response = userManagement.updateUserDataAsUser("NewPassword");
+        assertEquals("Password changed for user: " + nameTempUser, response);
     }
 
     @AfterEach

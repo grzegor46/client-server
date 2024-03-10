@@ -23,9 +23,9 @@ public class UserManagementTestHelper {
         userManagement.loginUser("tata_admin", "tataPassword");
     }
 
-    public void loginAsUser() {
-        String[] credentialsAdmin = {"tata", "tataPassword"};
-        userManagement.createUser(credentialsAdmin);
+    public void createAndLoginAsUser() {
+        String[] credentialsUser = {"tata", "tataPassword"};
+        userManagement.createUser(credentialsUser);
         userManagement.loginUser("tata", "tataPassword");
     }
 
