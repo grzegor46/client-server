@@ -1,13 +1,14 @@
 package clientServer.server.unitTests;
 
-import org.junit.jupiter.api.Test;
+import service.UserManagement;
 
 public class UserManagementTestHelper {
 
-    UserManagementTest userManagementTest;
+    UserManagement userManagement;
 
-    public UserManagementTestHelper(UserManagementTest userManagementTest) {
-        this.userManagementTest = userManagementTest;
+
+    public UserManagementTestHelper(UserManagement userManagement) {
+        this.userManagement = userManagement;
     }
 
     public static String[] createCredentials() {
@@ -15,4 +16,28 @@ public class UserManagementTestHelper {
         String[] credentials = {name, "tataPassword"};
         return credentials;
     }
+
+    public void loginAsAdmin() {
+        String[] credentialsAdmin = {"tata_admin", "tataPassword"};
+        userManagement.createUser(credentialsAdmin);
+        userManagement.loginUser("tata_admin", "tataPassword");
+    }
+
+    public void loginAsUser() {
+        String[] credentialsAdmin = {"tata", "tataPassword"};
+        userManagement.createUser(credentialsAdmin);
+        userManagement.loginUser("tata", "tataPassword");
+    }
+
+    public String createTemproraryUser(){
+        String name = "tata";
+        String[] credentialsUser = {name, "tataPassword"};
+        userManagement.createUser(credentialsUser);
+        return name;
+    }
+
+    public void logoutActiveUser(){
+        UserManagement.activeUser = null;
+    }
+
 }

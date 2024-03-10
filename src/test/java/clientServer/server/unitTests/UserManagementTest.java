@@ -4,7 +4,6 @@ package clientServer.server.unitTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import repository.UserRepository;
 import service.UserManagement;
 import user.User;
 import utils.PropertiesUtils;
@@ -18,11 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserManagementTest {
 
     private final UserManagement userManagement;
-    public static User activeUser;
     private UserManagementTestHelper userManagementTestHelper;
 
     public UserManagementTest() {
         this.userManagement = new UserManagement();
+        this.userManagementTestHelper = new UserManagementTestHelper(userManagement);
     }
 
 
@@ -36,64 +35,40 @@ public class UserManagementTest {
 
     @Test
     void shouldDeleteUserAsAdmin() {
-        String name = "tata";
-        String[] credentialsUser = {name, "tataPassword"};
-        String infoFromServer = userManagement.createUser(credentialsUser);
+        String UserTempname = userManagementTestHelper.createTemproraryUser();
+        userManagementTestHelper.loginAsAdmin();
+        String response = userManagement.deleteUser(UserTempname);
 
-        String[] credentialsAdmin = {"tata_admin", "tataPassword"};
-        String infoFromServer1 = userManagement.createUser(credentialsAdmin);
-
-        userManagement.loginUser("tata_admin", "tataPassword");
-
-        String response = userManagement.deleteUser(name);
-
-        assertEquals("user " +name+ " deleted",response);
+        assertEquals("user " +UserTempname+ " deleted",response);
     }
 
     @Test
     void shouldReturnExistingUsers() {
-        String name = "tata";
-        String[] credentialsUser = {name, "tataPassword"};
-        String infoFromServer = userManagement.createUser(credentialsUser);
-
-        String[] credentialsAdmin = {"tata_admin", "tataPassword"};
-        String infoFromServer1 = userManagement.createUser(credentialsAdmin);
-        userManagement.loginUser("tata_admin", "tataPassword");
+        userManagementTestHelper.createTemproraryUser();
+        userManagementTestHelper.loginAsAdmin();
         String response =userManagement.getUsers();
         assertEquals("[tata, tata_admin]", response);
     }
 
     @Test
     void shouldSendMsgWithSuccess(){
-        String name = "tata";
-        String[] credentialsUser = {name, "tataPassword"};
-        String infoFromServer = userManagement.createUser(credentialsUser);
-
-        String[] credentialsAdmin = {"tata_admin", "tataPassword"};
-        String infoFromServer1 = userManagement.createUser(credentialsAdmin);
-        userManagement.loginUser("tata_admin", "tataPassword");
-
-        String response = userManagement.sendMsg(name, "hej");
+        String nameTempUser = userManagementTestHelper.createTemproraryUser();
+        userManagementTestHelper.loginAsAdmin();
+        String response = userManagement.sendMsg(nameTempUser, "hej");
 
         assertEquals("message sent", response);
     }
 
     @Test
     void shouldReturnContentOfMailWithSuccess(){
-        String name = "tata";
-        String[] credentialsUser = {name, "tataPassword"};
-        String infoFromServer = userManagement.createUser(credentialsUser);
-
-        String[] credentialsAdmin = {"tata_admin", "tataPassword"};
-        String infoFromServer1 = userManagement.createUser(credentialsAdmin);
-        userManagement.loginUser("tata_admin", "tataPassword");
-
-        userManagement.sendMsg(name, "hej");
-
-        userManagement.loginUser("tata_admin", "tataPassword");
+        String nameTempUser = userManagementTestHelper.createTemproraryUser();
+        userManagementTestHelper.loginAsAdmin();
+        userManagement.sendMsg(nameTempUser, "hej");
+        userManagementTestHelper.logoutActiveUser();
+        userManagementTestHelper.loginAsUser();
 
         String response = userManagement.readMessage("1");
-        assertEquals("mail", response);
+        assertEquals("tata_admin: hej", response);
     }
 
 
