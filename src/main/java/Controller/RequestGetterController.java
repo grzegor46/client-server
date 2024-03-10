@@ -37,8 +37,7 @@ public class RequestGetterController {
                 stream.printWriter.println(ServerMessage.getUpTime(createdInstant));
                 return"";
             case "create user":
-//                createUser();
-                setCredentialsForNewUser();
+                createANewUser();
                 return"";
             case "delete user":
                 getUserNickNameToDelete();
@@ -52,19 +51,42 @@ public class RequestGetterController {
             case "show users":
                 getAllExistingUsers();
                 return"";
-//            case "send msg":
-//                sendMsg();
-//                return"";
-//            case "check mailbox":
-//                checkMailBox();
-//                return"";
-//            case "read mail":
-//                readMessage();
-//                return"";
+            case "send msg":
+                sendMsgToUser();
+                return"";
+            case "check mailbox":
+                checkUserMailBox();
+                return"";
+            case "read mail":
+                readUserMessage();
+                return"";
             default:
                 invalidCommand();
         }
         return commandFromClient;
+    }
+
+    private void readUserMessage() throws IOException {
+        stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
+        String userChoice = userInput();
+        stream.printWriter.println(userManagement.readMessage(userChoice));
+    }
+
+    private void checkUserMailBox() {
+        stream.printWriter.println(userManagement.checkMailBox());
+    }
+
+    private void sendMsgToUser() throws IOException {
+        if (activeUser == null) {
+            stream.printWriter.println("first log in to send msg --> ");
+
+        } else {
+            stream.printWriter.println("to which user do you want send a msg?");
+            String receiver = userInput();
+            stream.printWriter.println("type you message. Remember only 255 characters");
+            String messageToSend = userInput();
+            stream.printWriter.println(userManagement.sendMsg(receiver, messageToSend));
+        }
     }
 
     private void getAllExistingUsers() {
@@ -73,7 +95,7 @@ public class RequestGetterController {
 //    TODO add activeUser here?
 
 //    return user Created from userManagement method
-    private void setCredentialsForNewUser() throws IOException {
+    private void createANewUser() throws IOException {
         stream.printWriter.println("write name");
         String name = userInput();
         stream.printWriter.println("write password");

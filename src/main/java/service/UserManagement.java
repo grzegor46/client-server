@@ -25,18 +25,18 @@ public class UserManagement {
         this.messageManagement = new MessageManagement(this.userRepository);
     }
 
-//    private void checkMailBox(){
-//        if (activeUser != null) {
-//        List<String> mailbox = messageManagement.checkMailBox(activeUser);
-//        if(mailbox == null) {
-//            stream.printWriter.println("your mailbox is empty");
-//        } else {
-//            stream.printWriter.println(mailbox);
-//        }
-//        }else {
-//            stream.printWriter.println("you need to be logged to check users");
-//        }
-//    }
+    public String checkMailBox(){
+        if (activeUser != null) {
+        List<String> mailbox = messageManagement.checkMailBox(activeUser);
+        if(mailbox == null) {
+            return "your mailbox is empty";
+        } else {
+            return mailbox.toString();
+        }
+        }else {
+            return "you need to be logged to check users";
+        }
+    }
 
     public String loginUser(String nicknameToLogIn, String password)  {
         if (activeUser == null) {
@@ -149,41 +149,31 @@ public class UserManagement {
         saveUser(user);
     }
 
-//    private void sendMsg() throws IOException {
-//        if (activeUser == null) {
-//            stream.printWriter.write("first log in to send msg --> ");
-//            loginUser();
-//        } else {
-//            stream.printWriter.println("to which user do you want send a msg?");
-//            String receiver = userInput();
-//            User existingUser = findUser(receiver);
-//            if (existingUser != null) {
-//                stream.printWriter.println("type you message. Remember only 255 characters");
-//                String messageToSend = userInput();
-//                int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
-//                if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
-//                    UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-//                    messageManagement.sendMessage(userMessage);
-//                    stream.printWriter.println("message sent");
-//                } else {
-//                    stream.printWriter.println("user has more than 5 msgs");
-//                }
-//            } else {
-//                stream.printWriter.println("didn't find user");
-//            }
-//        }
-//    }
+    public String sendMsg(String receiver, String messageToSend) {
+        User existingUser = findUser(receiver);
+        if (existingUser != null) {
+            int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
+            if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
+                UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+                messageManagement.sendMessage(userMessage);
+                return "message sent";
+            } else {
+                return "user has more than 5 msgs";
+            }
+        } else {
+            return "didn't find user";
+        }
+    }
 
-//    private void readMessage() throws IOException {
-//        stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
-//        int numberOfMessage = Integer.parseInt(userInput())-1;
-//        List<UserMessage> userMailBox = activeUser.getMailBox();
-//        if(userMailBox.isEmpty()) {
-//            stream.printWriter.println("there are no mails to read");
-//        } else {
-//            stream.printWriter.println(messageManagement.readMessageFromMailBox(activeUser,numberOfMessage));
-//        }
-//    }
+    public String readMessage(String userChoice) throws IOException {
+        int numberOfMessage = Integer.parseInt(userChoice)-1;
+        List<UserMessage> userMailBox = activeUser.getMailBox();
+        if(userMailBox.isEmpty()) {
+            return "there are no mails to read";
+        } else {
+            return messageManagement.readMessageFromMailBox(activeUser,numberOfMessage);
+        }
+    }
 
 
     private void deleteUserFromDataBase(String nickname) {
