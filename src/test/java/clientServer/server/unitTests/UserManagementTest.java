@@ -112,6 +112,8 @@ public class UserManagementTest {
 
     @AfterEach
     void cleanUp() throws IOException {
+        userManagementTestHelper.logoutActiveUser();
         new FileWriter(PropertiesUtils.databasePath, false).close();
+
     }
 }
