@@ -5,7 +5,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import service.UserManagement;
-import user.User;
 import utils.PropertiesUtils;
 
 import java.io.FileWriter;
@@ -36,7 +35,7 @@ public class UserManagementTest {
     @Test
     void shouldDeleteUserAsAdmin() {
         String UserTempName = userManagementTestHelper.createTemporaryUser();
-        userManagementTestHelper.loginAsAdmin();
+        userManagementTestHelper.createAndLoginAsAdmin();
         String response = userManagement.deleteUser(UserTempName);
 
         assertEquals("user " +UserTempName+ " deleted",response);
@@ -45,7 +44,7 @@ public class UserManagementTest {
     @Test
     void shouldReturnExistingUsers() {
         userManagementTestHelper.createTemporaryUser();
-        userManagementTestHelper.loginAsAdmin();
+        userManagementTestHelper.createAndLoginAsAdmin();
         String response =userManagement.getUsers();
         assertEquals("[tata, tata_admin]", response);
     }
@@ -53,7 +52,7 @@ public class UserManagementTest {
     @Test
     void shouldSendMsgWithSuccess(){
         String nameTempUser = userManagementTestHelper.createTemporaryUser();
-        userManagementTestHelper.loginAsAdmin();
+        userManagementTestHelper.createAndLoginAsAdmin();
         String response = userManagement.sendMsg(nameTempUser, "hej");
 
         assertEquals("message sent", response);
@@ -62,7 +61,7 @@ public class UserManagementTest {
     @Test
     void shouldReturnContentOfMailWithSuccess(){
         String nameTempUser = userManagementTestHelper.createTemporaryUser();
-        userManagementTestHelper.loginAsAdmin();
+        userManagementTestHelper.createAndLoginAsAdmin();
 
         userManagement.sendMsg(nameTempUser, "hej");
 
@@ -73,6 +72,13 @@ public class UserManagementTest {
         assertEquals("tata_admin: hej", response);
     }
 
+    @Test
+    void shouldUpdateRoleUserDataAsAdminWithSuccess(){
+        String nameTempUser = userManagementTestHelper.createTemporaryUser();
+        userManagementTestHelper.createAndLoginAsAdmin();
+        String response = userManagement.updateUserDataAsAdmin(nameTempUser,"admin","");
+        assertEquals("Role changed for user: " + nameTempUser+"_admin", response);
+    }
 
     @AfterEach
     void cleanUp() throws IOException {
