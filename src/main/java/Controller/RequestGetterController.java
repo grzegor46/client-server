@@ -101,8 +101,7 @@ public class RequestGetterController {
         stream.printWriter.println("write password");
         String password = userInput();
         String[] credentialsForNewUser = new String[] {name,password};
-        userManagement.createUser(credentialsForNewUser);
-        stream.printWriter.println("User created");
+        stream.printWriter.println(userManagement.createUser(credentialsForNewUser));
     }
 
     private void logIn() throws IOException {

@@ -136,7 +136,7 @@ public class UserManagement {
         user.setPassword(newPassword);
     }
 
-    public void createUser(String[] credentials) {
+    public String createUser(String[] credentials) {
         Role userRole;
 
         if(credentials[0].endsWith("_admin")) {
@@ -147,6 +147,7 @@ public class UserManagement {
         User user = new User(credentials[0], credentials[1], userRole);
 
         saveUser(user);
+        return "User " +user.getNickName()+ " created";
     }
 
     public String sendMsg(String receiver, String messageToSend) {
@@ -165,7 +166,7 @@ public class UserManagement {
         }
     }
 
-    public String readMessage(String userChoice) throws IOException {
+    public String readMessage(String userChoice) {
         int numberOfMessage = Integer.parseInt(userChoice)-1;
         List<UserMessage> userMailBox = activeUser.getMailBox();
         if(userMailBox.isEmpty()) {
