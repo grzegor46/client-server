@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserManagementTest {
 
     private final UserManagement userManagement;
-    private UserManagementTestHelper userManagementTestHelper;
+    private final UserManagementTestHelper userManagementTestHelper;
 
     public UserManagementTest() {
         this.userManagement = new UserManagement();
