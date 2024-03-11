@@ -32,7 +32,7 @@ public class MessageManagementTest {
     private final MessageManagement messageManagement = new MessageManagement(userRepository);
 
 
-//TODO wywal do utils klasy metode jako json representation
+//TODO wydziel do utils klasy metode jako json representation
     @Test
     public void shouldReturnMessageAsJsonRepresentation() {
         String messageAsJson = messageManagement.getMessageAsJsonRepresentation("UserName", content);
