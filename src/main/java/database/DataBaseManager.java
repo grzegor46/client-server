@@ -1,55 +1,112 @@
 package database;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import user.User;
-import utils.PropertiesUtils;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.SQLDataType.*;
 
 
 public class DataBaseManager {
 
-    private final String pathToFileDB = PropertiesUtils.databasePath;
-    private static final ObjectMapper objectMapper = createObjectMapper();
+    private final String USER_NAME = "grzegor";
+    private final String PASSWORD = "eztddwzz";
+    private final String DATABASE = "grzegor_db";
+    private final String URL = String.format("jdbc:postgresql://localhost:5432/%s", DATABASE);
+    private Connection connection;
 
-    public List<User> readUsersFromJson() {
-        File jsonFile = new File(this.pathToFileDB);
+    public DataBaseManager() {
+        startConnection();
+    }
 
-        if (!jsonFile.exists() || jsonFile.length() == 0) {
-            return new ArrayList<>();
-        }
-
+    public void startConnection() {
         try {
-            return objectMapper.readValue(jsonFile, objectMapper.getTypeFactory().constructCollectionType(List.class, User.class));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+            connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
+            DSLContext context = DSL.using(connection, SQLDialect.POSTGRES);
+            context.createDatabase(DATABASE).execute();
+            createUserTable();
+            createUserMessageTable();
+        } catch (SQLException sqlException) {
+            System.out.println(sqlException.getMessage());
         }
     }
 
-    public void writeUsersToJson(List<User> userList) {
+    private void createDataBase() {
 
+    }
+
+
+    public void closeConnection() {
         try {
-
-            ObjectWriter objectWriter = objectMapper.writer().withRootValueSeparator("\n").withDefaultPrettyPrinter();
-            objectWriter.writeValue(new File(pathToFileDB), userList);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            connection.close();
+        } catch (SQLException sqlException) {
+            System.out.println(sqlException.getMessage());
         }
     }
 
-    private static ObjectMapper createObjectMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        // enable toString method of enums to return the value to be mapped
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-        return mapper;
+    private void createUserTable() {
+        createTable("user")
+                .column("nickName", VARCHAR)
+                .column("password", VARCHAR)
+                .column("userRole",VARCHAR(5))
+                .column("mailBox", VARCHAR)
+                .execute();
     }
+
+    private void createUserMessageTable() {
+        createTable("userMessage")
+                .column("sender",   VARCHAR)
+                .column("receiver", VARCHAR)
+                .column("content",  VARCHAR(255))
+                .column("isRead",   BOOLEAN)
+                .column("user_id",  INTEGER)
+                .constraints(
+                    constraint("fk").foreignKey("user_id").references("user","id")
+                )
+                .execute();
+    }
+
+
+//    private final String pathToFileDB = PropertiesUtils.databasePath;
+//    private static final ObjectMapper objectMapper = createObjectMapper();
+//
+//    public List<User> readUsersFromJson() {
+//        File jsonFile = new File(this.pathToFileDB);
+//
+//        if (!jsonFile.exists() || jsonFile.length() == 0) {
+//            return new ArrayList<>();
+//        }
+//
+//        try {
+//            return objectMapper.readValue(jsonFile, objectMapper.getTypeFactory().constructCollectionType(List.class, User.class));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return new ArrayList<>();
+//        }
+//    }
+//
+//    public void writeUsersToJson(List<User> userList) {
+//
+//        try {
+//
+//            ObjectWriter objectWriter = objectMapper.writer().withRootValueSeparator("\n").withDefaultPrettyPrinter();
+//            objectWriter.writeValue(new File(pathToFileDB), userList);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    private static ObjectMapper createObjectMapper() {
+//        final ObjectMapper mapper = new ObjectMapper();
+//        // enable toString method of enums to return the value to be mapped
+//        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+//        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+//        return mapper;
+//    }
 }
