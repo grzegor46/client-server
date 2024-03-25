@@ -28,16 +28,16 @@ public class DataBaseManager {
         try {
             connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
             DSLContext context = DSL.using(connection, SQLDialect.POSTGRES);
-            context.createDatabase(DATABASE).execute();
-            createUserTable();
-            createUserMessageTable();
+            createDataBase(context);
+            createUserTable(context);
+            createUserMessageTable(context);
         } catch (SQLException sqlException) {
             System.out.println(sqlException.getMessage());
         }
     }
 
-    private void createDataBase() {
-
+    private void createDataBase(DSLContext context) {
+        context.createDatabaseIfNotExists(DATABASE).execute();
     }
 
 
@@ -49,26 +49,26 @@ public class DataBaseManager {
         }
     }
 
-    private void createUserTable() {
-        createTable("user")
-                .column("nickName", VARCHAR)
-                .column("password", VARCHAR)
-                .column("userRole",VARCHAR(5))
-                .column("mailBox", VARCHAR)
-                .execute();
+    private void createUserTable(DSLContext context) {
+        context.createTableIfNotExists("user")
+            .column("nickName", VARCHAR)
+            .column("password", VARCHAR)
+            .column("userRole",VARCHAR(5))
+            .column("mailBox", VARCHAR)
+            .execute();
     }
 
-    private void createUserMessageTable() {
-        createTable("userMessage")
-                .column("sender",   VARCHAR)
-                .column("receiver", VARCHAR)
-                .column("content",  VARCHAR(255))
-                .column("isRead",   BOOLEAN)
-                .column("user_id",  INTEGER)
-                .constraints(
-                    constraint("fk").foreignKey("user_id").references("user","id")
-                )
-                .execute();
+    private void createUserMessageTable(DSLContext context) {
+        context.createTableIfNotExists("userMessage")
+            .column("sender",   VARCHAR)
+            .column("receiver", VARCHAR)
+            .column("content",  VARCHAR(255))
+            .column("isRead",   BOOLEAN)
+            .column("user_id",  INTEGER)
+            .constraints(
+                constraint("fk").foreignKey("user_id").references("user","id")
+            )
+            .execute();
     }
 
 

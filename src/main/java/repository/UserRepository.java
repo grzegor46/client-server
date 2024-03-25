@@ -41,7 +41,7 @@ public class UserRepository implements Repository {
         if (userToDelete != null) {
             boolean isUserDeleted = this.userList.remove(userToDelete);
             if (isUserDeleted) {
-                dataBaseManager.writeUsersToJson(this.userList);
+//                dataBaseManager.writeUsersToJson(this.userList);
             }
         } else {
             System.out.println("User not found.");
