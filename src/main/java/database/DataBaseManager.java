@@ -90,15 +90,19 @@ public class DataBaseManager {
 
     public void addMessageToUserMessageTable(UserMessage sentMessage) {
         Record record = context.select(field("nickname")).from(table("users")).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
-
+        Record record1 = context.select(field("id")).from(table("users")).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
+        assert record1 != null;
+        int idOfUser = Integer.parseInt(record1.getValue(field("id")).toString());
         assert record != null;
         String receiver = record.toString();
         if(receiver != null) {
-        context.insertInto(table("usermessage"))
+            assert record1 != null;
+            context.insertInto(table("usermessage"))
                 .set(field("sender"), sentMessage.getSender())
                 .set(field("receiver"),sentMessage.getReceiver())
                 .set(field("content"), sentMessage.getContent())
                 .set(field("is_read"),sentMessage.isRead())
+                .set(field("user_id"),idOfUser)
                 .execute();
     }
 

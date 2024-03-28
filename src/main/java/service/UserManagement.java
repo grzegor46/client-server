@@ -45,13 +45,13 @@ public class UserManagement {
             activeUser.setNickName(nicknameToLogIn);
             activeUser.setPassword(password);
 
-            User user = findUser(activeUser.getNickName());
-            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
-                activeUser = user;
-                return "user successfully logged in as: " + activeUser.getNickName();
-            } else {
-               return "there is no such user in DB or incorrect password";
-            }
+//            User user = findUser(activeUser.getNickName());
+//            if (user != null && activeUser.getNickName().equals(user.getNickName()) && activeUser.getPassword().equals(user.getPassword())) {
+//                activeUser = user;
+//                return "user successfully logged in as: " + activeUser.getNickName();
+//            } else {
+//               return "there is no such user in DB or incorrect password";
+//            }
         }
         return "action login met a problem";
     }
@@ -150,21 +150,41 @@ public class UserManagement {
         return "User " +user.getNickName()+ " created";
     }
 
-    public String sendMsg(String receiver, String messageToSend) {
-        User existingUser = findUser(receiver);
-        if (existingUser != null) {
-            int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
-            if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
-                UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-                messageManagement.sendMessage(userMessage);
+//    public String sendMsg(String receiver, String messageToSend) {
+//        User existingUser = findUser(receiver);
+//        if (existingUser != null) {
+//            int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
+//            if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
+//                UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+//                messageManagement.sendMessage(userMessage);
+//                return "message sent";
+//            } else {
+//                return "user has more than 5 msgs";
+//            }
+//        } else {
+//            return "didn't find user";
+//        }
+//    }
+//    public String sendMsg(String receiver, String messageToSend) {
+//        User existingUser = findUser(receiver);
+//        if (existingUser != null) {
+//            int mailBoxCapacity = messageManagement.countUnreadUserMsgs(existingUser);
+//            if ((mailBoxCapacity < 5 && existingUser.getRole().equals(Role.USER)) || existingUser.getRole().equals(Role.ADMIN)) {
+//                UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+//                messageManagement.sendMessage(userMessage);
+//                return "message sent";
+//            } else {
+//                return "user has more than 5 msgs";
+//            }
+//        } else {
+//            return "didn't find user";
+//        }
+//    }
+public String sendMsg(String receiver, String messageToSend) {
+    UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+    messageManagement.sendMessage(userMessage);
                 return "message sent";
-            } else {
-                return "user has more than 5 msgs";
-            }
-        } else {
-            return "didn't find user";
-        }
-    }
+}
 
     public String readMessage(String userChoice) {
         int numberOfMessage = Integer.parseInt(userChoice)-1;
