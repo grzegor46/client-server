@@ -9,6 +9,10 @@ import user.User;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.SQLDataType.*;
+
 public class MessageManagement {
 
     private final Repository userRepository;
@@ -20,12 +24,13 @@ public class MessageManagement {
 
     public void sendMessage(UserMessage sentMessage) {
 
-        User receiver = userRepository.findUserName(sentMessage.getReceiver());
-        userRepository.delete(receiver.getNickName());
-        List<UserMessage> tmpUserMessageMailBox = receiver.getMailBox();
-        tmpUserMessageMailBox.add(sentMessage);
-        receiver.setMailBox(tmpUserMessageMailBox);
-        userRepository.save(receiver);
+//        User receiver = userRepository.findUserName(sentMessage.getReceiver());
+//        userRepository.delete(receiver.getNickName());
+//        List<UserMessage> tmpUserMessageMailBox = receiver.getMailBox();
+//        tmpUserMessageMailBox.add(sentMessage);
+//        receiver.setMailBox(tmpUserMessageMailBox);
+        userRepository.addMessageToMailbox(sentMessage);
+//        userRepository.save(receiver);
     }
 
     public String getMessageAsJsonRepresentation(String name, String content) {

@@ -1,8 +1,10 @@
 package repository;
 
 import database.DataBaseManager;
+import message.UserMessage;
 import user.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -13,7 +15,7 @@ public class UserRepository implements Repository {
 
     public UserRepository() {
         this.dataBaseManager = new DataBaseManager();
-        this.userList = dataBaseManager.readUsersFromJson();
+        this.userList = new ArrayList<>();
     }
 
     public List<User> getAllUsers() {
@@ -21,8 +23,12 @@ public class UserRepository implements Repository {
     }
 
     public void save(User user) {
-        this.userList.add(user);
-        dataBaseManager.writeUsersToJson(this.userList);
+        dataBaseManager.add(user);
+    }
+
+    public void addMessageToMailbox(UserMessage sentMessage) {
+        dataBaseManager.addMessageToUserMessageTable(sentMessage);
+
     }
 
     public void update(User userWithNewUpdatedData) {

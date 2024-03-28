@@ -1,5 +1,6 @@
 package repository;
 
+import message.UserMessage;
 import user.User;
 
 import java.util.List;
@@ -11,4 +12,6 @@ public interface Repository {
     void delete(String nickname);
     User findUserName(String name);
     List<User> getAllUsers();
+
+    void addMessageToMailbox(UserMessage sentMessage);
 }

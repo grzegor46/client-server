@@ -1,24 +1,29 @@
 package database;
 
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
+import message.UserMessage;
+import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
+import user.User;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
-
 
 public class DataBaseManager {
 
     private final String USER_NAME = "grzegor";
     private final String PASSWORD = "eztddwzz";
     private final String DATABASE = "grzegor_db";
+    private final String USERS_TABLE = "users";
+    private final String USER_MESSAGE = "usermessage";
     private final String URL = String.format("jdbc:postgresql://localhost:5432/%s", DATABASE);
     private Connection connection;
+    DSLContext context;
 
     public DataBaseManager() {
         startConnection();
@@ -27,8 +32,7 @@ public class DataBaseManager {
     public void startConnection() {
         try {
             connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
-            DSLContext context = DSL.using(connection, SQLDialect.POSTGRES);
-            createDataBase(context);
+            this.context = DSL.using(connection, SQLDialect.POSTGRES);
             createUserTable(context);
             createUserMessageTable(context);
         } catch (SQLException sqlException) {
@@ -36,11 +40,7 @@ public class DataBaseManager {
         }
     }
 
-    private void createDataBase(DSLContext context) {
-        context.createDatabaseIfNotExists(DATABASE).execute();
-    }
-
-
+    //TODO kiedy zamknac polaczenie z baza danych?
     public void closeConnection() {
         try {
             connection.close();
@@ -50,63 +50,57 @@ public class DataBaseManager {
     }
 
     private void createUserTable(DSLContext context) {
-        context.createTableIfNotExists("user")
-            .column("nickName", VARCHAR)
-            .column("password", VARCHAR)
-            .column("userRole",VARCHAR(5))
-            .column("mailBox", VARCHAR)
-            .execute();
+        context.createTableIfNotExists("users")
+                .column("id", INTEGER.identity(true))
+                .column("nickname", VARCHAR)
+                .column("password", VARCHAR)
+                .column("user_role", VARCHAR(5))
+                .column("mail_box", VARCHAR)
+                .constraints(
+                        constraint().primaryKey("id"))
+                .execute();
     }
 
     private void createUserMessageTable(DSLContext context) {
-        context.createTableIfNotExists("userMessage")
-            .column("sender",   VARCHAR)
-            .column("receiver", VARCHAR)
-            .column("content",  VARCHAR(255))
-            .column("isRead",   BOOLEAN)
-            .column("user_id",  INTEGER)
-            .constraints(
-                constraint("fk").foreignKey("user_id").references("user","id")
-            )
-            .execute();
+        context.createTableIfNotExists("usermessage")
+                .column("sender", VARCHAR)
+                .column("receiver", VARCHAR)
+                .column("content", VARCHAR(255))
+                .column("is_read", BOOLEAN)
+                .column("user_id", INTEGER)
+                .constraints(
+                        constraint().foreignKey("user_id")
+                                .references("users", "id")  // Ustawienie klucza obcego
+                )
+                .execute();
+    }
+    public void add(User user) {
+//        Record record = context.select(asterisk()).from(table("users")).where(field("nickname").eq("user1")).fetchOne();
+        context.insertInto(table(USERS_TABLE))
+                .set(field("nickname"),user.getNickName())
+                .set(field("password"), user.getPassword())
+                .set(field("user_role"),user.getRole().toString())
+                .execute();
+//        Result record2 = context.select(asterisk()).from(table("users")).fetch();
+//        System.out.println(record);
+//        System.out.println(record2);
+        Result record = context.select(asterisk()).from(table("users")).fetch();
+        System.out.println(record);
     }
 
+    public void addMessageToUserMessageTable(UserMessage sentMessage) {
+        Record record = context.select(field("nickname")).from(table("users")).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
 
-//    private final String pathToFileDB = PropertiesUtils.databasePath;
-//    private static final ObjectMapper objectMapper = createObjectMapper();
-//
-//    public List<User> readUsersFromJson() {
-//        File jsonFile = new File(this.pathToFileDB);
-//
-//        if (!jsonFile.exists() || jsonFile.length() == 0) {
-//            return new ArrayList<>();
-//        }
-//
-//        try {
-//            return objectMapper.readValue(jsonFile, objectMapper.getTypeFactory().constructCollectionType(List.class, User.class));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ArrayList<>();
-//        }
-//    }
-//
-//    public void writeUsersToJson(List<User> userList) {
-//
-//        try {
-//
-//            ObjectWriter objectWriter = objectMapper.writer().withRootValueSeparator("\n").withDefaultPrettyPrinter();
-//            objectWriter.writeValue(new File(pathToFileDB), userList);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private static ObjectMapper createObjectMapper() {
-//        final ObjectMapper mapper = new ObjectMapper();
-//        // enable toString method of enums to return the value to be mapped
-//        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-//        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-//        return mapper;
-//    }
+        assert record != null;
+        String receiver = record.toString();
+        if(receiver != null) {
+        context.insertInto(table("usermessage"))
+                .set(field("sender"), sentMessage.getSender())
+                .set(field("receiver"),sentMessage.getReceiver())
+                .set(field("content"), sentMessage.getContent())
+                .set(field("is_read"),sentMessage.isRead())
+                .execute();
+    }
+
+}
 }
