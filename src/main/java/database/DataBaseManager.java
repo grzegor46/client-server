@@ -1,5 +1,6 @@
 package database;
 
+import constant.Role;
 import message.UserMessage;
 import org.jooq.*;
 import org.jooq.Record;
@@ -96,7 +97,6 @@ public class DataBaseManager {
         assert record != null;
         String receiver = record.toString();
         if(receiver != null) {
-            assert record1 != null;
             context.insertInto(table("usermessage"))
                 .set(field("sender"), sentMessage.getSender())
                 .set(field("receiver"),sentMessage.getReceiver())
@@ -107,4 +107,10 @@ public class DataBaseManager {
     }
 
 }
+
+    public User findUserInDB(String name) {
+        Record record1 = context.select(field("name")).from(table("users")).where(field("nickname").eq(name)).fetchOne();
+        assert record1 != null;
+        return new User(record1.getValue(field("nickname")).toString(),record1.getValue(field("password")).toString(),(Role) record1.getValue(field("user_role")));
+    }
 }

@@ -55,11 +55,6 @@ public class UserRepository implements Repository {
     }
 
     public User findUserName(String name) {
-        for (User user : this.userList) {
-            if (user.getNickName().equalsIgnoreCase(name.toLowerCase())) {
-                return user;
-            }
-        }
-        return null;
+        return dataBaseManager.findUserInDB(name);
     }
 }
