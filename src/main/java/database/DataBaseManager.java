@@ -108,8 +108,9 @@ public class DataBaseManager {
 }
 
     public User findUserInDB(String name) {
-        Record record1 = context.select(field("name")).from(table(USERS_TABLE)).where(field("nickname").eq(name)).fetchOne();
+        Record record1 = context.select(asterisk()).from(table(USERS_TABLE)).where(field("nickname").eq(name)).fetchOne();
         assert record1 != null;
+//        TODO Exception in thread "main" java.lang.ClassCastException: class java.lang.String cannot be cast to class constant.Role (java.lang.String is in module java.base of loader 'bootstrap'; constant.Role is in unnamed module of loader 'app')
         return new User(record1.getValue(field("nickname")).toString(),record1.getValue(field("password")).toString(),(Role) record1.getValue(field("user_role")));
     }
 
