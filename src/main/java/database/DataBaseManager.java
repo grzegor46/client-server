@@ -10,7 +10,9 @@ import user.User;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
@@ -51,7 +53,7 @@ public class DataBaseManager {
     }
 
     private void createUserTable(DSLContext context) {
-        context.createTableIfNotExists("users")
+        context.createTableIfNotExists(USERS_TABLE)
                 .column("id", INTEGER.identity(true))
                 .column("nickname", VARCHAR)
                 .column("password", VARCHAR)
@@ -63,7 +65,7 @@ public class DataBaseManager {
     }
 
     private void createUserMessageTable(DSLContext context) {
-        context.createTableIfNotExists("usermessage")
+        context.createTableIfNotExists(USER_MESSAGE)
                 .column("sender", VARCHAR)
                 .column("receiver", VARCHAR)
                 .column("content", VARCHAR(255))
@@ -76,28 +78,25 @@ public class DataBaseManager {
                 .execute();
     }
     public void add(User user) {
-//        Record record = context.select(asterisk()).from(table("users")).where(field("nickname").eq("user1")).fetchOne();
         context.insertInto(table(USERS_TABLE))
                 .set(field("nickname"),user.getNickName())
                 .set(field("password"), user.getPassword())
                 .set(field("user_role"),user.getRole().toString())
                 .execute();
-//        Result record2 = context.select(asterisk()).from(table("users")).fetch();
-//        System.out.println(record);
-//        System.out.println(record2);
+
         Result record = context.select(asterisk()).from(table("users")).fetch();
         System.out.println(record);
     }
 
     public void addMessageToUserMessageTable(UserMessage sentMessage) {
-        Record record = context.select(field("nickname")).from(table("users")).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
-        Record record1 = context.select(field("id")).from(table("users")).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
+        Record record = context.select(field("nickname")).from(table(USERS_TABLE)).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
+        Record record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
         assert record1 != null;
         int idOfUser = Integer.parseInt(record1.getValue(field("id")).toString());
         assert record != null;
         String receiver = record.toString();
         if(receiver != null) {
-            context.insertInto(table("usermessage"))
+            context.insertInto(table(USER_MESSAGE))
                 .set(field("sender"), sentMessage.getSender())
                 .set(field("receiver"),sentMessage.getReceiver())
                 .set(field("content"), sentMessage.getContent())
@@ -109,8 +108,44 @@ public class DataBaseManager {
 }
 
     public User findUserInDB(String name) {
-        Record record1 = context.select(field("name")).from(table("users")).where(field("nickname").eq(name)).fetchOne();
+        Record record1 = context.select(field("name")).from(table(USERS_TABLE)).where(field("nickname").eq(name)).fetchOne();
         assert record1 != null;
         return new User(record1.getValue(field("nickname")).toString(),record1.getValue(field("password")).toString(),(Role) record1.getValue(field("user_role")));
+    }
+
+    public int countUnReadUserMessages(User user) {
+        int userId = getUserId(user);
+
+        return context.fetchCount(
+                table(USER_MESSAGE)
+                        .where(field("is_read").eq(true).and(field("user_id").eq(userId)))
+        );
+    }
+
+    public List<UserMessage> getUserMessages(User user) {
+        int idUser = getUserId(user);
+
+        Result<Record> result = context.select().from(table(USER_MESSAGE)).where(field("user_id").eq(idUser)).fetch();
+
+        List<UserMessage> userMessages = new ArrayList<>();
+        for (Record record : result) {
+            String sender = record.getValue(field("sender", String.class));
+            String receiver = record.getValue(field("receiver", String.class));
+            String content = record.getValue(field("content", String.class));
+            boolean isRead = record.getValue(field("is_read", Boolean.class));
+
+            UserMessage userMessage = new UserMessage(sender, receiver, content);
+            userMessage.setRead(isRead);
+
+            userMessages.add(userMessage);
+        }
+
+        return userMessages;
+    }
+
+    private int getUserId(User user){
+        Record1 record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(user.getNickName())).fetchOne();
+        assert record1 != null;
+        return (int) record1.getValue(field("id"));
     }
 }

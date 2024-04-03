@@ -23,14 +23,7 @@ public class MessageManagement {
     }
 
     public void sendMessage(UserMessage sentMessage) {
-
-//        User receiver = userRepository.findUserName(sentMessage.getReceiver());
-//        userRepository.delete(receiver.getNickName());
-//        List<UserMessage> tmpUserMessageMailBox = receiver.getMailBox();
-//        tmpUserMessageMailBox.add(sentMessage);
-//        receiver.setMailBox(tmpUserMessageMailBox);
         userRepository.addMessageToMailbox(sentMessage);
-//        userRepository.save(receiver);
     }
 
     public String getMessageAsJsonRepresentation(String name, String content) {
@@ -50,7 +43,7 @@ public class MessageManagement {
     }
 
     public List<String> checkMailBox(User user) {
-        List<UserMessage> userMailBox = user.getMailBox();
+        List<UserMessage> userMailBox = userRepository.getUserMailBox(user);
         if (!userMailBox.isEmpty()) {
             List<String> stringList = new ArrayList<>();
             for (UserMessage userMsgs : userMailBox) {
@@ -69,16 +62,31 @@ public class MessageManagement {
             return stringList;
         }
         return null;
-    }
+//    }
+//    public List<String> checkMailBox(User user) {
+//        userRepository.getUserMailBox(user);
+//        List<UserMessage> userMailBox = user.getMailBox();
+//        if (!userMailBox.isEmpty()) {
+//            List<String> stringList = new ArrayList<>();
+//            for (UserMessage userMsgs : userMailBox) {
+//                String mail;
+//                if (!userMsgs.isRead()) {
+//                    if(userMsgs.getContent().length() <= 5) {
+//                        mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+//                    } else {
+//                        mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+//                    }
+//                } else {
+//                    mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+//                }
+//                stringList.add(mail);
+//            }
+//            return stringList;
+//        }
+//        return null;
+//    }
 
-    public int countUnreadUserMsgs(User user) {
-        List<UserMessage> userMailBox = user.getMailBox();
-        int unreadMsgsDigit = 0;
-        for (UserMessage userMsg : userMailBox) {
-            if(!userMsg.isRead()){
-                unreadMsgsDigit++;
-            }
-        }
-        return unreadMsgsDigit;
-    }
-}
+//    public int countUnreadUserMsgs(User user) {
+//        return userRepository.getUnReadMessages(user);
+//    }
+}}

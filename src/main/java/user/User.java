@@ -9,6 +9,7 @@ import java.util.List;
 
 
 public class User {
+
     private String nickName;
     private String password;
     private Role userRole;
