@@ -43,16 +43,10 @@ public class UserRepository implements Repository {
     }
     @Override
     public void delete(String nickname) {
-        User userToDelete = findUserName(nickname);
+//        TODO duplikacja znajdowania uzytkownika
+        User foundUserToDelete = findUserName(nickname);
 
-        if (userToDelete != null) {
-            boolean isUserDeleted = this.userList.remove(userToDelete);
-            if (isUserDeleted) {
-//                dataBaseManager.writeUsersToJson(this.userList);
-            }
-        } else {
-            System.out.println("User not found.");
-        }
+        dataBaseManager.deleteUserFromDB(foundUserToDelete);
     }
     @Override
     public User findUserName(String name) {

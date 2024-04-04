@@ -42,6 +42,7 @@ public class UserManagement {
                 return "user successfully logged in as: " + activeUser.getNickName();
             }
         }
+        activeUser = null;
         return "action login met a problem";
     }
 

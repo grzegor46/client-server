@@ -149,6 +149,14 @@ public class DataBaseManager {
         return userMessages;
     }
 
+    public void deleteUserFromDB(User user) {
+//        TODO duplikacja kodu z wyszukiwaniem usera
+        int userId = getUserId(user);
+        context.deleteFrom(table("users"))
+                .where(field("id").eq(userId))
+                .execute();
+    }
+
     private int getUserId(User user){
         Record1 record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(user.getNickName())).fetchOne();
         assert record1 != null;
