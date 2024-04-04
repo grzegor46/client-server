@@ -110,8 +110,13 @@ public class DataBaseManager {
     public User findUserInDB(String name) {
         Record record1 = context.select(asterisk()).from(table(USERS_TABLE)).where(field("nickname").eq(name)).fetchOne();
         assert record1 != null;
-//        TODO Exception in thread "main" java.lang.ClassCastException: class java.lang.String cannot be cast to class constant.Role (java.lang.String is in module java.base of loader 'bootstrap'; constant.Role is in unnamed module of loader 'app')
-        return new User(record1.getValue(field("nickname")).toString(),record1.getValue(field("password")).toString(),(Role) record1.getValue(field("user_role")));
+
+        String nickname = record1.getValue(field("nickname", String.class));
+        String password = record1.getValue(field("password", String.class));
+        String roleString = record1.getValue(field("user_role", String.class));
+        Role role = Role.valueOf(roleString); // Konwersja String na enum Role
+
+        return new User(nickname, password, role);
     }
 
     public int countUnReadUserMessages(User user) {
