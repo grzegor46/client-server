@@ -33,13 +33,14 @@ public class UserRepository implements Repository {
     }
     @Override
     public void update(User userWithNewUpdatedData) {
-        User userToUpdate = findUserName(userWithNewUpdatedData.getNickName());
-        if (userToUpdate != null) {
-            this.delete(userToUpdate.getNickName());
-            this.save(userToUpdate);
-        } else {
-            System.out.println("User not found.");
-        }
+//        User userToUpdate = findUserName(userWithNewUpdatedData.getNickName());
+//        if (userToUpdate != null) {
+//            userToUpdate.setMailBox(userWithNewUpdatedData.getMailBox());
+//            dataBaseManager.updateUserData(userToUpdate);
+            dataBaseManager.updateUserData(userWithNewUpdatedData);
+//        } else {
+//            System.out.println("User not found.");
+//        }
     }
     @Override
     public void delete(String nickname) {

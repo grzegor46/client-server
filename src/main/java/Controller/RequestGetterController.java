@@ -67,9 +67,11 @@ public class RequestGetterController {
     }
 
     private void readUserMessage() throws IOException {
-        stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
-        String userChoice = userInput();
-        stream.printWriter.println(userManagement.readMessage(userChoice));
+        if (activeUser != null) {
+            stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
+            String userChoice = userInput();
+            stream.printWriter.println(userManagement.readMessage(userChoice));
+        }
     }
 
     private void checkUserMailBox() {

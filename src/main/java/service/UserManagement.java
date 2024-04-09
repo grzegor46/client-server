@@ -148,12 +148,7 @@ public class UserManagement {
 
     public String readMessage(String userChoice) {
         int numberOfMessage = Integer.parseInt(userChoice)-1;
-        List<UserMessage> userMailBox = activeUser.getMailBox();
-        if(userMailBox.isEmpty()) {
-            return "there are no mails to read";
-        } else {
-            return messageManagement.readMessageFromMailBox(activeUser,numberOfMessage);
-        }
+        return messageManagement.readMessageFromMailBox(activeUser,numberOfMessage);
     }
 
 

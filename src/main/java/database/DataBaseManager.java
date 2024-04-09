@@ -168,6 +168,31 @@ public class DataBaseManager {
                 .collect(Collectors.toList());
     }
 
+    public void updateUserData(User updatedUser) {
+        // TODO problem przy zmianie roli uzytkownika z USER na ADMIN --> przyklad szuka grteg_admin a nie ma, bo najpierw szuka w bazie danych osoby ktora bedzie dopiero aktualizowana
+        // Pobierz identyfikator użytkownika
+        int userId = getUserId(updatedUser);
+        List<UserMessage> userMessages = updatedUser.getMailBox();
+
+        // Wykonaj aktualizację
+        context.update(table(USERS_TABLE))
+                .set(field("nickname"), updatedUser.getNickName())
+                .set(field("password"), updatedUser.getPassword())
+                .set(field("user_role"), updatedUser.getRole().toString())
+                .where(field("id").eq(userId))
+                .execute();
+
+        for (UserMessage message : userMessages) {
+            context.update(table(USER_MESSAGE))
+                    .set(field("content"), message.getContent())
+                    .set(field("is_read"), message.isRead())
+                    .where(field("user_id").eq(userId)
+                            .and(field("sender").eq(message.getSender()))
+                            .and(field("receiver").eq(message.getReceiver())))
+                    .execute();
+        }
+    }
+
     private int getUserId(User user){
         Record1 record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(user.getNickName())).fetchOne();
         assert record1 != null;
