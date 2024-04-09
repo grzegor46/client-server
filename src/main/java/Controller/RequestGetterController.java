@@ -126,7 +126,7 @@ public class RequestGetterController {
         if(!name.isEmpty()) {
             stream.printWriter.println(userManagement.deleteUser(name));
         } else {
-            stream.printWriter.println("didnt write nickname");
+            stream.printWriter.println("didn't write nickname");
         }
     }
 

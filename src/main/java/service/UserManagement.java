@@ -61,8 +61,8 @@ public class UserManagement {
 
     public String getUsers(){
         if (activeUser != null) {
-            List<User> users = showUsers();
-            return users.toString();
+            List<String> listOfUsers = showUsers();
+            return listOfUsers.toString();
         } else {
             return "you need to be logged to check list of users";
         }
@@ -173,7 +173,7 @@ public class UserManagement {
         userRepository.save(user);
     }
 
-    private List<User> showUsers() {
+    private List<String> showUsers() {
         return userRepository.getAllUsers();
     }
 

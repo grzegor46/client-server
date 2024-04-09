@@ -18,8 +18,8 @@ public class UserRepository implements Repository {
         this.userList = new ArrayList<>();
     }
     @Override
-    public List<User> getAllUsers() {
-        return this.userList;
+    public List<String> getAllUsers() {
+        return dataBaseManager.getAllExistingUsers();
     }
     @Override
     public void save(User user) {

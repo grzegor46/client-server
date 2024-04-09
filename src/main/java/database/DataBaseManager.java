@@ -12,6 +12,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 import static org.jooq.impl.DSL.*;
@@ -155,6 +156,16 @@ public class DataBaseManager {
         context.deleteFrom(table("users"))
                 .where(field("id").eq(userId))
                 .execute();
+    }
+
+    public List<String> getAllExistingUsers() {
+        Result<Record1<String>> result = context.select(field("nickname", String.class)).from(table(USERS_TABLE)).fetch();
+
+        // Pobranie nicków z wyniku zapytania i umieszczenie ich w liście
+
+        return result.stream()
+                .map(record -> record.getValue(field("nickname", String.class)))
+                .collect(Collectors.toList());
     }
 
     private int getUserId(User user){
