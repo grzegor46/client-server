@@ -34,14 +34,17 @@ public class MessageManagement {
         return helpCommandAsJson.toString();
     }
 
-    public String readMessageFromMailBox(User user, int indexOfMessage ) {
+    public String readMessageFromMailBox(User user, int indexOfMessage) {
         List<UserMessage> userMailBox = userRepository.getUserMailBox(user);
-        UserMessage userMessage = userMailBox.get(indexOfMessage);
-        userMessage.setRead(true);
-        userMailBox.set(indexOfMessage,userMessage);
-        user.setMailBox(userMailBox);
-        userRepository.update(user);
-        return (userMessage.getSender()+ ": " +userMessage.getContent());
+        if (indexOfMessage >= 0 && indexOfMessage < userMailBox.size()) {
+            UserMessage userMessage = userMailBox.get(indexOfMessage);
+            userMessage.setRead(true);
+            userMailBox.set(indexOfMessage, userMessage);
+            user.setMailBox(userMailBox);
+            userRepository.update(user);
+            return userMessage.getSender() + ": " + userMessage.getContent();
+        }
+        return "Message index out of bounds";
     }
 
     public List<String> checkMailBox(User user) {
@@ -64,8 +67,6 @@ public class MessageManagement {
             return stringList;
         }
         return null;
+    }
+}
 
-//    public int countUnreadUserMsgs(User user) {
-//        return userRepository.getUnReadMessages(user);
-//    }
-}}
