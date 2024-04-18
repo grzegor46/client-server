@@ -15,10 +15,12 @@ public class UserRepository implements Repository {
     public UserRepository() {
         this.dataBaseManager = new DataBaseManager();
     }
+
     @Override
     public List<String> getAllUsers() {
         return dataBaseManager.getAllExistingUsers();
     }
+
     @Override
     public void save(User user) {
         dataBaseManager.add(user);
@@ -31,15 +33,9 @@ public class UserRepository implements Repository {
     }
     @Override
     public void update(User userWithNewUpdatedData) {
-//        User userToUpdate = findUserName(userWithNewUpdatedData.getNickName());
-//        if (userToUpdate != null) {
-//            userToUpdate.setMailBox(userWithNewUpdatedData.getMailBox());
-//            dataBaseManager.updateUserData(userToUpdate);
             dataBaseManager.updateUserData(userWithNewUpdatedData);
-//        } else {
-//            System.out.println("User not found.");
-//        }
     }
+
     @Override
     public void delete(String nickname) {
 //        TODO duplikacja znajdowania uzytkownika

@@ -94,9 +94,7 @@ public class RequestGetterController {
     private void getAllExistingUsers() {
         stream.printWriter.println(userManagement.getUsers());
     }
-//    TODO add activeUser here?
 
-//    return user Created from userManagement method
     private void createANewUser() throws IOException {
         stream.printWriter.println("write name");
         String name = userInput();
