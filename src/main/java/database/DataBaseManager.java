@@ -169,9 +169,20 @@ public class DataBaseManager {
     }
 
     public void updateUserData(User updatedUser) {
-        // TODO problem przy zmianie roli uzytkownika z USER na ADMIN --> przyklad szuka grteg_admin a nie ma, bo najpierw szuka w bazie danych osoby ktora bedzie dopiero aktualizowana
+        // TODO zabezpiecz przed nullem
+        // TODO problem przy zmianie roli uzytkownika z USER na ADMIN --> przyklad szuka grteg_admin a nie ma, bo najpierw szuka w bazie danych osoby ktora bedzie dopiero aktualizowana.
         // Pobierz identyfikator użytkownika
+
         int userId = getUserId(updatedUser);
+//        sprawdzenie czy istnieje updatedUser, jezeli nie, to szukaj bez _admin i wtedy zrob update
+
+        if(userId == 0 ) {
+            int position  = updatedUser.getNickName().lastIndexOf("_admin");
+            User userWithOldData = updatedUser;
+            userWithOldData.setNickName(updatedUser.getNickName().substring(0,position));
+            userId = getUserId(userWithOldData);
+        }
+
         List<UserMessage> userMessages = updatedUser.getMailBox();
 
         // Wykonaj aktualizację
@@ -194,8 +205,10 @@ public class DataBaseManager {
     }
 
     private int getUserId(User user){
-        Record1 record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(user.getNickName())).fetchOne();
-        assert record1 != null;
-        return (int) record1.getValue(field("id"));
+        Record1<Object> record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(user.getNickName())).fetchOne();
+        if(record1 != null) {
+            return (int) record1.getValue(field("id"));
+        }
+        return 0;
     }
 }

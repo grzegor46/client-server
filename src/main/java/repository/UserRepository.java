@@ -11,11 +11,9 @@ import java.util.List;
 public class UserRepository implements Repository {
 
     private final DataBaseManager dataBaseManager;
-    private final List<User> userList;
 
     public UserRepository() {
         this.dataBaseManager = new DataBaseManager();
-        this.userList = new ArrayList<>();
     }
     @Override
     public List<String> getAllUsers() {
