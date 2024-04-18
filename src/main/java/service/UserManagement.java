@@ -77,7 +77,7 @@ public class UserManagement {
                     if (!role.isEmpty()) {
                         changeRoleName(user, role);
                         updateUser(user);
-                        return "Role changed for user: " + user.getNickName();
+                        return "Role changed for user: " + user.getNickName() + " to" + user.getRole();
                     }
                     if (!password.isEmpty()) {
                         changePassword(user, password);

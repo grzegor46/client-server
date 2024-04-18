@@ -85,7 +85,7 @@ public class DataBaseManager {
                 .set(field("user_role"),user.getRole().toString())
                 .execute();
 
-        Result record = context.select(asterisk()).from(table("users")).fetch();
+        Result<Record> record = context.select(asterisk()).from(table("users")).fetch();
         System.out.println(record);
     }
 
@@ -115,7 +115,7 @@ public class DataBaseManager {
         String nickname = record1.getValue(field("nickname", String.class));
         String password = record1.getValue(field("password", String.class));
         String roleString = record1.getValue(field("user_role", String.class));
-        Role role = Role.valueOf(roleString); // Konwersja String na enum Role
+        Role role = Role.valueOf(roleString);
 
         return new User(nickname, password, role);
     }
@@ -169,23 +169,9 @@ public class DataBaseManager {
     }
 
     public void updateUserData(User updatedUser) {
-        // TODO zabezpiecz przed nullem
-        // TODO problem przy zmianie roli uzytkownika z USER na ADMIN --> przyklad szuka grteg_admin a nie ma, bo najpierw szuka w bazie danych osoby ktora bedzie dopiero aktualizowana.
-        // Pobierz identyfikator użytkownika
-
         int userId = getUserId(updatedUser);
-//        sprawdzenie czy istnieje updatedUser, jezeli nie, to szukaj bez _admin i wtedy zrob update
-
-        if(userId == 0 ) {
-            int position  = updatedUser.getNickName().lastIndexOf("_admin");
-            User userWithOldData = updatedUser;
-            userWithOldData.setNickName(updatedUser.getNickName().substring(0,position));
-            userId = getUserId(userWithOldData);
-        }
-
         List<UserMessage> userMessages = updatedUser.getMailBox();
 
-        // Wykonaj aktualizację
         context.update(table(USERS_TABLE))
                 .set(field("nickname"), updatedUser.getNickName())
                 .set(field("password"), updatedUser.getPassword())
