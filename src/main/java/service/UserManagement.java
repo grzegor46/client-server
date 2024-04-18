@@ -113,31 +113,25 @@ public class UserManagement {
     }
 
     private void changeRoleName(User user, String role){
-        if (role.equals("user") && user.getNickName().endsWith("_admin")) {
-            int position  = user.getNickName().lastIndexOf("_admin");
-            user.setNickName(user.getNickName().substring(0,position));
-        } else {
-        user.setNickName(user.getNickName() + "_admin");
-        user.setRole(Role.ADMIN);
-
-        }
+            if(user.getRole().equals(Role.USER) && role.equals("admin")) {
+                user.setRole(Role.ADMIN);
+            } else {
+                user.setRole(Role.USER);
+            }
     }
     private void changePassword(User user, String newPassword)  {
         user.setPassword(newPassword);
     }
 
     public String createUser(String[] credentials) {
-        Role userRole;
-
-        if(credentials[0].endsWith("_admin")) {
-            userRole = Role.ADMIN;
-        } else {
-            userRole = Role.USER;
+        Role userRole = credentials[0].endsWith("_admin") ? Role.ADMIN : Role.USER;
+        if (userRole == Role.ADMIN) {
+            credentials[0] = credentials[0].substring(0, credentials[0].lastIndexOf("_admin"));
         }
-        User user = new User(credentials[0], credentials[1], userRole);
 
+        User user = new User(credentials[0], credentials[1], userRole);
         saveUser(user);
-        return "User " +user.getNickName()+ " created";
+        return "User " + user.getNickName() + " created";
     }
 
     public String sendMsg(String receiver, String messageToSend) {
