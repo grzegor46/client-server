@@ -21,95 +21,80 @@ public class UserManagement {
         this.messageManagement = new MessageManagement(this.userRepository);
     }
 
-    public String checkMailBox(){
-        if (activeUser != null) {
-        List<String> mailbox = messageManagement.checkMailBox(activeUser);
-        if(mailbox == null) {
-            return "your mailbox is empty";
+    public String checkMailBox() {
+        if (isLoggedIn()) {
+            List<String> mailbox = messageManagement.checkMailBox(activeUser);
+            return (mailbox == null) ? "your mailbox is empty" : mailbox.toString();
         } else {
-            return mailbox.toString();
-        }
-        }else {
-            return "you need to be logged to check users";
+            return "you need to be logged in to check users";
         }
     }
 
     public String loginUser(String nicknameToLogIn, String password)  {
-        if (activeUser == null) {
-//         TODO   add auth with password here
+        if (!isLoggedIn()) {
             activeUser = userRepository.findUserName(nicknameToLogIn);
             if(activeUser.getNickName().equals(nicknameToLogIn) && activeUser.getPassword().equals(password)) {
                 return "user successfully logged in as: " + activeUser.getNickName();
             }
         }
         activeUser = null;
-        return "action login met a problem";
+        return "login failed";
     }
 
-    public String deleteUser(String name){
-        if(activeUser != null){
-            if (activeUser.getRole().equals(Role.ADMIN)) {
-                this.deleteUserFromDataBase(name);
-                return "user " +name+ " deleted";
-            } else {
-                return "you don't have permission";
-            }
+    public String deleteUser(String name) {
+        if (canPerformAdminAction()) {
+            deleteUserFromDataBase(name);
+            return "user " + name + " deleted";
         } else {
-            return "you need to be logged to delete user data";
+            return "you don't have permission";
         }
     }
 
     public String getUsers(){
-        if (activeUser != null) {
+        if (isLoggedIn()) {
             List<String> listOfUsers = showUsers();
             return listOfUsers.toString();
         } else {
-            return "you need to be logged to check list of users";
+            return "you need to be logged in to check the list of users";
         }
     }
 
-    public String updateUserDataAsAdmin(String userNicknameToDataUpdate, String role, String password){
-        User user;
-        if(activeUser != null){
-            if (activeUser.getRole().equals(Role.ADMIN)) {
-                user = findUser(userNicknameToDataUpdate);
-                if(user != null) {
-                    if (!role.isEmpty()) {
-                        changeRoleName(user, role);
-                        updateUser(user);
-                        return "Role changed for user: " + user.getNickName() + " to" + user.getRole();
-                    }
-                    if (!password.isEmpty()) {
-                        changePassword(user, password);
-                        updateUser(user);
-                        return "Password changed for user: " + user.getNickName();
-                    }
-                }else {
-                    return "there is no such user in DB";
+    public String updateUserDataAsAdmin(String userNicknameToDataUpdate, String role, String password) {
+        if (canPerformAdminAction()) {
+            User user = findUser(userNicknameToDataUpdate);
+            if (user != null) {
+                if (!role.isEmpty()) {
+                    changeRoleName(user, role);
+                    updateUser(user);
+                    return "Role changed for user: " + user.getNickName();
                 }
-            }
-        } else {
-            return "you need to be logged to update user data";
-        }
-        return "action update as admin met problem";
-    }
-    public String updateUserDataAsUser(String password) {
-        User user;
-        if(activeUser != null){
-            if (activeUser.getRole().equals(Role.USER)) {
-                user = findUser(activeUser.getNickName());
-                if(user != null) {
+                if (!password.isEmpty()) {
                     changePassword(user, password);
                     updateUser(user);
                     return "Password changed for user: " + user.getNickName();
-                }else {
-                    return "there is no such user in DB";
                 }
+                return "No changes applied";
+            } else {
+                return "there is no such user in DB";
             }
         } else {
-            return "you need to be logged to update user data";
+            return "you need to be logged in as admin to update user data";
         }
-        return "operation update met problem";
+    }
+
+    public String updateUserDataAsUser(String password) {
+        if (isLoggedIn()) {
+            User user = findUser(activeUser.getNickName());
+            if (user != null) {
+                changePassword(user, password);
+                updateUser(user);
+                return "Password changed for user: " + user.getNickName();
+            } else {
+                return "there is no such user in DB";
+            }
+        } else {
+            return "you need to be logged in to update user data";
+        }
     }
 
     private void changeRoleName(User user, String role){
@@ -135,16 +120,31 @@ public class UserManagement {
     }
 
     public String sendMsg(String receiver, String messageToSend) {
-        UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-        messageManagement.sendMessage(userMessage);
-        return "message sent";
+        if (isLoggedIn()) {
+            UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+            messageManagement.sendMessage(userMessage);
+            return "message sent";
+        } else {
+            return "you need to be logged in to send a message";
+        }
     }
 
     public String readMessage(String userChoice) {
-        int numberOfMessage = Integer.parseInt(userChoice)-1;
-        return messageManagement.readMessageFromMailBox(activeUser,numberOfMessage);
+        if (isLoggedIn()) {
+            int numberOfMessage = Integer.parseInt(userChoice) - 1;
+            return messageManagement.readMessageFromMailBox(activeUser, numberOfMessage);
+        } else {
+            return "you need to be logged in to read messages";
+        }
     }
 
+    private boolean isLoggedIn() {
+        return activeUser != null;
+    }
+
+    private boolean canPerformAdminAction() {
+        return isLoggedIn() && activeUser.getRole().equals(Role.ADMIN);
+    }
 
     private void deleteUserFromDataBase(String nickname) {
         userRepository.delete(nickname);
