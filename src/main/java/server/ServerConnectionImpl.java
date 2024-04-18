@@ -1,7 +1,7 @@
 package server;
 
 
-import Controller.RequestGetterController;
+import controller.RequestGetterController;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;

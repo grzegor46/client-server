@@ -1,4 +1,4 @@
-package Controller;
+package controller;
 
 import constant.Role;
 import message.ServerMessage;
