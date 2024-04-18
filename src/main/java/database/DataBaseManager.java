@@ -41,6 +41,7 @@ public class DataBaseManager {
             createUserMessageTable(context);
         } catch (SQLException sqlException) {
             System.out.println(sqlException.getMessage());
+            closeDBConnection();
         }
     }
 
