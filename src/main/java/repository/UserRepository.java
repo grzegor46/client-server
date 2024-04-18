@@ -33,24 +33,17 @@ public class UserRepository implements Repository {
     }
     @Override
     public void update(User userWithNewUpdatedData) {
-            dataBaseManager.updateUserData(userWithNewUpdatedData);
+       dataBaseManager.updateUserData(userWithNewUpdatedData);
     }
 
     @Override
     public void delete(String nickname) {
-//        TODO duplikacja znajdowania uzytkownika
         User foundUserToDelete = findUserName(nickname);
-
         dataBaseManager.deleteUserFromDB(foundUserToDelete);
     }
     @Override
     public User findUserName(String name) {
         return dataBaseManager.findUserInDB(name);
-    }
-
-    @Override
-    public int getAmountOfUnReadMessages(User user) {
-        return dataBaseManager.countUnReadUserMessages(user);
     }
 
     @Override

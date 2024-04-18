@@ -12,8 +12,6 @@ public interface Repository {
     void delete(String nickname);
     User findUserName(String name);
     List<String> getAllUsers();
-
     List<UserMessage> getUserMailBox(User user);
-    int getAmountOfUnReadMessages(User user);
     void addMessageToMailbox(UserMessage sentMessage);
 }

@@ -45,7 +45,7 @@ public class DataBaseManager {
     }
 
     //TODO kiedy zamknac polaczenie z baza danych?
-    public void closeConnection() {
+    public void closeDBConnection() {
         try {
             connection.close();
         } catch (SQLException sqlException) {
@@ -151,7 +151,6 @@ public class DataBaseManager {
     }
 
     public void deleteUserFromDB(User user) {
-//        TODO duplikacja kodu z wyszukiwaniem usera
         int userId = getUserId(user);
         context.deleteFrom(table("users"))
                 .where(field("id").eq(userId))
