@@ -30,11 +30,9 @@ public class MessageManagementTestV2 {
     private String password = "dummyPassword";
 
     private MessageManagement messageManagement;
-    private Repository userRepository;
 
     @BeforeEach
     public void setUp() {
-        userRepository = mock(Repository.class);
         messageManagement = mock(MessageManagement.class);
     }
 
@@ -43,23 +41,16 @@ public void shouldReturnSpecificUsersMessagesFromMailBox() {
 
     User user = new User("Sender", "dummyPassword", Role.USER);
     List<UserMessage> mailbox = new ArrayList<>();
-    mailbox.add(new UserMessage("Sender", "Receiver", "contentOfMessage"));
     user.setMailBox(mailbox);
 
-    when(userRepository.getUserMailBox(user)).thenReturn(mailbox);
     List<String> arrayWithContent = new ArrayList<>();
     arrayWithContent.add("{\"Sender\":\"conte...\"}");
-
     when(messageManagement.checkMailBox(user)).thenReturn(arrayWithContent);
+
     List<String> result = messageManagement.checkMailBox(user);
 
     assertEquals(1, result.size());
     assertEquals("{\"Sender\":\"conte...\"}", result.get(0));
 }
-
-
-
-
-
 
 }
