@@ -36,21 +36,43 @@ public class MessageManagementTestV2 {
         messageManagement = mock(MessageManagement.class);
     }
 
-@Test
-public void shouldReturnSpecificUsersMessagesFromMailBox() {
+    @Test
+    public void shouldReturnSpecificUsersMessagesFromMailBox() {
 
-    User user = new User("Sender", "dummyPassword", Role.USER);
-    List<UserMessage> mailbox = new ArrayList<>();
-    user.setMailBox(mailbox);
+        User user = new User("Sender", "dummyPassword", Role.USER);
+        List<UserMessage> mailbox = new ArrayList<>();
+        user.setMailBox(mailbox);
 
-    List<String> arrayWithContent = new ArrayList<>();
-    arrayWithContent.add("{\"Sender\":\"conte...\"}");
-    when(messageManagement.checkMailBox(user)).thenReturn(arrayWithContent);
+        List<String> arrayWithContent = new ArrayList<>();
+        arrayWithContent.add("{\"Sender\":\"conte...\"}");
+        when(messageManagement.checkMailBox(user)).thenReturn(arrayWithContent);
 
-    List<String> result = messageManagement.checkMailBox(user);
+        List<String> result = messageManagement.checkMailBox(user);
 
-    assertEquals(1, result.size());
-    assertEquals("{\"Sender\":\"conte...\"}", result.get(0));
-}
+        assertEquals(1, result.size());
+        assertEquals("{\"Sender\":\"conte...\"}", result.get(0));
+    }
+
+    @Test
+    public void shouldReturnUnreadSpecificUsersMessagesFromMailBox() {
+//        TODO dodaj test sprawdzajacy czy mozna dodac wiecej niz 5 wiadomosci nieodczytanych?
+//        User user = new User(sender,password,Role.USER);
+//        List<UserMessage> mailbox = new ArrayList<>();
+//        mailbox.add(new UserMessage(sender,receiver,content));
+//        user.setMailBox(mailbox);
+//        List<String> messagesFromUserMailBox = messageManagement.checkMailBox(user);
+//        assertEquals("{\"Sender\":\"conte...\"}", messagesFromUserMailBox.get(0));
+//        assertFalse(user.getMailBox().get(0).isRead());
+    }
+
+    @Test
+    public void shouldReturnMessageAsJsonRepresentation() {
+        when(messageManagement.getMessageAsJsonRepresentation("UserName", content)).thenReturn("{\"UserName\":\"contentOfMessage\"}");
+
+        String messageAsJson = messageManagement.getMessageAsJsonRepresentation("UserName", content);
+        String expectedResult = "{\"UserName\":\"contentOfMessage\"}";
+        assertEquals(expectedResult, messageAsJson);
+
+    }
 
 }

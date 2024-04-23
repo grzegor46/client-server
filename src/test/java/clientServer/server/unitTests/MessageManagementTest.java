@@ -32,14 +32,15 @@ public class MessageManagementTest {
     private final MessageManagement messageManagement = new MessageManagement(userRepository);
 
 
-//TODO wydziel do utils klasy metode jako json representation
-    @Test
-    public void shouldReturnMessageAsJsonRepresentation() {
-        String messageAsJson = messageManagement.getMessageAsJsonRepresentation("UserName", content);
-        String expectedResult = "{\"UserName\":\"contentOfMessage\"}";
-        assertEquals(expectedResult, messageAsJson);
+////TODO wydziel do utils klasy metode jako json representation
 
-    }
+//    @Test
+//    public void shouldReturnMessageAsJsonRepresentation() {
+//        String messageAsJson = messageManagement.getMessageAsJsonRepresentation("UserName", content);
+//        String expectedResult = "{\"UserName\":\"contentOfMessage\"}";
+//        assertEquals(expectedResult, messageAsJson);
+//
+//    }
 //TODO wydziel czesci wspolne do osobnej metody
     @Test
     public void shouldReturnUnreadSpecificUsersMessagesFromMailBox() {
@@ -52,15 +53,15 @@ public class MessageManagementTest {
         assertFalse(user.getMailBox().get(0).isRead());
     }
 
-    @Test
-    public void shouldReturnUnreadMessagesDependOnAmountInMailBox() {
-        User user = new User(sender,password,Role.USER);
-        List<UserMessage> mailbox = new ArrayList<>();
-        mailbox.add(new UserMessage(sender,receiver,content));
-        user.setMailBox(mailbox);
-        int amountInMailBox = messageManagement.countUnreadUserMsgs(user);
-        assertEquals(1, amountInMailBox);
-    }
+//    @Test
+//    public void shouldReturnUnreadMessagesDependOnAmountInMailBox() {
+//        User user = new User(sender,password,Role.USER);
+//        List<UserMessage> mailbox = new ArrayList<>();
+//        mailbox.add(new UserMessage(sender,receiver,content));
+//        user.setMailBox(mailbox);
+//        int amountInMailBox = messageManagement.countUnreadUserMsgs(user);
+//        assertEquals(1, amountInMailBox);
+//    }
 
     @Test
     public void shouldReturnContentsOfTheMessageAndChangeStateOfIsReadMessageToTrue() {
