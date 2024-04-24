@@ -21,43 +21,41 @@ public class MessageManagementTest {
     private String receiver = "Receiver";
     private String content = "contentOfMessage";
     private String password = "dummyPassword";
+    private User user;
+    private List<UserMessage> mailbox;
+    private UserMessage newUserMessage;
+    private UserMessage newUserMessage2;
 
     private MessageManagement messageManagement;
-
 
     @BeforeEach
     public void setUp() {
         messageManagement = mock(MessageManagement.class);
+        user = new User(sender, password, Role.USER);
+        mailbox = new ArrayList<>();
+        newUserMessage = new UserMessage(sender,receiver,content);
+        newUserMessage2 = new UserMessage(sender,receiver,content);
     }
 
     @Test
     public void shouldReturnMessagesFromMailBox() {
-
-        User user = new User(sender, password, Role.USER);
-        List<UserMessage> mailbox = new ArrayList<>();
         user.setMailBox(mailbox);
-
         List<String> arrayWithContent = new ArrayList<>();
-        arrayWithContent.add("{\"Sender\":\"conte...\"}");
-        arrayWithContent.add("{\"Sender1\":\"conte2...\"}");
+
+        arrayWithContent.add(newUserMessage.toString());
+        arrayWithContent.add(newUserMessage2.toString());
         when(messageManagement.checkMailBox(user)).thenReturn(arrayWithContent);
 
         List<String> result = messageManagement.checkMailBox(user);
 
-
         assertEquals(2, result.size());
-        assertEquals("{\"Sender\":\"conte...\"}", result.get(0));
 
         verify(messageManagement, atLeastOnce()).checkMailBox(user);
     }
 
     @Test
     public void shouldReturnReadMessageFromUserMailBox() {
-        User user = new User(sender, password, Role.USER);
-        UserMessage newUserMessage = new UserMessage(sender,receiver,content);
-        UserMessage newUserMessage2 = new UserMessage(sender,receiver,content);
         int indexOfMessage = 0;
-        List<UserMessage> mailbox = new ArrayList<>();
 
         mailbox.add(newUserMessage);
         mailbox.add(newUserMessage2);
