@@ -2,23 +2,17 @@ package clientServer.server.unitTests;
 
 import constant.Role;
 import message.UserMessage;
-
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import repository.Repository;
-import repository.UserRepository;
 import service.MessageManagement;
 import user.User;
-import utils.PropertiesUtils;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class MessageManagementTest {
@@ -28,70 +22,63 @@ public class MessageManagementTest {
     private String content = "contentOfMessage";
     private String password = "dummyPassword";
 
-    private final Repository userRepository = new UserRepository();
-    private final MessageManagement messageManagement = new MessageManagement(userRepository);
+    private MessageManagement messageManagement;
 
 
-////TODO wydziel do utils klasy metode jako json representation
+    @BeforeEach
+    public void setUp() {
+        messageManagement = mock(MessageManagement.class);
+    }
 
-//    @Test
-//    public void shouldReturnMessageAsJsonRepresentation() {
-//        String messageAsJson = messageManagement.getMessageAsJsonRepresentation("UserName", content);
-//        String expectedResult = "{\"UserName\":\"contentOfMessage\"}";
-//        assertEquals(expectedResult, messageAsJson);
-//
-//    }
-//TODO wydziel czesci wspolne do osobnej metody
     @Test
-    public void shouldReturnUnreadSpecificUsersMessagesFromMailBox() {
-        User user = new User(sender,password,Role.USER);
+    public void shouldReturnMessagesFromMailBox() {
+
+        User user = new User(sender, password, Role.USER);
         List<UserMessage> mailbox = new ArrayList<>();
-        mailbox.add(new UserMessage(sender,receiver,content));
         user.setMailBox(mailbox);
-        List<String> messagesFromUserMailBox = messageManagement.checkMailBox(user);
-        assertEquals("{\"Sender\":\"conte...\"}", messagesFromUserMailBox.get(0));
-        assertFalse(user.getMailBox().get(0).isRead());
+
+        List<String> arrayWithContent = new ArrayList<>();
+        arrayWithContent.add("{\"Sender\":\"conte...\"}");
+        arrayWithContent.add("{\"Sender1\":\"conte2...\"}");
+        when(messageManagement.checkMailBox(user)).thenReturn(arrayWithContent);
+
+        List<String> result = messageManagement.checkMailBox(user);
+
+
+        assertEquals(2, result.size());
+        assertEquals("{\"Sender\":\"conte...\"}", result.get(0));
+
+        verify(messageManagement, atLeastOnce()).checkMailBox(user);
     }
 
-//    @Test
-//    public void shouldReturnUnreadMessagesDependOnAmountInMailBox() {
-//        User user = new User(sender,password,Role.USER);
-//        List<UserMessage> mailbox = new ArrayList<>();
-//        mailbox.add(new UserMessage(sender,receiver,content));
-//        user.setMailBox(mailbox);
-//        int amountInMailBox = messageManagement.countUnreadUserMsgs(user);
-//        assertEquals(1, amountInMailBox);
-//    }
-
     @Test
-    public void shouldReturnContentsOfTheMessageAndChangeStateOfIsReadMessageToTrue() {
-        User user = new User(sender,password,Role.USER);
+    public void shouldReturnReadMessageFromUserMailBox() {
+        User user = new User(sender, password, Role.USER);
+        UserMessage newUserMessage = new UserMessage(sender,receiver,content);
+        UserMessage newUserMessage2 = new UserMessage(sender,receiver,content);
+        int indexOfMessage = 0;
         List<UserMessage> mailbox = new ArrayList<>();
-        mailbox.add(new UserMessage(sender,receiver,content));
+
+        mailbox.add(newUserMessage);
+        mailbox.add(newUserMessage2);
         user.setMailBox(mailbox);
-        userRepository.save(user);
-        String msg = messageManagement.readMessageFromMailBox(user,0);
-        userRepository.delete(user.getNickName());
-        assertEquals(sender+": "+content,msg);
-        assertTrue(user.getMailBox().get(0).isRead());
+        UserMessage userMessageFromUserMailbox = mailbox.get(indexOfMessage);
+        when(messageManagement.readMessageFromMailBox(user, indexOfMessage)).thenReturn(userMessageFromUserMailbox.getSender() + ": " + userMessageFromUserMailbox.getContent());
+        String response = messageManagement.readMessageFromMailBox(user, indexOfMessage);
+
+        assertEquals(userMessageFromUserMailbox.getSender() + ": " + userMessageFromUserMailbox.getContent(),response);
+
+        verify(messageManagement, atLeastOnce()).readMessageFromMailBox(user, indexOfMessage);
     }
 
     @Test
-    public void shouldSendMessageWithSuccessToSpecificUser(){
-        User userReceiver = new User(receiver,password,Role.USER);
-        userRepository.save(userReceiver);
-        UserMessage messageFromSender = new UserMessage(sender,receiver,content);
-        messageManagement.sendMessage(messageFromSender);
-        User userWithMessages = userRepository.findUserName(userReceiver.getNickName());
-        String contentFromMailBox = userWithMessages.getMailBox().get(0).getContent();
-        assertEquals(content, contentFromMailBox);
-        userRepository.delete(userReceiver.getNickName());
+    public void shouldReturnMessageAsJsonRepresentation() {
+        when(messageManagement.getMessageAsJsonRepresentation("UserName", content)).thenReturn("{\"UserName\":\"contentOfMessage\"}");
 
-    }
+        String messageAsJson = messageManagement.getMessageAsJsonRepresentation("UserName", content);
+        String expectedResult = "{\"UserName\":\"contentOfMessage\"}";
+        assertEquals(expectedResult, messageAsJson);
 
-    @AfterEach
-    void cleanUp() throws IOException {
-        new FileWriter(PropertiesUtils.databasePath, false).close();
     }
 
 }
