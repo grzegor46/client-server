@@ -39,7 +39,7 @@ public class MessageManagementTestV2 {
     }
 
     @Test
-    public void shouldReturnSpecificUsersMessagesFromMailBox() {
+    public void shouldReturnMessagesFromMailBox() {
 
         User user = new User(sender, password, Role.USER);
         List<UserMessage> mailbox = new ArrayList<>();
@@ -47,19 +47,20 @@ public class MessageManagementTestV2 {
 
         List<String> arrayWithContent = new ArrayList<>();
         arrayWithContent.add("{\"Sender\":\"conte...\"}");
+        arrayWithContent.add("{\"Sender1\":\"conte2...\"}");
         when(messageManagement.checkMailBox(user)).thenReturn(arrayWithContent);
 
         List<String> result = messageManagement.checkMailBox(user);
 
 
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         assertEquals("{\"Sender\":\"conte...\"}", result.get(0));
 
         verify(messageManagement, atLeastOnce()).checkMailBox(user);
     }
 
     @Test
-    public void readMessageFromMailboxTEST() {
+    public void shouldReturnReadMessageFromUserMailBox() {
         User user = new User(sender, password, Role.USER);
         UserMessage newUserMessage = new UserMessage(sender,receiver,content);
         UserMessage newUserMessage2 = new UserMessage(sender,receiver,content);
