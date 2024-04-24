@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -31,6 +32,7 @@ public class MessageManagementTestV2 {
 
     private MessageManagement messageManagement;
 
+
     @BeforeEach
     public void setUp() {
         messageManagement = mock(MessageManagement.class);
@@ -39,7 +41,7 @@ public class MessageManagementTestV2 {
     @Test
     public void shouldReturnSpecificUsersMessagesFromMailBox() {
 
-        User user = new User("Sender", "dummyPassword", Role.USER);
+        User user = new User(sender, password, Role.USER);
         List<UserMessage> mailbox = new ArrayList<>();
         user.setMailBox(mailbox);
 
@@ -49,20 +51,31 @@ public class MessageManagementTestV2 {
 
         List<String> result = messageManagement.checkMailBox(user);
 
+
         assertEquals(1, result.size());
         assertEquals("{\"Sender\":\"conte...\"}", result.get(0));
+
+        verify(messageManagement, atLeastOnce()).checkMailBox(user);
     }
 
     @Test
-    public void shouldReturnUnreadSpecificUsersMessagesFromMailBox() {
-//        TODO dodaj test sprawdzajacy czy mozna dodac wiecej niz 5 wiadomosci nieodczytanych?
-//        User user = new User(sender,password,Role.USER);
-//        List<UserMessage> mailbox = new ArrayList<>();
-//        mailbox.add(new UserMessage(sender,receiver,content));
-//        user.setMailBox(mailbox);
-//        List<String> messagesFromUserMailBox = messageManagement.checkMailBox(user);
-//        assertEquals("{\"Sender\":\"conte...\"}", messagesFromUserMailBox.get(0));
-//        assertFalse(user.getMailBox().get(0).isRead());
+    public void readMessageFromMailboxTEST() {
+        User user = new User(sender, password, Role.USER);
+        UserMessage newUserMessage = new UserMessage(sender,receiver,content);
+        UserMessage newUserMessage2 = new UserMessage(sender,receiver,content);
+        int indexOfMessage = 0;
+        List<UserMessage> mailbox = new ArrayList<>();
+
+        mailbox.add(newUserMessage);
+        mailbox.add(newUserMessage2);
+        user.setMailBox(mailbox);
+        UserMessage userMessageFromUserMailbox = mailbox.get(indexOfMessage);
+        when(messageManagement.readMessageFromMailBox(user, indexOfMessage)).thenReturn(userMessageFromUserMailbox.getSender() + ": " + userMessageFromUserMailbox.getContent());
+        String response = messageManagement.readMessageFromMailBox(user, indexOfMessage);
+
+        assertEquals(userMessageFromUserMailbox.getSender() + ": " + userMessageFromUserMailbox.getContent(),response);
+
+        verify(messageManagement, atLeastOnce()).readMessageFromMailBox(user, indexOfMessage);
     }
 
     @Test
