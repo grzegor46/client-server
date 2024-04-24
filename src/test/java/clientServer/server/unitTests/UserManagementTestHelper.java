@@ -1,14 +1,11 @@
 package clientServer.server.unitTests;
 
 import service.UserManagement;
+import user.User;
 
 public class UserManagementTestHelper {
 
-    UserManagement userManagement;
-
-
-    public UserManagementTestHelper(UserManagement userManagement) {
-        this.userManagement = userManagement;
+    public UserManagementTestHelper() {
     }
 
     public static String[] createCredentials() {
@@ -17,23 +14,23 @@ public class UserManagementTestHelper {
         return credentials;
     }
 
-    public void createAndLoginAsAdmin() {
-        String[] credentialsAdmin = {"tata_admin", "tataPassword"};
-        userManagement.createUser(credentialsAdmin);
-        userManagement.loginUser("tata_admin", "tataPassword");
-    }
+//    public void createAndLoginAsAdmin() {
+//        String[] credentialsAdmin = {"tata_admin", "tataPassword"};
+//        userManagement.createUser(credentialsAdmin);
+//        userManagement.loginUser("tata_admin", "tataPassword");
+//    }
+//
+//    public void createAndLoginAsUser() {
+//        String[] credentialsUser = {"tata", "tataPassword"};
+//        userManagement.createUser(credentialsUser);
+//        userManagement.loginUser("tata", "tataPassword");
+//    }
 
-    public void createAndLoginAsUser() {
-        String[] credentialsUser = {"tata", "tataPassword"};
-        userManagement.createUser(credentialsUser);
-        userManagement.loginUser("tata", "tataPassword");
-    }
-
-    public String createTemporaryUser(){
+    public User createTemporaryUser(){
         String name = "tata";
         String[] credentialsUser = {name, "tataPassword"};
-        userManagement.createUser(credentialsUser);
-        return name;
+        User user = new User(credentialsUser[0],credentialsUser[1]);
+        return user;
     }
 
     public void logoutActiveUser(){
