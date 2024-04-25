@@ -60,7 +60,6 @@ public class DataBaseManager {
                 .column("nickname", VARCHAR)
                 .column("password", VARCHAR)
                 .column("user_role", VARCHAR(5))
-                .column("mail_box", VARCHAR)
                 .constraints(
                         constraint().primaryKey("id"))
                 .execute();
