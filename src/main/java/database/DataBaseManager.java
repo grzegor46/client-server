@@ -161,8 +161,6 @@ public class DataBaseManager {
     public List<String> getAllExistingUsers() {
         Result<Record1<String>> result = context.select(field("nickname", String.class)).from(table(USERS_TABLE)).fetch();
 
-        // Pobranie nicków z wyniku zapytania i umieszczenie ich w liście
-
         return result.stream()
                 .map(record -> record.getValue(field("nickname", String.class)))
                 .collect(Collectors.toList());

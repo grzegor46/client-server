@@ -9,10 +9,6 @@ import user.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
-import static org.jooq.impl.SQLDataType.*;
-
 public class MessageManagement {
 
     private final Repository userRepository;
