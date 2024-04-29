@@ -91,7 +91,7 @@ public class DataBaseManager {
                 .execute();
 
         Result<Record> record = context.select(asterisk()).from(table("users")).fetch();
-        System.out.println(record);
+        logger.info(String.valueOf(record));
     }
 
     public void addMessageToUserMessageTable(UserMessage sentMessage) {
@@ -187,11 +187,11 @@ public class DataBaseManager {
 
             for (UserMessage message : userMessages) {
                 context.update(table(USER_MESSAGE))
-                        .set(field("content"), message.getContent())
                         .set(field("is_read"), message.isRead())
                         .where(field("user_id").eq(userId)
                                 .and(field("sender").eq(message.getSender()))
-                                .and(field("receiver").eq(message.getReceiver())))
+                                .and(field("receiver").eq(message.getReceiver()))
+                                .and(field("content").eq(message.getContent())))
                         .execute();
             }
         }else {
