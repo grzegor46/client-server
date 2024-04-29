@@ -2,6 +2,9 @@ package server;
 
 
 import controller.RequestGetterController;
+import database.DataBaseManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.Connection;
 import utils.PropertiesUtils;
 import utils.Stream;
@@ -21,7 +24,7 @@ public class ServerConnectionImpl implements Connection {
     private ServerSocket serverSocket;
     private Stream stream = null;
     private RequestGetterController requestGetterController;
-
+    private static final Logger logger = LoggerFactory.getLogger(ServerConnectionImpl.class);
 
 
     @Override
@@ -36,18 +39,17 @@ public class ServerConnectionImpl implements Connection {
 
                 String msgFromClient = userInput();
 
-                System.out.println("Client: " + msgFromClient);
+                logger.info("Client: " + msgFromClient);
 
                 if (!msgFromClient.contains("stop")) {
                     requestGetterController.getRequest(msgFromClient);
                 } else {
-                    System.out.println("Received 'stop' command from client");
+                    logger.info("Received 'stop' command from client");
                     break;
                 }
             }
         } catch (IOException e) {
-            System.out.println("Server encountered an error ");
-            e.printStackTrace();
+            logger.error("Server encountered an error "+e.getMessage());
         } finally {
             closeConnection();
         }
@@ -59,10 +61,9 @@ public class ServerConnectionImpl implements Connection {
             serverSocket.close();
             stream.closeStreams();
             socket.close();
-            System.out.println("Server: connection closed");
+            logger.info("Server: connection closed");
         } catch (IOException e) {
-            System.out.println("Attempt to close all streams failed");
-            e.printStackTrace();
+            logger.error("Attempt to close all streams failed", e);
         }
     }
 

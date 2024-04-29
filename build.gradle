@@ -13,13 +13,17 @@ dependencies {
     implementation 'commons-io:commons-io:2.7'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
-// postgress
+    // postgress
     implementation 'org.jooq:jooq:3.19.0'
     implementation 'org.jooq:jooq-meta:3.19.0'
     implementation 'org.jooq:jooq-codegen:3.19.0'
     implementation 'org.postgresql:postgresql:42.5.5'
 
-// tests
+    // logowanie
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'ch.qos.logback:logback-classic:1.2.6'
+
+    // tests
     testImplementation('org.junit.jupiter:junit-jupiter')
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
@@ -38,4 +42,3 @@ task runServer(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'server.Server'
 }
-

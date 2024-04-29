@@ -12,6 +12,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
 
 
@@ -20,14 +22,16 @@ import static org.jooq.impl.SQLDataType.*;
 
 public class DataBaseManager {
 
-    private final String USER_NAME = "";
-    private final String PASSWORD = "";
-    private final String DATABASE = "";
+    private final String USER_NAME = "grzegor";
+    private final String PASSWORD = "eztddwzz";
+    private final String DATABASE = "grzegor_db";
     private final String USERS_TABLE = "users";
     private final String USER_MESSAGE = "usermessage";
     private final String URL = String.format("jdbc:postgresql://localhost:5432/%s", DATABASE);
     private Connection connection;
-    DSLContext context;
+    private DSLContext context;
+    private static final Logger logger = LoggerFactory.getLogger(DataBaseManager.class);
+
 
     public DataBaseManager() {
         startConnection();
@@ -40,17 +44,18 @@ public class DataBaseManager {
             createUserTable(context);
             createUserMessageTable(context);
         } catch (SQLException sqlException) {
-            System.out.println(sqlException.getMessage());
+            logger.error("Błąd podczas otwierania połączenia z bazą danych: {}", sqlException.getMessage());
             closeDBConnection();
         }
     }
 
-    //TODO kiedy zamknac polaczenie z baza danych?
     public void closeDBConnection() {
         try {
-            connection.close();
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
         } catch (SQLException sqlException) {
-            System.out.println(sqlException.getMessage());
+            logger.error("Błąd podczas zamykania połączenia: {}", sqlException.getMessage());
         }
     }
 
@@ -90,34 +95,37 @@ public class DataBaseManager {
     }
 
     public void addMessageToUserMessageTable(UserMessage sentMessage) {
-        Record record = context.select(field("nickname")).from(table(USERS_TABLE)).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
         Record record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
-        assert record1 != null;
-        int idOfUser = Integer.parseInt(record1.getValue(field("id")).toString());
-        assert record != null;
-        String receiver = record.toString();
-        if(receiver != null) {
+        if (record1 != null) {
+            int idOfUser = record1.getValue(field("id", Integer.class));
             context.insertInto(table(USER_MESSAGE))
-                .set(field("sender"), sentMessage.getSender())
-                .set(field("receiver"),sentMessage.getReceiver())
-                .set(field("content"), sentMessage.getContent())
-                .set(field("is_read"),sentMessage.isRead())
-                .set(field("user_id"),idOfUser)
-                .execute();
+                    .set(field("sender"), sentMessage.getSender())
+                    .set(field("receiver"), sentMessage.getReceiver())
+                    .set(field("content"), sentMessage.getContent())
+                    .set(field("is_read"), sentMessage.isRead())
+                    .set(field("user_id"), idOfUser)
+                    .execute();
+        } else {
+            logger.info("Użytkownik o podanym nicku nie istnieje.");
+        }
     }
 
-}
-
     public User findUserInDB(String name) {
-        Record record1 = context.select(asterisk()).from(table(USERS_TABLE)).where(field("nickname").eq(name)).fetchOne();
-        assert record1 != null;
+        try {
+            Record record1 = context.select(asterisk()).from(table(USERS_TABLE)).where(field("nickname").eq(name)).fetchOne();
+            assert record1 != null;
 
-        String nickname = record1.getValue(field("nickname", String.class));
-        String password = record1.getValue(field("password", String.class));
-        String roleString = record1.getValue(field("user_role", String.class));
-        Role role = Role.valueOf(roleString);
+            String nickname = record1.getValue(field("nickname", String.class));
+            String password = record1.getValue(field("password", String.class));
+            String roleString = record1.getValue(field("user_role", String.class));
+            Role role = Role.valueOf(roleString);
 
-        return new User(nickname, password, role);
+            return new User(nickname, password, role);
+        }
+        catch (Exception e) {
+            logger.error("nie znaleziono takiego uzytkownika w bazie danych: {}", e.getMessage());
+        }
+        return new User();
     }
 
     public int countUnReadUserMessages(User user) {
@@ -167,23 +175,27 @@ public class DataBaseManager {
 
     public void updateUserData(User updatedUser) {
         int userId = getUserId(updatedUser);
-        List<UserMessage> userMessages = updatedUser.getMailBox();
+        if(userId != 0) {
+            List<UserMessage> userMessages = updatedUser.getMailBox();
 
-        context.update(table(USERS_TABLE))
-                .set(field("nickname"), updatedUser.getNickName())
-                .set(field("password"), updatedUser.getPassword())
-                .set(field("user_role"), updatedUser.getRole().toString())
-                .where(field("id").eq(userId))
-                .execute();
-
-        for (UserMessage message : userMessages) {
-            context.update(table(USER_MESSAGE))
-                    .set(field("content"), message.getContent())
-                    .set(field("is_read"), message.isRead())
-                    .where(field("user_id").eq(userId)
-                            .and(field("sender").eq(message.getSender()))
-                            .and(field("receiver").eq(message.getReceiver())))
+            context.update(table(USERS_TABLE))
+                    .set(field("nickname"), updatedUser.getNickName())
+                    .set(field("password"), updatedUser.getPassword())
+                    .set(field("user_role"), updatedUser.getRole().toString())
+                    .where(field("id").eq(userId))
                     .execute();
+
+            for (UserMessage message : userMessages) {
+                context.update(table(USER_MESSAGE))
+                        .set(field("content"), message.getContent())
+                        .set(field("is_read"), message.isRead())
+                        .where(field("user_id").eq(userId)
+                                .and(field("sender").eq(message.getSender()))
+                                .and(field("receiver").eq(message.getReceiver())))
+                        .execute();
+            }
+        }else {
+            logger.info("nie znaleziono uzytkownika");
         }
     }
 
