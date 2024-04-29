@@ -133,7 +133,7 @@ public class DataBaseManager {
 
         return context.fetchCount(
                 table(USER_MESSAGE)
-                        .where(field("is_read").eq(true).and(field("user_id").eq(userId)))
+                        .where(field("is_read").eq(false).and(field("user_id").eq(userId)))
         );
     }
 

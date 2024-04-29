@@ -64,5 +64,9 @@ public class MessageManagement {
         }
         return null;
     }
+
+    public int checkAmountOfUnreadMessages(User user){
+        return userRepository.checkUnreadMessages(user);
+    }
 }
 

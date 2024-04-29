@@ -50,4 +50,8 @@ public class UserRepository implements Repository {
     public List<UserMessage> getUserMailBox(User user) {
         return dataBaseManager.getUserMessages(user);
     }
+
+    public int checkUnreadMessages(User user) {
+        return dataBaseManager.countUnReadUserMessages(user);
+    }
 }

@@ -9,6 +9,8 @@ import user.User;
 
 import java.util.List;
 
+import static utils.PropertiesUtils.AMOUNT_OF_AVAILABLE_UNREAD_MESSAGES;
+
 
 public class UserManagement {
 
@@ -122,8 +124,12 @@ public class UserManagement {
     public String sendMsg(String receiver, String messageToSend) {
         if (isLoggedIn()) {
             UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
-            messageManagement.sendMessage(userMessage);
-            return "message sent";
+            if(!isUserHasMoreThanNumberOfAvailableUnreadMessagesInMailbox(receiver)) {
+                messageManagement.sendMessage(userMessage);
+                return "message sent";
+            } else {
+                return "user has more than 5 unread messages";
+            }
         } else {
             return "you need to be logged in to send a message";
         }
@@ -136,6 +142,11 @@ public class UserManagement {
         } else {
             return "you need to be logged in to read messages";
         }
+    }
+
+    private boolean isUserHasMoreThanNumberOfAvailableUnreadMessagesInMailbox(String receiver) {
+        User user = userRepository.findUserName(receiver);
+        return userRepository.checkUnreadMessages(user) >= AMOUNT_OF_AVAILABLE_UNREAD_MESSAGES;
     }
 
     private boolean isLoggedIn() {

@@ -14,4 +14,5 @@ public interface Repository {
     List<String> getAllUsers();
     List<UserMessage> getUserMailBox(User user);
     void addMessageToMailbox(UserMessage sentMessage);
+    int checkUnreadMessages(User user);
 }
