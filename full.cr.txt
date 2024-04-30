@@ -1,0 +1,1425 @@
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/service/MessageManagement.java
+
+package service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import message.UserMessage;
+import repository.Repository;
+import user.User;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MessageManagement {
+
+    private final Repository userRepository;
+
+
+    public MessageManagement(Repository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public void sendMessage(UserMessage sentMessage) {
+        userRepository.addMessageToMailbox(sentMessage);
+    }
+
+    public String getMessageAsJsonRepresentation(String name, String content) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode helpCommandAsJson = objectMapper.createObjectNode();
+        helpCommandAsJson.put(name, content);
+
+        return helpCommandAsJson.toString();
+    }
+
+    public String readMessageFromMailBox(User user, int indexOfMessage) {
+        List<UserMessage> userMailBox = userRepository.getUserMailBox(user);
+        if (indexOfMessage >= 0 && indexOfMessage < userMailBox.size()) {
+            UserMessage userMessage = userMailBox.get(indexOfMessage);
+            userMessage.setRead(true);
+            userMailBox.set(indexOfMessage, userMessage);
+            user.setMailBox(userMailBox);
+            userRepository.update(user);
+            return userMessage.getSender() + ": " + userMessage.getContent();
+        }
+        return "Message index out of bounds";
+    }
+
+    public List<String> checkMailBox(User user) {
+        List<UserMessage> userMailBox = userRepository.getUserMailBox(user);
+        if (!userMailBox.isEmpty()) {
+            List<String> stringList = new ArrayList<>();
+            for (UserMessage userMsgs : userMailBox) {
+                String mail;
+                if (!userMsgs.isRead()) {
+                    if(userMsgs.getContent().length() <= 5) {
+                        mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+                    } else {
+                        mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent().substring(0, 5) + "...");
+                    }
+                } else {
+                    mail = getMessageAsJsonRepresentation(userMsgs.getSender(), userMsgs.getContent());
+                }
+                stringList.add(mail);
+            }
+            return stringList;
+        }
+        return null;
+    }
+}
+
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/service/UserManagement.java
+
+package service;
+
+import constant.Role;
+
+import message.UserMessage;
+import repository.Repository;
+import repository.UserRepository;
+import user.User;
+
+import java.util.List;
+
+import static utils.PropertiesUtils.AMOUNT_OF_AVAILABLE_UNREAD_MESSAGES;
+
+
+public class UserManagement {
+
+    private final Repository userRepository;
+    public static User activeUser;
+    private final MessageManagement messageManagement;
+
+        public UserManagement() {
+        this.userRepository = new UserRepository();
+        this.messageManagement = new MessageManagement(this.userRepository);
+    }
+
+    public String checkMailBox() {
+        if (isLoggedIn()) {
+            List<String> mailbox = messageManagement.checkMailBox(activeUser);
+            return (mailbox == null) ? "your mailbox is empty" : mailbox.toString();
+        } else {
+            return "you need to be logged in to check users";
+        }
+    }
+
+    public String loginUser(String nicknameToLogIn, String password)  {
+        if (!isLoggedIn()) {
+            activeUser = userRepository.findUserName(nicknameToLogIn);
+            if(activeUser.getNickName().equals(nicknameToLogIn) && activeUser.getPassword().equals(password)) {
+                return "user successfully logged in as: " + activeUser.getNickName();
+            }
+        }
+        activeUser = null;
+        return "login failed";
+    }
+
+    public String deleteUser(String name) {
+        if (canPerformAdminAction()) {
+            deleteUserFromDataBase(name);
+            return "user " + name + " deleted";
+        } else {
+            return "you don't have permission";
+        }
+    }
+
+    public String getUsers(){
+        if (isLoggedIn()) {
+            List<String> listOfUsers = showUsers();
+            return listOfUsers.toString();
+        } else {
+            return "you need to be logged in to check the list of users";
+        }
+    }
+
+    public String updateUserDataAsAdmin(String userNicknameToDataUpdate, String role, String password) {
+        if (canPerformAdminAction()) {
+            User user = findUser(userNicknameToDataUpdate);
+            if (user != null) {
+                if (!role.isEmpty()) {
+                    changeRoleName(user, role);
+                    updateUser(user);
+                    return "Role changed for user: " + user.getNickName();
+                }
+                if (!password.isEmpty()) {
+                    changePassword(user, password);
+                    updateUser(user);
+                    return "Password changed for user: " + user.getNickName();
+                }
+                return "No changes applied";
+            } else {
+                return "there is no such user in DB";
+            }
+        } else {
+            return "you need to be logged in as admin to update user data";
+        }
+    }
+
+    public String updateUserDataAsUser(String password) {
+        if (isLoggedIn()) {
+            User user = findUser(activeUser.getNickName());
+            if (user != null) {
+                changePassword(user, password);
+                updateUser(user);
+                return "Password changed for user: " + user.getNickName();
+            } else {
+                return "there is no such user in DB";
+            }
+        } else {
+            return "you need to be logged in to update user data";
+        }
+    }
+
+    private void changeRoleName(User user, String role){
+            if(user.getRole().equals(Role.USER) && role.equals("admin")) {
+                user.setRole(Role.ADMIN);
+            } else {
+                user.setRole(Role.USER);
+            }
+    }
+    private void changePassword(User user, String newPassword)  {
+        user.setPassword(newPassword);
+    }
+
+    public String createUser(String[] credentials) {
+        Role userRole = credentials[0].endsWith("_admin") ? Role.ADMIN : Role.USER;
+        if (userRole == Role.ADMIN) {
+            credentials[0] = credentials[0].substring(0, credentials[0].lastIndexOf("_admin"));
+        }
+
+        User user = new User(credentials[0], credentials[1], userRole);
+        saveUser(user);
+        return "User " + user.getNickName() + " created";
+    }
+
+    public String sendMsg(String receiver, String messageToSend) {
+        if (isLoggedIn()) {
+            UserMessage userMessage = new UserMessage(activeUser.getNickName(), receiver, messageToSend);
+            if(!isUserHasMoreThanNumberOfAvailableUnreadMessagesInMailbox(receiver)) {
+                messageManagement.sendMessage(userMessage);
+                return "message sent";
+            } else {
+                return "user has more than 5 unread messages";
+            }
+        } else {
+            return "you need to be logged in to send a message";
+        }
+    }
+
+    public String readMessage(String userChoice) {
+        if (isLoggedIn()) {
+            int numberOfMessage = Integer.parseInt(userChoice) - 1;
+            return messageManagement.readMessageFromMailBox(activeUser, numberOfMessage);
+        } else {
+            return "you need to be logged in to read messages";
+        }
+    }
+
+    private boolean isUserHasMoreThanNumberOfAvailableUnreadMessagesInMailbox(String receiver) {
+        User user = userRepository.findUserName(receiver);
+        return userRepository.checkUnreadMessages(user) >= AMOUNT_OF_AVAILABLE_UNREAD_MESSAGES;
+    }
+
+    private boolean isLoggedIn() {
+        return activeUser != null;
+    }
+
+    private boolean canPerformAdminAction() {
+        return isLoggedIn() && activeUser.getRole().equals(Role.ADMIN);
+    }
+
+    private void deleteUserFromDataBase(String nickname) {
+        userRepository.delete(nickname);
+    }
+
+    private void updateUser(User userWithUpdatedData) {
+        userRepository.update(userWithUpdatedData);
+    }
+
+    public User findUser(String nickname) {
+        return userRepository.findUserName(nickname);
+    }
+
+    private void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+    private List<String> showUsers() {
+        return userRepository.getAllUsers();
+    }
+
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/message/ServerMessage.java
+
+package message;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.time.Duration;
+import java.time.Instant;
+
+public class ServerMessage {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static String getHelp() {
+        ObjectNode helpCommandAsJson = objectMapper.createObjectNode();
+        helpCommandAsJson.put("info", "zwraca numer wersji serwera, date jego utworzenia");
+        helpCommandAsJson.put("uptime", "zwraca czas zycia serwera");
+        helpCommandAsJson.put("help", "zwraca liste dostepnych komend z krotkim opisem");
+        helpCommandAsJson.put("stop", "zatrzymuje jednoczesnie serwer i klienta");
+        helpCommandAsJson.put("create user","powoduje utworzenie nowego uzytkownika");
+        helpCommandAsJson.put("login", "logowanie sie na konto uzytkownika");
+
+        return helpCommandAsJson.toString();
+    }
+
+    public static String getInfo(String createdServerDate, String applicationVersion) {
+        ObjectNode infoCommandAsJson = objectMapper.createObjectNode();
+        infoCommandAsJson.put("createdServerDate", createdServerDate);
+        infoCommandAsJson.put("appVersion", applicationVersion);
+
+        return infoCommandAsJson.toString();
+    }
+
+    public static String getUpTime(Instant createdInstant) {
+        ObjectNode upTimeCommandAsJson = objectMapper.createObjectNode();
+        Duration duration = Duration.between(createdInstant, Instant.now());
+        long durationSeconds = duration.getSeconds() % 60;
+        long durationMinutes = duration.toMinutes() % 60;
+        long durationHours = duration.toHours();
+        long durationDays = duration.toDays();
+        upTimeCommandAsJson.put("days", durationDays);
+        upTimeCommandAsJson.put("hours", durationHours);
+        upTimeCommandAsJson.put("minutes", durationMinutes);
+        upTimeCommandAsJson.put("seconds", durationSeconds);
+
+        return upTimeCommandAsJson.toString();
+    }
+
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/message/UserMessage.java
+
+package message;
+
+public class UserMessage {
+
+    private String sender;
+    private String receiver;
+    private String content;
+    private boolean isRead;
+
+    public UserMessage(String sender, String receiver, String content) {
+        this.sender = sender;
+        this.receiver = receiver;
+
+        if(content.length() > 255) {
+            content = content.substring(0,255);
+        }
+        this.content = content;
+
+        this.isRead = false;
+    }
+    // this constructor should be because during deserialization (reading from file) error appears
+    public UserMessage() {
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/server/ServerConnectionImpl.java
+
+package server;
+
+
+import controller.RequestGetterController;
+import database.DataBaseManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import utils.Connection;
+import utils.PropertiesUtils;
+import utils.Stream;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.time.Instant;
+import java.time.LocalDate;
+
+
+public class ServerConnectionImpl implements Connection {
+
+    private final Instant createdInstant = Instant.now();
+    private final String createdServerDate = LocalDate.now().toString();
+    private Socket socket = null;
+    private ServerSocket serverSocket;
+    private Stream stream = null;
+    private RequestGetterController requestGetterController;
+    private static final Logger logger = LoggerFactory.getLogger(ServerConnectionImpl.class);
+
+
+    @Override
+    public void startConnection() {
+
+        try {
+            serverSocket = new ServerSocket(PropertiesUtils.serverPort);
+            socket = serverSocket.accept();
+            this.stream = new Stream(socket);
+            this.requestGetterController = new RequestGetterController(stream, createdServerDate, createdInstant);
+            while (true) {
+
+                String msgFromClient = userInput();
+
+                logger.info("Client: " + msgFromClient);
+
+                if (!msgFromClient.contains("stop")) {
+                    requestGetterController.getRequest(msgFromClient);
+                } else {
+                    logger.info("Received 'stop' command from client");
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Server encountered an error "+e.getMessage());
+        } finally {
+            closeConnection();
+        }
+    }
+
+    @Override
+    public void closeConnection() {
+        try {
+            serverSocket.close();
+            stream.closeStreams();
+            socket.close();
+            logger.info("Server: connection closed");
+        } catch (IOException e) {
+            logger.error("Attempt to close all streams failed", e);
+        }
+    }
+
+    private String userInput() throws IOException {
+        return stream.bufferedReader.readLine();
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/server/Server.java
+
+package server;
+
+
+import utils.Connection;
+
+public class Server {
+
+    Connection connection = new ServerConnectionImpl();
+
+    public static void main(String[] args){
+        Server server = new Server();
+        server.connection.startConnection();
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/utils/Stream.java
+
+package utils;
+
+import java.io.*;
+import java.net.Socket;
+
+public class Stream {
+
+    public BufferedReader bufferedReader;
+    public PrintWriter printWriter;
+
+
+    public Stream(Socket socket) throws IOException {
+
+        this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+    }
+
+    public void closeStreams() throws IOException {
+        printWriter.close();
+        bufferedReader.close();
+    }
+
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/utils/Connection.java
+
+package utils;
+
+
+public interface Connection {
+
+    void startConnection();
+    void closeConnection();
+
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/utils/PropertiesUtils.java
+
+package utils;
+
+public class PropertiesUtils {
+
+    public static int serverPort = 1234;
+    public static String hostNameServer = "localhost";
+    public static String applicationVersion = "3.1.0";
+    public static final int  AMOUNT_OF_AVAILABLE_UNREAD_MESSAGES = 5;
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/client/ClientConnectionImpl.java
+
+package client;
+
+import database.DataBaseManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import utils.Connection;
+import utils.PropertiesUtils;
+import utils.Stream;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class ClientConnectionImpl implements Connection {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClientConnectionImpl.class);
+
+    private final int serverPort = PropertiesUtils.serverPort;
+    private final String hostNameServer = PropertiesUtils.hostNameServer;
+    private Socket socket = null;
+    private Stream stream = null;
+
+    @Override
+    public void startConnection() {
+        try {
+            socket = new Socket(hostNameServer, serverPort);
+            this.stream = new Stream(socket);
+
+            communicationWithServer();
+
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        } finally {
+            closeConnection();
+        }
+    }
+
+    private void communicationWithServer() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String msgToServer = scanner.nextLine();
+            stream.printWriter.println(msgToServer);
+
+            String msgFromServer = stream.bufferedReader.readLine();
+            if (msgFromServer == null && msgToServer.equals("stop")) {
+                break;
+            }
+            System.out.println("Server: " + msgFromServer);
+        }
+        scanner.close();
+    }
+
+    @Override
+    public void closeConnection() {
+        try {
+            stream.closeStreams();
+            socket.close();
+            logger.info("Client: connection closed");
+        } catch (IOException e) {
+            logger.error("Attempt to close all streams failed", e);
+        }
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/client/Client.java
+
+package client;
+
+import utils.Connection;
+
+public class Client {
+
+    Connection connection = new ClientConnectionImpl();
+
+    public static void main(String[] args) {
+        Client client = new Client();
+        client.connection.startConnection();
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/constant/Role.java
+
+package constant;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public enum Role {
+
+    @JsonProperty("ADMIN")
+    ADMIN,
+    @JsonProperty("USER")
+    USER
+
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/controller/RequestGetterController.java
+
+package controller;
+
+import constant.Role;
+import message.ServerMessage;
+import service.UserManagement;
+import utils.PropertiesUtils;
+import utils.Stream;
+
+import java.io.IOException;
+import java.time.Instant;
+
+import static service.UserManagement.activeUser;
+
+public class RequestGetterController {
+
+    private final Stream stream;
+    private final Instant createdInstant;
+    private final String createdServerDate;
+    private UserManagement userManagement;
+
+    public RequestGetterController(Stream stream, String date, Instant instant) {
+        this.stream = stream;
+        this.createdInstant = instant;
+        this.createdServerDate = date;
+        this.userManagement = new UserManagement();
+    }
+
+    public String getRequest(String commandFromClient) throws IOException {
+        switch (commandFromClient) {
+            case "help":
+                stream.printWriter.println(ServerMessage.getHelp());
+                return"";
+            case "info":
+                stream.printWriter.println(ServerMessage.getInfo(createdServerDate, PropertiesUtils.applicationVersion));
+                return"";
+            case "uptime":
+                stream.printWriter.println(ServerMessage.getUpTime(createdInstant));
+                return"";
+            case "create user":
+                createANewUser();
+                return"";
+            case "delete user":
+                getUserNickNameToDelete();
+                return"";
+            case "update user":
+                updateUserData();
+                return"";
+            case "login":
+                logIn();
+                return"";
+            case "show users":
+                getAllExistingUsers();
+                return"";
+            case "send msg":
+                sendMsgToUser();
+                return"";
+            case "check mailbox":
+                checkUserMailBox();
+                return"";
+            case "read mail":
+                readUserMessage();
+                return"";
+            default:
+                invalidCommand();
+        }
+        return commandFromClient;
+    }
+
+    private void readUserMessage() throws IOException {
+        if (activeUser != null) {
+            stream.printWriter.println("please type number of message to read it: 1 or 2 and etc.");
+            String userChoice = userInput();
+            stream.printWriter.println(userManagement.readMessage(userChoice));
+        }
+    }
+
+    private void checkUserMailBox() {
+        stream.printWriter.println(userManagement.checkMailBox());
+    }
+
+    private void sendMsgToUser() throws IOException {
+        if (activeUser == null) {
+            stream.printWriter.println("first log in to send msg --> ");
+
+        } else {
+            stream.printWriter.println("to which user do you want send a msg?");
+            String receiver = userInput();
+            stream.printWriter.println("type you message. Remember only 255 characters");
+            String messageToSend = userInput();
+            stream.printWriter.println(userManagement.sendMsg(receiver, messageToSend));
+        }
+    }
+
+    private void getAllExistingUsers() {
+        stream.printWriter.println(userManagement.getUsers());
+    }
+
+    private void createANewUser() throws IOException {
+        stream.printWriter.println("write name");
+        String name = userInput();
+        stream.printWriter.println("write password");
+        String password = userInput();
+        String[] credentialsForNewUser = new String[] {name,password};
+        stream.printWriter.println(userManagement.createUser(credentialsForNewUser));
+    }
+
+    private void logIn() throws IOException {
+        if(activeUser == null) {
+            stream.printWriter.println("write login:");
+            String login = userInput();
+            stream.printWriter.println("write password:");
+            String password = userInput();
+            stream.printWriter.println(userManagement.loginUser(login, password));
+        } else {
+            logout();
+            stream.printWriter.println("You have been logged out from active profile, if you want to login to other account, please login again");
+        }
+    }
+    private void logout() {
+        activeUser = null;
+    }
+
+    private void getUserNickNameToDelete() throws IOException {
+        stream.printWriter.println("write nickname to delete user");
+        String name = userInput();
+        if(!name.isEmpty()) {
+            stream.printWriter.println(userManagement.deleteUser(name));
+        } else {
+            stream.printWriter.println("didn't write nickname");
+        }
+    }
+
+    private void updateUserData() throws IOException {
+        String nickname = "";
+        String role = "";
+        String password = "";
+        if(activeUser.getRole().equals(Role.ADMIN)) {
+            stream.printWriter.println("write nickname to update");
+            nickname = userInput();
+            stream.printWriter.println("what do you want to update: role or password?");
+            String choice = userInput();
+            if (choice.equals("role")) {
+                stream.printWriter.println("which role do you want to add--> ADMIN/USER ? "); //
+                role = userInput().toLowerCase();
+            }
+            if (choice.equals("password")) {
+                stream.printWriter.println("Write new password: ");
+                password = userInput().toLowerCase();
+            }
+            stream.printWriter.println(userManagement.updateUserDataAsAdmin(nickname, role, password));
+
+        } else if (activeUser.getRole().equals(Role.USER)) {
+            stream.printWriter.println("Write new password: ");
+            password = userInput().toLowerCase();
+            stream.printWriter.println(userManagement.updateUserDataAsUser(password));
+        }
+    }
+
+    private String userInput() throws IOException {
+        return stream.bufferedReader.readLine();
+    }
+
+    private void invalidCommand() {
+        stream.printWriter.println("There is no such command");
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/user/User.java
+
+package user;
+
+
+import constant.Role;
+import message.UserMessage;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class User {
+
+    private String nickName;
+    private String password;
+    private Role userRole;
+    private List<UserMessage> mailBox;
+
+    public User(String nickName, String password, Role userRole) {
+        this.nickName = nickName;
+        this.password = password;
+        this.userRole = userRole;
+        if(this.userRole.equals(Role.USER)) {
+            this.mailBox = new ArrayList<>(5);
+        } else {
+            this.mailBox = new ArrayList<>();
+        }
+    }
+
+    public User(String nickName, String password) {
+        this.nickName = nickName;
+        this.password = password;
+    }
+
+    // this constructor should be because during deserialization (reading from file) error appears
+    public User() {
+    }
+
+    public String getNickName() { return nickName; }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Role getRole() {
+        return userRole;
+    }
+
+    public List<UserMessage> getMailBox() {
+        return mailBox;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(Role userRole) {
+        this.userRole = userRole;
+    }
+
+    public void setMailBox(List<UserMessage> mailBox) {
+        this.mailBox = mailBox;
+    }
+
+    @Override
+    public String toString() {
+        return this.getNickName();
+    }
+}
+
+
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/repository/UserRepository.java
+
+package repository;
+
+import database.DataBaseManager;
+import message.UserMessage;
+import user.User;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class UserRepository implements Repository {
+
+    private final DataBaseManager dataBaseManager;
+
+    public UserRepository() {
+        this.dataBaseManager = new DataBaseManager();
+    }
+
+    @Override
+    public List<String> getAllUsers() {
+        return dataBaseManager.getAllExistingUsers();
+    }
+
+    @Override
+    public void save(User user) {
+        dataBaseManager.add(user);
+    }
+
+    @Override
+    public void addMessageToMailbox(UserMessage sentMessage) {
+        dataBaseManager.addMessageToUserMessageTable(sentMessage);
+
+    }
+    @Override
+    public void update(User userWithNewUpdatedData) {
+       dataBaseManager.updateUserData(userWithNewUpdatedData);
+    }
+
+    @Override
+    public void delete(String nickname) {
+        User foundUserToDelete = findUserName(nickname);
+        dataBaseManager.deleteUserFromDB(foundUserToDelete);
+    }
+    @Override
+    public User findUserName(String name) {
+        return dataBaseManager.findUserInDB(name);
+    }
+
+    @Override
+    public List<UserMessage> getUserMailBox(User user) {
+        return dataBaseManager.getUserMessages(user);
+    }
+
+    public int checkUnreadMessages(User user) {
+        return dataBaseManager.countUnReadUserMessages(user);
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/repository/Repository.java
+
+package repository;
+
+import message.UserMessage;
+import user.User;
+
+import java.util.List;
+
+public interface Repository {
+
+    void save(User user);
+    void update(User userWithNewUpdatedData);
+    void delete(String nickname);
+    User findUserName(String name);
+    List<String> getAllUsers();
+    List<UserMessage> getUserMailBox(User user);
+    void addMessageToMailbox(UserMessage sentMessage);
+    int checkUnreadMessages(User user);
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/main/java/database/DataBaseManager.java
+
+package database;
+
+import constant.Role;
+import message.UserMessage;
+import org.jooq.*;
+import org.jooq.Record;
+import org.jooq.impl.DSL;
+import user.User;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.stream.Collectors;
+
+
+import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.SQLDataType.*;
+
+public class DataBaseManager {
+
+    private final String USER_NAME = "<USERNAME>";
+    private final String PASSWORD = "<PASSWORD>";
+    private final String DATABASE = "<DATABASE_NAME>";
+    private final String USERS_TABLE = "users";
+    private final String USER_MESSAGE = "usermessage";
+    private final String URL = String.format("jdbc:postgresql://localhost:5432/%s", DATABASE);
+    private Connection connection;
+    private DSLContext context;
+    private static final Logger logger = LoggerFactory.getLogger(DataBaseManager.class);
+
+
+    public DataBaseManager() {
+        startConnection();
+    }
+
+    public void startConnection() {
+        try {
+            connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
+            this.context = DSL.using(connection, SQLDialect.POSTGRES);
+            createUserTable(context);
+            createUserMessageTable(context);
+        } catch (SQLException sqlException) {
+            logger.error("Błąd podczas otwierania połączenia z bazą danych: {}", sqlException.getMessage());
+            closeDBConnection();
+        }
+    }
+
+    public void closeDBConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException sqlException) {
+            logger.error("Błąd podczas zamykania połączenia: {}", sqlException.getMessage());
+        }
+    }
+
+    private void createUserTable(DSLContext context) {
+        context.createTableIfNotExists(USERS_TABLE)
+                .column("id", INTEGER.identity(true))
+                .column("nickname", VARCHAR)
+                .column("password", VARCHAR)
+                .column("user_role", VARCHAR(5))
+                .constraints(
+                        constraint().primaryKey("id"))
+                .execute();
+    }
+
+    private void createUserMessageTable(DSLContext context) {
+        context.createTableIfNotExists(USER_MESSAGE)
+                .column("sender", VARCHAR)
+                .column("receiver", VARCHAR)
+                .column("content", VARCHAR(255))
+                .column("is_read", BOOLEAN)
+                .column("user_id", INTEGER)
+                .constraints(
+                        constraint().foreignKey("user_id")
+                                .references("users", "id")  // Ustawienie klucza obcego
+                )
+                .execute();
+    }
+    public void add(User user) {
+        context.insertInto(table(USERS_TABLE))
+                .set(field("nickname"),user.getNickName())
+                .set(field("password"), user.getPassword())
+                .set(field("user_role"),user.getRole().toString())
+                .execute();
+
+        Result<Record> record = context.select(asterisk()).from(table("users")).fetch();
+        logger.info(String.valueOf(record));
+    }
+
+    public void addMessageToUserMessageTable(UserMessage sentMessage) {
+        Record record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(sentMessage.getReceiver())).fetchOne();
+        if (record1 != null) {
+            int idOfUser = record1.getValue(field("id", Integer.class));
+            context.insertInto(table(USER_MESSAGE))
+                    .set(field("sender"), sentMessage.getSender())
+                    .set(field("receiver"), sentMessage.getReceiver())
+                    .set(field("content"), sentMessage.getContent())
+                    .set(field("is_read"), sentMessage.isRead())
+                    .set(field("user_id"), idOfUser)
+                    .execute();
+        } else {
+            logger.info("Użytkownik o podanym nicku nie istnieje.");
+        }
+    }
+
+    public User findUserInDB(String name) {
+        try {
+            Record record1 = context.select(asterisk()).from(table(USERS_TABLE)).where(field("nickname").eq(name)).fetchOne();
+            assert record1 != null;
+
+            String nickname = record1.getValue(field("nickname", String.class));
+            String password = record1.getValue(field("password", String.class));
+            String roleString = record1.getValue(field("user_role", String.class));
+            Role role = Role.valueOf(roleString);
+
+            return new User(nickname, password, role);
+        }
+        catch (Exception e) {
+            logger.error("nie znaleziono takiego uzytkownika w bazie danych: {}", e.getMessage());
+        }
+        return new User();
+    }
+
+    public int countUnReadUserMessages(User user) {
+        int userId = getUserId(user);
+
+        return context.fetchCount(
+                table(USER_MESSAGE)
+                        .where(field("is_read").eq(false).and(field("user_id").eq(userId)))
+        );
+    }
+
+    public List<UserMessage> getUserMessages(User user) {
+        int idUser = getUserId(user);
+
+        Result<Record> result = context.select().from(table(USER_MESSAGE)).where(field("user_id").eq(idUser)).fetch();
+
+        List<UserMessage> userMessages = new ArrayList<>();
+        for (Record record : result) {
+            String sender = record.getValue(field("sender", String.class));
+            String receiver = record.getValue(field("receiver", String.class));
+            String content = record.getValue(field("content", String.class));
+            boolean isRead = record.getValue(field("is_read", Boolean.class));
+
+            UserMessage userMessage = new UserMessage(sender, receiver, content);
+            userMessage.setRead(isRead);
+
+            userMessages.add(userMessage);
+        }
+
+        return userMessages;
+    }
+
+    public void deleteUserFromDB(User user) {
+        int userId = getUserId(user);
+        context.deleteFrom(table("users"))
+                .where(field("id").eq(userId))
+                .execute();
+    }
+
+    public List<String> getAllExistingUsers() {
+        Result<Record1<String>> result = context.select(field("nickname", String.class)).from(table(USERS_TABLE)).fetch();
+
+        return result.stream()
+                .map(record -> record.getValue(field("nickname", String.class)))
+                .collect(Collectors.toList());
+    }
+
+    public void updateUserData(User updatedUser) {
+        int userId = getUserId(updatedUser);
+        if(userId != 0) {
+            List<UserMessage> userMessages = updatedUser.getMailBox();
+
+            context.update(table(USERS_TABLE))
+                    .set(field("nickname"), updatedUser.getNickName())
+                    .set(field("password"), updatedUser.getPassword())
+                    .set(field("user_role"), updatedUser.getRole().toString())
+                    .where(field("id").eq(userId))
+                    .execute();
+
+            for (UserMessage message : userMessages) {
+                context.update(table(USER_MESSAGE))
+                        .set(field("is_read"), message.isRead())
+                        .where(field("user_id").eq(userId)
+                                .and(field("sender").eq(message.getSender()))
+                                .and(field("receiver").eq(message.getReceiver()))
+                                .and(field("content").eq(message.getContent())))
+                        .execute();
+            }
+        }else {
+            logger.info("nie znaleziono uzytkownika");
+        }
+    }
+
+    private int getUserId(User user){
+        Record1<Object> record1 = context.select(field("id")).from(table(USERS_TABLE)).where(field("nickname").eq(user.getNickName())).fetchOne();
+        if(record1 != null) {
+            return (int) record1.getValue(field("id"));
+        }
+        return 0;
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/test/java/clientServer/server/unitTests/UserTest.java
+
+package clientServer.server.unitTests;
+
+import constant.Role;
+import org.junit.jupiter.api.Test;
+import user.User;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class UserTest {
+
+    private String nickName = "JanKowalski";
+    private String password = "secretPassword";
+    private Role roleAsUser = Role.USER;
+    private Role roleAsAdmin = Role.ADMIN;
+
+
+    @Test
+    void shouldCreateUserWithUserRole(){
+        User user = new User(nickName,password,roleAsUser);
+        assertEquals(user.getRole(), Role.USER);
+    }
+
+    @Test
+    void shouldCreateUserWithAdminRole(){
+        User user = new User(nickName,password,roleAsAdmin);
+        assertEquals(user.getRole(), Role.ADMIN);
+    }
+
+    @Test
+    void shouldCreateUserWithSpecificCredentials() {
+        User user = new User(nickName,password,roleAsUser);
+        assertEquals(nickName, user.getNickName());
+        assertEquals(password,user.getPassword());
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/test/java/clientServer/server/unitTests/UserManagementTestHelper.java
+
+package clientServer.server.unitTests;
+
+import service.UserManagement;
+import user.User;
+
+public class UserManagementTestHelper {
+
+    public UserManagementTestHelper() {
+    }
+
+    public static String[] createCredentials() {
+        String name = "tata";
+        String[] credentials = {name, "tataPassword"};
+        return credentials;
+    }
+
+    public User createTemporaryUser(){
+        String name = "tata";
+        String[] credentialsUser = {name, "tataPassword"};
+        User user = new User(credentialsUser[0],credentialsUser[1]);
+        return user;
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/test/java/clientServer/server/unitTests/MessageManagementTest.java
+
+package clientServer.server.unitTests;
+
+import constant.Role;
+import message.UserMessage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import service.MessageManagement;
+import user.User;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+public class MessageManagementTest {
+
+    private String sender = "Sender";
+    private String receiver = "Receiver";
+    private String content = "contentOfMessage";
+    private String password = "dummyPassword";
+    private User user;
+    private List<UserMessage> mailbox;
+    private UserMessage newUserMessage;
+    private UserMessage newUserMessage2;
+
+    private MessageManagement messageManagement;
+
+    @BeforeEach
+    public void setUp() {
+        messageManagement = mock(MessageManagement.class);
+        user = new User(sender, password, Role.USER);
+        mailbox = new ArrayList<>();
+        newUserMessage = new UserMessage(sender,receiver,content);
+        newUserMessage2 = new UserMessage(sender,receiver,content);
+    }
+
+    @Test
+    public void shouldReturnMessagesFromMailBox() {
+        user.setMailBox(mailbox);
+        List<String> arrayWithContent = new ArrayList<>();
+
+        arrayWithContent.add(newUserMessage.toString());
+        arrayWithContent.add(newUserMessage2.toString());
+        when(messageManagement.checkMailBox(user)).thenReturn(arrayWithContent);
+
+        List<String> result = messageManagement.checkMailBox(user);
+
+        assertEquals(2, result.size());
+
+        verify(messageManagement, atLeastOnce()).checkMailBox(user);
+    }
+
+    @Test
+    public void shouldReturnReadMessageFromUserMailBox() {
+        int indexOfMessage = 0;
+
+        mailbox.add(newUserMessage);
+        mailbox.add(newUserMessage2);
+        user.setMailBox(mailbox);
+        UserMessage userMessageFromUserMailbox = mailbox.get(indexOfMessage);
+        when(messageManagement.readMessageFromMailBox(user, indexOfMessage)).thenReturn(userMessageFromUserMailbox.getSender() + ": " + userMessageFromUserMailbox.getContent());
+        String response = messageManagement.readMessageFromMailBox(user, indexOfMessage);
+
+        assertEquals(userMessageFromUserMailbox.getSender() + ": " + userMessageFromUserMailbox.getContent(),response);
+
+        verify(messageManagement, atLeastOnce()).readMessageFromMailBox(user, indexOfMessage);
+    }
+
+    @Test
+    public void shouldReturnMessageAsJsonRepresentation() {
+        when(messageManagement.getMessageAsJsonRepresentation("UserName", content)).thenReturn("{\"UserName\":\"contentOfMessage\"}");
+
+        String messageAsJson = messageManagement.getMessageAsJsonRepresentation("UserName", content);
+        String expectedResult = "{\"UserName\":\"contentOfMessage\"}";
+        assertEquals(expectedResult, messageAsJson);
+
+    }
+
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/test/java/clientServer/server/unitTests/ServerMessageTest.java
+
+package clientServer.server.unitTests;
+
+import message.ServerMessage;
+import org.junit.jupiter.api.Test;
+import utils.PropertiesUtils;
+
+import java.time.Instant;
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ServerMessageTest {
+
+    private final String createdServerDate = LocalDate.now().toString();
+    private final String appVersion = PropertiesUtils.applicationVersion;
+
+    @Test
+    void shouldReturnServerInfo(){
+
+        String infoCommand = ServerMessage.getInfo(createdServerDate, appVersion);
+        assertEquals(infoCommand, "{\"createdServerDate\":\""+createdServerDate+"\",\"appVersion\":\""+appVersion+"\"}");
+    }
+
+    @Test
+    void shouldReturnServerUpTimeAfterSpecificTime() throws InterruptedException {
+        Instant createdInstant = Instant.now();
+        Thread.sleep(5000);
+        String upTimeCommand = ServerMessage.getUpTime(createdInstant);
+        String time = "{\"days\":0,\"hours\":0,\"minutes\":0,\"seconds\":5}";
+        assertEquals(upTimeCommand, time);
+    }
+
+    @Test
+    void shouldReturnServerHelpCommand(){
+        String helpCommand = ServerMessage.getHelp();
+        assertEquals(helpCommand, "{\"info\":\"zwraca numer wersji serwera, date jego utworzenia\",\"uptime\":\"zwraca czas zycia serwera\",\"help\":\"zwraca liste dostepnych komend z krotkim opisem\",\"stop\":\"zatrzymuje jednoczesnie serwer i klienta\",\"create user\":\"powoduje utworzenie nowego uzytkownika\",\"login\":\"logowanie sie na konto uzytkownika\"}");
+    }
+}
+
+====================
+FILE: /home/grzegor/IdeaProjects/client-server/src/test/java/clientServer/server/unitTests/UserManagementTest.java
+
+package clientServer.server.unitTests;
+
+
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import service.UserManagement;
+import user.User;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+public class UserManagementTest {
+
+    private final UserManagement userManagement;
+    private UserManagementTestHelper userManagementTestHelper;
+    private User userTempName;
+
+
+    public UserManagementTest() {
+        userManagement = mock(UserManagement.class);
+        userManagementTestHelper = new UserManagementTestHelper();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        userTempName = userManagementTestHelper.createTemporaryUser();
+    }
+
+
+    @Test
+    void shouldReturnCreatedUserWithSuccess() {
+        String[] credentials = UserManagementTestHelper.createCredentials();
+        when(userManagement.createUser(credentials)).thenReturn("User " +credentials[0] + " created");
+        String infoFromServer = userManagement.createUser(credentials);
+
+        assertEquals("User " +credentials[0] + " created",infoFromServer);
+    }
+
+    @Test
+    void shouldDeleteUserAsAdmin() {
+        when(userManagement.deleteUser(userTempName.getNickName())).thenReturn("user " +userTempName.getNickName()+ " deleted");
+        String response = userManagement.deleteUser(userTempName.getNickName());
+
+        assertEquals("user " +userTempName+ " deleted",response);
+    }
+
+    @Test
+    void shouldReturnExistingUsers() {
+        when(userManagement.getUsers()).thenReturn("[tata, tata_admin]");
+        String response =userManagement.getUsers();
+
+        assertEquals("[tata, tata_admin]", response);
+        verify(userManagement, atLeastOnce()).getUsers();
+    }
+
+    @Test
+    void shouldSendMsgWithSuccess(){
+        when(userManagement.sendMsg(userTempName.getNickName(), "hej")).thenReturn("message sent");
+        String response = userManagement.sendMsg(userTempName.getNickName(), "hej");
+
+        assertEquals("message sent", response);
+        verify(userManagement, atLeastOnce()).sendMsg(userTempName.getNickName(), "hej");
+    }
+}
+

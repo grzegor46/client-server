@@ -22,9 +22,9 @@ import static org.jooq.impl.SQLDataType.*;
 
 public class DataBaseManager {
 
-    private final String USER_NAME = "grzegor";
-    private final String PASSWORD = "eztddwzz";
-    private final String DATABASE = "grzegor_db";
+    private final String USER_NAME = "<USERNAME>";
+    private final String PASSWORD = "<PASSWORD>";
+    private final String DATABASE = "<DATABASE_NAME>";
     private final String USERS_TABLE = "users";
     private final String USER_MESSAGE = "usermessage";
     private final String URL = String.format("jdbc:postgresql://localhost:5432/%s", DATABASE);
